@@ -50,6 +50,9 @@ public class StockRequestService {
     // STATE CHANGES
     // =====================================================
 
+
+
+    //add vendor forwarding function here
     public StockRequestDto approve(Integer requestId) {
         ctx.requireRole("STORE_MANAGER");
 
@@ -60,6 +63,7 @@ public class StockRequestService {
 
         request.setApprovedBy(approver);
         request.setStatus("APPROVED");
+
 
         return toDto(stockRequestsRepository.save(request));
     }

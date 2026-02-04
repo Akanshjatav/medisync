@@ -25,6 +25,11 @@ public class StockRequests {
     @JoinColumn(name = "approved_by")
     private Users approvedBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "forwarded_to_vendor_id")
+    private Vendor forwardedToVendor;
+
+
     // No enums: "PENDING", "APPROVED", "REJECTED", "FULFILLED", "CANCELLED"
     @Column(nullable = false, length = 20)
     private String status;
