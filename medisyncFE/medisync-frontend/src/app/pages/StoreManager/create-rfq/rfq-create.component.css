@@ -1,0 +1,35 @@
+/* rfq-create.component.css */
+
+:host {
+  display: block;
+  min-height: 100vh;            /* fills the viewport */
+  box-sizing: border-box;
+}
+
+/* Full-page shell just for this screen (until you plug in Header/Footer/Sidebar) */
+.page-full {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;                /* page padding */
+}
+
+/* Scrollable main area */
+.page-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Temporary footer (remove when your Footer component is ready) */
+.page-footer {
+  margin-top: 12px;
+  text-align: center;
+  color: #515151;
+  font-size: 12px;
+}
+
+/* Your existing helper styles */
+input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
+  border-color: #c0392b !important;
+}
+.form-hint { color:#c0392b; font-size:12px; margin-top:6px; }

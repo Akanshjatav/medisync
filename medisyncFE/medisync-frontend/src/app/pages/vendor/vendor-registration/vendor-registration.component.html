@@ -1,0 +1,252 @@
+<div class="page-wrapper">
+  <div class="band">
+    <header role="banner">
+      <div class="container">
+        <nav class="nav" aria-label="Primary navigation">
+          <div class="brand">
+            <div class="mark"></div>
+            <div class="brand-title">
+              <strong>MediSync</strong>
+              <small>Vendor onboarding</small>
+            </div>
+          </div>
+          <div class="navlinks">
+            <a routerLink="/">Home</a>
+            <a routerLink="/login">Log in</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <div class="eyebrow"><span class="dot"></span> Vendor registration • Step-by-step</div>
+        <h1>Register your business to access MediSync tenders.</h1>
+        <p>Complete your business profile, contact details, address, and upload compliance documents.</p>
+      </div>
+    </section>
+  </div>
+
+  <main id="main">
+    <div class="container">
+      <div class="shell">
+        <div class="toprow">
+          <div class="crumbs">
+            <a routerLink="/">← Back to Landing</a>
+            <span>•</span>
+            <span>Vendor Registration</span>
+          </div>
+          <div class="actions">
+            <button class="btn ghost" type="button" (click)="restoreDraft()">Restore Draft</button>
+            <button class="btn secondary" type="button" (click)="saveDraft()">Save as Draft</button>
+          </div>
+        </div>
+
+        <div class="stepper">
+          <div class="steps">
+            <div class="step" *ngFor="let step of steps" 
+                 [class.active]="step.index === currentStep"
+                 [class.done]="step.index < currentStep"
+                 (click)="setStep(step.index)">
+              <span class="n">{{ step.index + 1 }}</span> {{ step.label }}
+            </div>
+          </div>
+          <div class="progress">
+            <span [style.width]="progressPercentage"></span>
+          </div>
+        </div>
+
+        <form [formGroup]="registrationForm" (ngSubmit)="submit()">
+          <div class="body">
+
+            <fieldset [class.active]="currentStep === 0" formGroupName="business">
+              <legend>Business Details</legend>
+              <p class="hint">Tell us about your business. Fields marked <span class="req">*</span> are required.</p>
+              
+              <div class="grid">
+                <div>
+                  <label>Business Name <span class="req">*</span></label>
+                  <input type="text" formControlName="businessName" [class.error-border]="businessGroup.get('businessName')?.invalid && businessGroup.get('businessName')?.touched">
+                  <div class="field-error" *ngIf="businessGroup.get('businessName')?.invalid && businessGroup.get('businessName')?.touched">
+                    Name is required (2-80 chars).
+                  </div>
+                </div>
+
+                <div>
+                  <label>GST Number <span class="req">*</span></label>
+                  <input type="text" formControlName="gstNumber" placeholder="e.g., 32ABCDE1234F1Z5">
+                  <div class="field-error" *ngIf="businessGroup.get('gstNumber')?.invalid && businessGroup.get('gstNumber')?.touched">
+                    Valid GST Number is required.
+                  </div>
+                </div>
+
+                <div>
+                  <label>Business Type <span class="req">*</span></label>
+                  <select formControlName="businessType">
+                    <option value="">Select</option>
+                    <option>Manufacturer</option>
+                    <option>Distributor</option>
+                    <option>Wholesaler</option>
+                    <option>Retailer</option>
+                    <option>Service Provider</option>
+                  </select>
+                  <div class="field-error" *ngIf="businessGroup.get('businessType')?.invalid && businessGroup.get('businessType')?.touched">
+                    Please select a type.
+                  </div>
+                </div>
+
+                <div>
+                  <label>Year of Establishment <span class="req">*</span></label>
+                  <input type="number" formControlName="yearOfEstablishment" placeholder="e.g., 2012">
+                  <div class="field-error" *ngIf="businessGroup.get('yearOfEstablishment')?.invalid && businessGroup.get('yearOfEstablishment')?.touched">
+                    Valid year (1800-2099) required.
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="note">Tip: GST format is validated lightly here.</div>
+                <div class="actions">
+                  <button class="btn primary" type="button" (click)="next()">Next →</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset [class.active]="currentStep === 1" formGroupName="contact">
+              <legend>Contact Details</legend>
+              <div class="grid">
+                <div>
+                  <label>Primary Email <span class="req">*</span></label>
+                  <input type="email" formControlName="primaryEmail" placeholder="name@company.com">
+                  <div class="field-error" *ngIf="contactGroup.get('primaryEmail')?.invalid && contactGroup.get('primaryEmail')?.touched">
+                    Valid email is required.
+                  </div>
+                </div>
+
+                <div>
+                  <label>Primary Phone <span class="req">*</span></label>
+                  <input type="tel" formControlName="primaryPhone" placeholder="+91 9xxxx xxxxx">
+                  <div class="field-error" *ngIf="contactGroup.get('primaryPhone')?.invalid && contactGroup.get('primaryPhone')?.touched">
+                    Valid phone number required.
+                  </div>
+                </div>
+
+                <div>
+                  <label>Alternate Phone</label>
+                  <input type="tel" formControlName="alternatePhone" placeholder="Optional">
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="actions">
+                  <button class="btn ghost" type="button" (click)="prev()">← Back</button>
+                  <button class="btn primary" type="button" (click)="next()">Next →</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset [class.active]="currentStep === 2" formGroupName="address">
+              <legend>Address</legend>
+              <div class="grid">
+                <div>
+                  <label>Address Line 1 <span class="req">*</span></label>
+                  <input type="text" formControlName="address1">
+                  <div class="field-error" *ngIf="addressGroup.get('address1')?.invalid && addressGroup.get('address1')?.touched">
+                    Address is required.
+                  </div>
+                </div>
+                <div>
+                  <label>Address Line 2</label>
+                  <input type="text" formControlName="address2">
+                </div>
+                <div>
+                  <label>City <span class="req">*</span></label>
+                  <input type="text" formControlName="city">
+                  <div class="field-error" *ngIf="addressGroup.get('city')?.invalid && addressGroup.get('city')?.touched">
+                    City is required.
+                  </div>
+                </div>
+                <div>
+                  <label>State/UT <span class="req">*</span></label>
+                  <select formControlName="state">
+                    <option value="">Select</option>
+                    <option>Andhra Pradesh</option>
+                    <option>Kerala</option>
+                    <option>Tamil Nadu</option>
+                    <option>Karnataka</option>
+                    <option>Maharashtra</option>
+                    <option>Delhi</option>
+                    </select>
+                  <div class="field-error" *ngIf="addressGroup.get('state')?.invalid && addressGroup.get('state')?.touched">
+                    State is required.
+                  </div>
+                </div>
+                <div>
+                  <label>PIN Code <span class="req">*</span></label>
+                  <input type="text" formControlName="pin" placeholder="e.g., 695001">
+                  <div class="field-error" *ngIf="addressGroup.get('pin')?.invalid && addressGroup.get('pin')?.touched">
+                    Valid 6-digit PIN required.
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="actions">
+                  <button class="btn ghost" type="button" (click)="prev()">← Back</button>
+                  <button class="btn primary" type="button" (click)="next()">Next →</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset [class.active]="currentStep === 3" formGroupName="documents">
+              <legend>Upload Documents</legend>
+              <div class="grid">
+                <div class="filebox">
+                  <label>GST Certificate <span class="req">*</span></label>
+                  <input type="file" (change)="onFileSelected($event, 'docGst')" accept=".pdf,.jpg,.jpeg,.png">
+                  <div class="filename">{{ fileNames['docGst'] }}</div>
+                  <div class="field-error" *ngIf="documentsGroup.get('docGst')?.errors?.['required'] && documentsGroup.get('docGst')?.touched">
+                    File required.
+                  </div>
+                </div>
+
+                <div class="filebox">
+                  <label>PAN <span class="req">*</span></label>
+                  <input type="file" (change)="onFileSelected($event, 'docPan')" accept=".pdf,.jpg,.jpeg,.png">
+                  <div class="filename">{{ fileNames['docPan'] }}</div>
+                </div>
+
+                <div class="filebox" style="grid-column: 1 / -1;">
+                  <label>Business License <span class="req">*</span></label>
+                  <input type="file" (change)="onFileSelected($event, 'docLicense')" accept=".pdf,.jpg,.jpeg,.png">
+                  <div class="filename">{{ fileNames['docLicense'] }}</div>
+                </div>
+              </div>
+
+              <div class="check" style="margin-top:14px;">
+                <input type="checkbox" formControlName="confirmAccurate">
+                <p>I confirm that the details provided are accurate. <span class="req">*</span></p>
+              </div>
+              <div class="field-error" *ngIf="documentsGroup.get('confirmAccurate')?.invalid && documentsGroup.get('confirmAccurate')?.touched">
+                You must confirm accuracy.
+              </div>
+
+              <div class="row">
+                <div class="actions">
+                  <button class="btn ghost" type="button" (click)="prev()">← Back</button>
+                  <button class="btn secondary" type="submit">Submit</button>
+                  <button class="btn ghost" type="button" (click)="resetForm()">Cancel</button>
+                </div>
+              </div>
+            </fieldset>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" *ngIf="toastMessage">
+    <strong>{{ toastMessage.title }}</strong>
+    <small>{{ toastMessage.msg }}</small>
+  </div>
+</div>

@@ -1,0 +1,175 @@
+<div class="page vendor-shell" role="application" aria-label="Create Bids">
+
+  <!-- SIDEBAR -->
+  <aside
+    class="sidebar"
+    id="vendorSidebar"
+    [class.open]="sidebarOpen"
+    aria-label="Vendor navigation"
+  >
+    <div class="side-card">
+      <div class="side-title">Vendor</div>
+
+      <nav class="nav vendor-nav" aria-label="Vendor sections">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeSidebar()"
+        >
+          Dashboard <span class="badge"></span>
+        </a>
+
+        <a
+          routerLink="/active-rfqs"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+        >
+          Active RFQs <span class="badge"></span>
+        </a>
+
+        <a
+          routerLink="/vendor-profile"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeSidebar()"
+        >
+          Profile <span class="badge"></span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- BACKDROP (for mobile overlay sidebar) -->
+  <div
+    class="backdrop"
+    [class.open]="sidebarOpen"
+    aria-hidden="true"
+    (click)="closeSidebar()"
+  ></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" role="main" aria-label="Create bids content">
+    <div class="wrap">
+
+      <!-- TOP BAR: hamburger + title -->
+      <div class="page-title">
+        <div class="title-left">
+          <button
+            class="hamburger"
+            type="button"
+            aria-label="Toggle sidebar"
+            [attr.aria-expanded]="sidebarOpen"
+            aria-controls="vendorSidebar"
+            (click)="toggleSidebar()"
+          >
+            ☰ <span style="font-weight: 900;">Menu</span>
+          </button>
+
+          <div>
+            <h2>Create Bids</h2>
+            <p>Fill all fields. Use + to add more bid lines. Submit posts the full list.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main card -->
+      <section class="grid single" aria-label="Create bids form">
+        <div class="card">
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <input type="hidden" formControlName="rfqId" />
+
+            <!-- Bid list -->
+            <div class="bids-shell" formArrayName="bids">
+              <div
+                class="bid-box"
+                *ngFor="let bidGroup of bids.controls; let i = index"
+                [formGroupName]="i"
+                aria-label="Bid line"
+              >
+                <div class="bid-fields">
+
+                  <!-- Item Name -->
+                  <div class="field">
+                    <label for="itemName-{{ i }}">Item Name</label>
+                    <input
+                      id="itemName-{{ i }}"
+                      type="text"
+                      formControlName="itemName"
+                      placeholder="Enter item name"
+                      autocomplete="off"
+                    />
+                    <div class="err" *ngIf="isInvalid(i, 'itemName')">
+                      Item name is required.
+                    </div>
+                  </div>
+
+                  <!-- Item Price -->
+                  <div class="field">
+                    <label for="itemPrice-{{ i }}">Item Price</label>
+                    <input
+                      id="itemPrice-{{ i }}"
+                      type="number"
+                      formControlName="itemPrice"
+                      placeholder="Enter price"
+                      min="0"
+                      step="0.01"
+                    />
+                    <div class="err" *ngIf="isInvalid(i, 'itemPrice')">
+                      Item price is required.
+                    </div>
+                  </div>
+
+                  <!-- Quantity dropdown -->
+                  <div class="field">
+                    <label for="quantity-{{ i }}">Quantity</label>
+                    <select id="quantity-{{ i }}" formControlName="quantity">
+                      <option value="" disabled>Select quantity</option>
+                      <option *ngFor="let q of quantityOptions" [value]="q">{{ q }}</option>
+                    </select>
+                    <div class="err" *ngIf="isInvalid(i, 'quantity')">
+                      Quantity is required.
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Optional remove -->
+                <div class="row-actions" *ngIf="bids.length > 1">
+                  <button type="button" class="xbtn" (click)="removeBid(i)" aria-label="Remove bid line">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Plus icon + Submit -->
+            <div class="actions-row">
+              <button
+                type="button"
+                class="plus-icon"
+                (click)="addBid()"
+                aria-label="Add another bid"
+                title="Add another bid"
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+
+              <button
+                type="submit"
+                class="btn"
+                [disabled]="isSubmitting"
+              >
+                Submit
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>

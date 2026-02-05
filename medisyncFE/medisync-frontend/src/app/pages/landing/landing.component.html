@@ -1,0 +1,326 @@
+<!-- Skip link for accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Mobile menu backdrop -->
+<div 
+  class="backdrop" 
+  id="backdrop" 
+  [class.open]="navOpen"
+  (click)="closeNav()"
+  aria-hidden="true">
+</div>
+
+<!-- Navbar -->
+<header role="banner">
+  <div class="container">
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      
+      <!-- Brand -->
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div class="brand-title">
+          <strong>MediSync</strong>
+          <small>Enterprise Pharmacy Inventory Platform</small>
+        </div>
+      </div>
+
+      <!-- Desktop nav links -->
+      <div class="navlinks">
+        <a (click)="scrollToSection('features')">Features</a>
+        <a (click)="scrollToSection('stats')">Stats</a>
+        <a (click)="scrollToSection('tenders')">Tenders</a>
+        <a (click)="scrollToSection('pricing')">Pricing</a>
+        <a (click)="scrollToSection('contact')">Contact</a>
+        <a class="btn ghost" routerLink="/auth/login">Log in</a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button 
+        class="hamburger" 
+        id="navToggle" 
+        type="button"
+        [attr.aria-expanded]="navOpen"
+        aria-controls="drawer"
+        aria-label="Toggle navigation"
+        (click)="toggleNav()">
+        ☰ Menu
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- Mobile drawer -->
+<aside 
+  class="drawer" 
+  id="drawer"
+  [class.open]="navOpen"
+  role="navigation" 
+  aria-label="Mobile navigation">
+  <a (click)="scrollToSection('features')">Features</a>
+  <a (click)="scrollToSection('stats')">Stats</a>
+  <a (click)="scrollToSection('tenders')">Tenders</a>
+  <a (click)="scrollToSection('pricing')">Pricing</a>
+  <a (click)="scrollToSection('contact')">Contact</a>
+  <a routerLink="/auth/login" class="primary">Log in</a>
+</aside>
+
+<!-- Hero Band (gradient background) -->
+<div class="hero-band">
+  <main id="main-content">
+    <section class="hero" id="hero" aria-label="Hero">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Left: Hero text -->
+          <div>
+            <div class="eyebrow">
+              <div class="dot" aria-hidden="true"></div>
+              Enterprise Platform
+            </div>
+
+            <h1>Pharmacy Inventory & Tender Management at Scale</h1>
+            <p>
+              Centralised visibility for multi-store chains. Track batches, transfers, and expiries. Manage tenders end-to-end with audit-ready compliance.
+            </p>
+
+            <div class="cta-row">
+              <a class="btn primary" (click)="scrollToSection('contact')">Get a Demo</a>
+              <a class="btn ghost" routerLink="/auth/login">Log in</a>
+            </div>
+
+            <div class="quick-points">
+              <span><strong>Unified</strong> inventory + transfers</span>
+              <span><strong>Smart</strong> min/max + ABC rules</span>
+              <span><strong>Compliance</strong> reporting built-in</span>
+            </div>
+          </div>
+
+          <!-- Right: Globe visualization -->
+          <!-- <div class="globe-wrapper" aria-label="Global network visualization">
+            <app-globe 
+              [size]="1000" 
+              [autoRotate]="true" 
+              [rotationSpeed]="0.003">
+            </app-globe>
+          </div> -->
+
+          <!-- Visual placeholder (hidden on mobile, shown on larger screens if needed) -->
+          <div class="visual visual-fallback" aria-label="Product preview" style="display: none;">
+            <div class="visual-top">
+              <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div style="font-weight:900; color:rgba(16,50,74,.70); font-size:12px;">MediSync — Dashboard</div>
+            </div>
+            <div class="visual-body">
+              <div class="mock-grid">
+                <div class="mock-card">
+                  <strong>Compliance</strong>
+                  <small>Review pending: 2 docs</small>
+                  <div class="bar"><span style="--w:82%"></span></div>
+                </div>
+                <div class="mock-card">
+                  <strong>Active RFQs</strong>
+                  <small>12 open • 3 urgent</small>
+                  <div class="bar"><span style="--w:65%; --aqua: var(--amber);"></span></div>
+                </div>
+                <div class="mock-card mock-wide">
+                  <strong>Delivery performance</strong>
+                  <small>On-time trend (placeholder)</small>
+                  <div class="bar"><span style="--w:78%; --aqua: var(--aqua);"></span></div>
+                  <div style="margin-top:10px; color:rgba(17,17,17,.60); font-size:12px; font-weight:700;">
+                    Stores • Transfers • Expiry risk • Tender pipeline
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:12px; font-size:12px; color:rgba(17,17,17,.60); font-weight:700;">
+                Replace this placeholder with a real product screenshot anytime.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- FEATURES -->
+<section id="features" aria-labelledby="features-title">
+  <div class="container">
+    <h2 class="section-title" id="features-title">Platform Features</h2>
+    <p class="section-sub">
+      Built for enterprise chains: speed, traceability, and compliance without the operational overhead.
+    </p>
+
+    <app-marquee [animationDuration]="'30s'" [gap]="'1.5rem'" [pauseOnHover]="true">
+      <article class="card feature-card" role="listitem">
+        <div class="ico">✓</div>
+        <h3>Unified Inventory</h3>
+        <p>Multi-store stock visibility with batch &amp; expiry tracking, transfers, and movement history.</p>
+      </article>
+
+      <article class="card feature-card" role="listitem">
+        <div class="ico green">✓</div>
+        <h3>Smart Replenishment</h3>
+        <p>Min/Max rules, ABC analysis, reorder automation, and purchase orchestration.</p>
+      </article>
+
+      <article class="card feature-card" role="listitem">
+        <div class="ico">✓</div>
+        <h3>Tender Management</h3>
+        <p>Create, publish, evaluate, and award tenders with audit trails and controlled access.</p>
+      </article>
+
+      <article class="card feature-card" role="listitem">
+        <div class="ico green">✓</div>
+        <h3>Compliance &amp; Reports</h3>
+        <p>GST-ready outputs, schedule support, and exportable reporting for audits.</p>
+      </article>
+
+      <article class="card feature-card" role="listitem">
+        <div class="ico">✓</div>
+        <h3>Supplier Portal</h3>
+        <p>Vendor onboarding, compliance uploads, quotations, delivery updates, support tickets.</p>
+      </article>
+
+      <article class="card feature-card" role="listitem">
+        <div class="ico green">✓</div>
+        <h3>APIs &amp; Integrations</h3>
+        <p>Connect ERP, POS, e‑pharmacy, and logistics with secure APIs.</p>
+      </article>
+    </app-marquee>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats" aria-labelledby="stats-title">
+  <div class="container">
+    <h2 class="section-title" id="stats-title">At a Glance</h2>
+    <p class="section-sub">Sample metrics for layout — replace with real production numbers.</p>
+
+    <div class="stats" aria-label="Platform stats">
+      <div class="stat" *ngFor="let stat of stats">
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TENDERS -->
+<section id="tenders" aria-labelledby="tenders-title">
+  <div class="container">
+    <h2 class="section-title" id="tenders-title">View Tenders (Preview)</h2>
+    <p class="section-sub">
+      <a routerLink="/auth/login"><strong>Log in</strong></a> to download full documents and submit bids, or
+      <strong>register</strong> to request vendor access.
+    </p>
+
+    <div class="tender-grid">
+      <article class="tender" *ngFor="let tender of tenders">
+        <h3>{{ tender.title }}</h3>
+        <div class="meta">
+          <span>{{ tender.volume }}</span>
+          <span>{{ tender.schedule }}</span>
+          <span>Deadline: {{ tender.deadline }}</span>
+        </div>
+        <p>{{ tender.description }}</p>
+        <div class="actions">
+          <a class="btn ghost" routerLink="/auth/login">Login to Download</a>
+          <a class="btn primary" routerLink="/auth/login">Login to Submit</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" aria-labelledby="testimonials-title">
+  <div class="container">
+    <h2 class="section-title" id="testimonials-title">What our customers say</h2>
+    <p class="section-sub">Short, credible quotes. Replace with real customers anytime.</p>
+
+    <div class="grid3">
+      <article class="card" aria-label="Testimonial 1">
+        <p style="margin:0; font-weight:900; color:var(--navy);">"MediSync cut our stock-outs by 43% across 120+ stores."</p>
+        <p style="margin:10px 0 0; color:var(--muted); font-size:13px;">— <strong>Ananya S.</strong>, Head of Operations</p>
+      </article>
+      <article class="card" aria-label="Testimonial 2">
+        <p style="margin:0; font-weight:900; color:var(--navy);">"Tender workflows are faster, clearer, and audit-friendly."</p>
+        <p style="margin:10px 0 0; color:var(--muted); font-size:13px;">— <strong>Rahul M.</strong>, Procurement Lead</p>
+      </article>
+      <article class="card" aria-label="Testimonial 3">
+        <p style="margin:0; font-weight:900; color:var(--navy);">"Expiry tracking and automated transfers saved lakhs in write-offs."</p>
+        <p style="margin:10px 0 0; color:var(--muted); font-size:13px;">— <strong>Priya K.</strong>, Regional Manager</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" aria-labelledby="pricing-title">
+  <div class="container">
+    <h2 class="section-title" id="pricing-title">Pricing Plans</h2>
+    <p class="section-sub">Contact us for enterprise pricing tailored to your pharmacy network.</p>
+
+    <div class="grid3">
+      <article class="card">
+        <div class="ico">₹</div>
+        <h3>Starter</h3>
+        <p>Single/small chains. Inventory + expiry tracking + standard reports.</p>
+      </article>
+      <article class="card">
+        <div class="ico green">★</div>
+        <h3>Enterprise</h3>
+        <p>Multi-store + tenders + vendor portal + advanced reporting.</p>
+      </article>
+      <article class="card">
+        <div class="ico">⚙</div>
+        <h3>Enterprise + Integrations</h3>
+        <p>ERP/POS/logistics connectors, SSO, custom workflows, priority support.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" aria-labelledby="faq-title">
+  <div class="container">
+    <h2 class="section-title" id="faq-title">Frequently Asked Questions</h2>
+    <p class="section-sub">Fast answers for procurement and operations teams.</p>
+
+    <details>
+      <summary>How long does onboarding take?</summary>
+      <p><strong>A:</strong> Typically 7–14 days for multi-store chains depending on integrations and compliance checks.</p>
+    </details>
+
+    <details>
+      <summary>Do you support Schedule H/X compliance?</summary>
+      <p><strong>A:</strong> Yes — designed to support regulated products with audit trails and reporting.</p>
+    </details>
+
+    <details>
+      <summary>Can vendors submit bids and update deliveries?</summary>
+      <p><strong>A:</strong> Yes — the vendor portal supports onboarding, compliance uploads, bid submission, delivery updates, and support tickets.</p>
+    </details>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" aria-label="Contact">
+  <div class="container">
+    <div class="cta">
+      <div>
+        <h2>Get a demo tailored to your chain</h2>
+        <p>Email: <strong>support&#64;medisync.com</strong> • Phone: <strong>+91-9876543210</strong></p>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn primary" href="mailto:support@medisync.com?subject=MediSync%20Demo%20Request">Email us</a>
+        <a class="btn ghost" routerLink="/auth/login">Vendor Registration</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Shared Footer -->
+<app-footer></app-footer>
+

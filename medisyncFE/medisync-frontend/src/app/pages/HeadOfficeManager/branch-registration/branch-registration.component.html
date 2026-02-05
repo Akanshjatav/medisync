@@ -1,0 +1,112 @@
+<div class="container page-head">
+  <div class="breadcrumbs">HEAD OFFICE / BRANCH MANAGEMENT / REGISTER</div>
+  <div class="head-row">
+    <div class="branch">
+      🏢 Register New Branch
+    </div>
+    <div class="tools">
+      <a class="btn secondary" routerLink="/head-office/branches">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<div class="dispensing-grid">
+  <!-- Branch Registration Form -->
+  <div class="card" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+      <span>📋 Branch Registration Form</span>
+      <span class="batch-count-badge">New Branch</span>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-section">
+          <h3 class="section-title">Branch Details</h3>
+          <p class="section-subtitle">Please provide the branch information</p>
+
+          <div class="form-grid">
+            <!-- Branch Name -->
+            <div class="form-group">
+              <label for="branchName" class="form-label">
+                Branch Name <span class="required">*</span>
+              </label>
+              <input
+                id="branchName"
+                type="text"
+                formControlName="branchName"
+                (keydown)="clearMessage()"
+                class="input"
+                placeholder="Enter branch name"
+              />
+              <div class="field-error" *ngIf="showError('branchName')">
+                Branch Name must be at least 4 characters long.
+              </div>
+            </div>
+
+            <!-- Branch Address -->
+            <div class="form-group">
+              <label for="branchAddress" class="form-label">
+                Branch Address <span class="required">*</span>
+              </label>
+              <textarea
+                id="branchAddress"
+                formControlName="branchAddress"
+                (keydown)="clearMessage()"
+                class="input"
+                placeholder="Enter complete branch address"
+                rows="3"
+              ></textarea>
+              <div class="field-error" *ngIf="showError('branchAddress')">
+                Branch Address must be at least 5 characters long.
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="form-group">
+              <label for="location" class="form-label">
+                City/Location <span class="required">*</span>
+              </label>
+              <input
+                id="location"
+                type="text"
+                formControlName="location"
+                (keydown)="clearMessage()"
+                class="input"
+                placeholder="Enter city or location"
+              />
+              <div class="field-error" *ngIf="showError('location')">
+                Location is required (min 2 characters).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn primary"
+            [disabled]="isSubmitting() || form.invalid"
+          >
+            {{ isSubmitting() ? 'Registering...' : 'Register Branch' }}
+          </button>
+        </div>
+
+        <!-- Global message -->
+        <div
+          class="message-box"
+          [class.success-box]="messageType()==='ok'"
+          [class.error-box]="messageType()==='err'"
+          *ngIf="messageText()"
+        >
+          <div class="message-icon">
+            {{ messageType() === 'ok' ? '✅' : '❌' }}
+          </div>
+          <div class="message-content">
+            {{ messageText() }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

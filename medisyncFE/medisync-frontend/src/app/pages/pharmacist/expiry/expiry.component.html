@@ -1,0 +1,101 @@
+<div class="container page-head">
+  <div class="breadcrumbs">PHARMACIST / EXPIRY ALERTS</div>
+  <div class="head-row">
+    <div class="branch">
+      📍 Branch: <strong>{{ branchName }}</strong>
+    </div>
+    <div class="tools" role="group" aria-label="Inventory tools">
+      <input
+        class="input"
+        id="searchInput"
+        type="search"
+        placeholder="🔍 Search medicine name..."
+        aria-label="Search medicine name"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+      />
+
+      <select
+        class="select"
+        id="sortSelect"
+        aria-label="Sort"
+        [(ngModel)]="sortVal"
+        (change)="onSortChange()"
+      >
+        <option value="expiryAsc">⏰ Expiry Date (Urgent First)</option>
+        <option value="expiryDesc">⏰ Expiry Date (Latest First)</option>
+        <option value="qtyAsc">📦 Stock (Low to High)</option>
+        <option value="qtyDesc">📦 Stock (High to Low)</option>
+        <option value="nameAsc">🔤 Name (A–Z)</option>
+        <option value="nameDesc">🔤 Name (Z–A)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading expiry data...</p>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading" class="card" id="inventoryCard">
+  <div class="card-header">
+    <span>⏰ Medicines Expiring within 3 Months</span>
+    <span class="status-badge" [class.has-items]="rows.length > 0">{{ statusText }}</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="rows.length === 0" class="empty-state-box">
+    <div class="empty-icon">✓</div>
+    <div class="empty-title">No Urgent Expiry Alerts</div>
+    <div class="empty-desc">All medicines have adequate shelf life (≥ 3 months)</div>
+  </div>
+
+  <!-- Data Table -->
+  <div *ngIf="rows.length > 0" id="tableWrap">
+    <table class="inventory-table">
+      <thead>
+        <tr>
+          <th style="width:80px; text-align: center;">#</th>
+          <th>Medicine Name</th>
+          <th style="width:140px; text-align:right;">Stock</th>
+          <th style="width:120px;">Unit</th>
+          <th style="width:140px;">Expiry Date</th>
+          <th style="width:160px; text-align: center;">Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let r of rows; trackBy: trackBySNo"
+          [attr.data-severity]="r.severity"
+          [class.row-expired]="r.severity === 'expired'"
+          [class.row-urgent]="r.severity === 'urgent'"
+          [class.row-soon]="r.severity === 'soon'"
+        >
+          <td style="text-align: center; color: var(--muted); font-weight: 600;">{{ r.sNo }}</td>
+          <td>
+            <div class="medicine-name">{{ r.medicine }}</div>
+          </td>
+          <td style="text-align:right;">
+            <span class="qty-badge">{{ r.stock | number }}</span>
+          </td>
+          <td>
+            <span class="unit-text">{{ r.unit }}</span>
+          </td>
+          <td>
+            <span class="date-text">{{ r.expiryDate }}</span>
+          </td>
+          <td style="text-align: center;">
+            <span class="status-chip" [ngClass]="'status-' + r.severity">
+              <span class="status-dot"></span>
+              {{ r.daysLeftText }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

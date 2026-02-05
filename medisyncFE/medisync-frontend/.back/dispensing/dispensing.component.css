@@ -1,0 +1,87 @@
+/* =========================
+   Dispensing Page Specific Styles
+   ========================= */
+
+/* Page layout */
+.container.page {
+  display: grid;
+  gap: 16px;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+/* Batch cards */
+.batch {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--surface-2);
+  display: grid;
+  gap: 6px;
+}
+
+.batch > div:not(.row) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.batch > div strong {
+  min-width: 140px;
+  text-align: right;
+  color: var(--navy);
+}
+
+.batch.highlight {
+  border-color: rgba(51,122,183,.45);
+  background: rgba(51,122,183,.06);
+  box-shadow: 0 0 0 3px rgba(51,122,183,.12);
+}
+
+/* Cart */
+.cart {
+  display: grid;
+  gap: 10px;
+}
+
+/* FEFO badge */
+.fefo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(51,122,183,.12);
+  color: var(--blue-dark);
+  font-weight: 700;
+  font-size: 12px;
+}

@@ -1,0 +1,159 @@
+<div class="container page-head">
+  <div class="breadcrumbs">HEAD OFFICE / BRANCH MANAGEMENT / DETAILS</div>
+  <div class="head-row">
+    <div class="branch">
+      🏢 Branch Details
+    </div>
+    <div class="tools">
+      <a class="btn secondary" routerLink="/head-office/branches">← Back to Branches</a>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="branch() as b; else notFound">
+  <div class="dispensing-grid">
+    <!-- Left: Branch Information -->
+    <div class="card">
+      <div class="card-header">
+        <span>🏢 {{ b.storename || 'Unnamed Store' }}</span>
+        <span class="batch-count-badge">ID: {{ b.store_id }}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Location</label>
+            <div class="info-value">{{ b.location }}</div>
+          </div>
+          
+          <div class="info-item">
+            <label>Address</label>
+            <div class="info-value">{{ b.storeaddress || '—' }}</div>
+          </div>
+
+          <div class="info-item">
+            <label>Pharmacist ID</label>
+            <div class="info-value">{{ b.pharmacist_id ?? '—' }}</div>
+          </div>
+
+          <div class="info-item">
+            <label>Manager ID</label>
+            <div class="info-value">{{ b.manager_id ?? '—' }}</div>
+          </div>
+
+          <div class="info-item">
+            <label>Created</label>
+            <div class="info-value">{{ (b.created_at || null) | date:'short' }}</div>
+          </div>
+
+          <div class="info-item">
+            <label>Last Updated</label>
+            <div class="info-value">{{ (b.updated_at || null) | date:'short' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Inventory -->
+    <div class="card">
+      <div class="card-header">
+        <span>📦 Branch Inventory</span>
+        <span class="batch-count-badge">{{ filteredInventoryRows().length }} items</span>
+      </div>
+
+      <div class="card-body">
+        <!-- Filter -->
+        <div class="filter-row">
+          <label for="medFilter">Filter by Medicine:</label>
+          <input
+            id="medFilter"
+            class="input sm"
+            type="text"
+            [value]="medicineFilter()"
+            (input)="onMedicineFilter(($any($event.target)).value)"
+            placeholder="Type medicine name..."
+          />
+          <button
+            type="button"
+            class="btn secondary sm"
+            *ngIf="medicineFilter()"
+            (click)="onMedicineFilter('')"
+          >
+            Clear
+          </button>
+        </div>
+
+        <!-- Error/Success Messages -->
+        <div *ngIf="inventoryErrorMessage() && !inventoryLoading()" class="error-box">
+          <div class="error-icon">!</div>
+          <div class="error-content">
+            <div class="error-title">Inventory Unavailable</div>
+            <div class="error-desc">{{ inventoryErrorMessage() }}</div>
+          </div>
+          <button type="button" class="btn secondary" (click)="retryInventory()">Retry</button>
+        </div>
+
+        <div *ngIf="inventorySuccessMessage() && !inventoryLoading() && !inventoryErrorMessage()" class="success-box">
+          <div class="success-icon">✓</div>
+          <div class="success-content">
+            <div class="success-title">Success</div>
+            <div class="success-desc">{{ inventorySuccessMessage() }}</div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="inventoryLoading()" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading inventory...</p>
+        </div>
+
+        <!-- Inventory Table -->
+        <div *ngIf="!inventoryLoading() && !inventoryErrorMessage()" class="table-wrapper">
+          <table class="inventory-table" *ngIf="filteredInventoryRows().length > 0">
+            <thead>
+              <tr>
+                <th>Medicine Name</th>
+                <th>Batch ID</th>
+                <th class="text-right">Available Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of filteredInventoryRows()">
+                <td>
+                  <span class="medicine-cell">
+                    <span class="medicine-icon">💊</span>
+                    <span class="medicine-name">{{ row.medicineName }}</span>
+                  </span>
+                </td>
+                <td>
+                  <span class="batch-text">{{ row.batchId }}</span>
+                </td>
+                <td class="text-right">
+                  <span class="quantity-badge">{{ row.availableQuantity }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="filteredInventoryRows().length === 0" class="empty-state">
+            <div class="empty-icon">📦</div>
+            <div class="empty-title">No Inventory Records</div>
+            <div class="empty-desc">No inventory records found for this branch</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #notFound>
+  <div class="container">
+    <div class="error-box">
+      <div class="error-icon">!</div>
+      <div class="error-content">
+        <div class="error-title">Branch Not Found</div>
+        <div class="error-desc">The requested branch could not be found.</div>
+      </div>
+    </div>
+  </div>
+</ng-template>

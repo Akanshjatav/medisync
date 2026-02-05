@@ -1,0 +1,110 @@
+<section class="container page">
+  <div class="flex">
+    <div class="branch">Branch: <span id="branchName">{{ branch }}</span></div>
+    <div class="row">
+      <span class="fefo">FEFO enabled</span>
+
+      <span
+        id="overrideInfo"
+        class="fefo"
+        [style.display]="canOverride ? 'inline-flex' : 'none'"
+        style="background:#ffecec;color:#ef4444"
+      >
+        Manual override allowed
+      </span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Left: Search & batches -->
+    <div class="card">
+      <div class="card-header">Billing / Dispensing</div>
+      <div class="list">
+        <input
+          class="input"
+          id="medSearch"
+          type="search"
+          placeholder="Search medicine to dispense…"
+          [(ngModel)]="medSearch"
+          (input)="onSearchChange()"
+        />
+
+        <div id="batchList">
+          <!-- No medicine found -->
+          <div id="errorBox" class="error" *ngIf="showNoBatchError">
+            {{ errorText }}
+          </div>
+
+          <!-- Medicines -->
+          <ng-container *ngIf="!showNoBatchError">
+            <div *ngFor="let m of medicines; trackBy: trackByMedicine">
+              <div style="padding:8px 0;font-weight:800">{{ m }}</div>
+
+              <!-- No stock for this medicine -->
+              <div class="error" *ngIf="(batchesByMedicine.get(m)?.length ?? 0) === 0">
+                No stock available
+              </div>
+
+              <!-- Batches -->
+              <div
+                *ngFor="let b of (batchesByMedicine.get(m) ?? []); let idx = index; trackBy: trackByBatch"
+                class="batch"
+                [class.highlight]="isEarliest(idx)"
+              >
+                <div>Batch: <strong>{{ b.batch }}</strong></div>
+                <div>Expiry: <strong>{{ b.expiry }}</strong></div>
+                <div>Available: <strong>{{ b.qty }}</strong></div>
+
+                <div class="row">
+                  <span class="fefo" *ngIf="isEarliest(idx)">Earliest expiry (FEFO)</span>
+                  <button class="btn secondary" type="button" (click)="selectBatch(m, b, idx)">
+                    Select
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Selection / success message (like your msgBox in JS) -->
+        <div id="msgBox">
+          <div class="success" *ngIf="successText">{{ successText }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Cart -->
+    <div class="card">
+      <div class="card-header">Cart</div>
+      <div class="cart" id="cartBox">
+        <div class="empty" *ngIf="cart.length === 0">No items yet.</div>
+
+        <div *ngFor="let c of cart; trackBy: trackByCart" class="batch">
+          <div><strong>{{ c.medicine }}</strong></div>
+          <div>Batch: <strong>{{ c.batch }}</strong></div>
+          <div>Expiry: <strong>{{ c.expiry }}</strong></div>
+          <div>Qty: <strong>{{ c.qty }}</strong></div>
+
+          <span class="fefo">{{ getExpiryTag(c.expiry) }}</span>
+        </div>
+      </div>
+
+      <div class="row" style="padding:12px">
+        <input
+          class="input"
+          id="qtyInput"
+          type="number"
+          min="1"
+          placeholder="Quantity"
+          [(ngModel)]="qtyInput"
+        />
+        <button class="btn" id="addToCart" type="button" (click)="addToCart()">Add to cart</button>
+        <button class="btn secondary" id="clearCart" type="button" (click)="clearCart()">Clear</button>
+      </div>
+
+      <div style="padding:12px">
+        <button class="btn" id="confirmBill" type="button" (click)="confirmBill()">Confirm &amp; Bill</button>
+      </div>
+    </div>
+  </div>
+</section>

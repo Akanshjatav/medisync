@@ -1,0 +1,16 @@
+<div class="app auth-app">
+  <!-- Shared Header (without account menu, with mini nav) -->
+  <app-header [showAccountMenu]="false" [showMiniNav]="true"></app-header>
+
+  <!-- Auth Body -->
+  <div class="auth-body">
+    <main class="main auth-main" id="main" tabindex="-1">
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+
+  <!-- Shared Footer -->
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,118 @@
+<div class="app">
+  <!-- Navbar -->
+  <header class="navbar" role="banner" aria-label="Navbar">
+    <div class="nav-left">
+      <button
+        class="hamburger"
+        id="sidebarToggle"
+        type="button"
+        aria-label="Toggle sidebar"
+        [attr.aria-expanded]="sidebarOpen"
+        aria-controls="sidebar"
+        (click)="toggleSidebar()"
+      >
+        ☰ <span style="font-weight:900;">Menu</span>
+      </button>
+
+      <div class="brand" aria-label="Brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="brand-title">
+          <strong>MediSync</strong>
+          <small>Inventory Management</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-right" aria-label="Account and status">
+
+
+      <details class="menu" id="accountMenu">
+        <summary aria-label="Open account menu">Account</summary>
+        <nav class="dropdown" aria-label="Account options">
+          <a href="#" id="logoutLink" (click)="$event.preventDefault(); logout()">Logout</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+
+  <!-- App Body: Sidebar + Main -->
+  <div class="app-body">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" [class.open]="sidebarOpen" aria-label="Pharmacist navigation">
+      <div class="side-card">
+        <div class="side-title"></div>
+        <nav class="nav">
+          <a routerLink="/pharmacist/dashboard" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
+            Dashboard <span class="badge"></span>
+          </a>
+
+          <a routerLink="/pharmacist/batch-entry" routerLinkActive="active" (click)="closeSidebar()">
+            Batch Entry <span class="badge"></span>
+          </a>
+
+          <a routerLink="/pharmacist/dispensing" routerLinkActive="active" (click)="closeSidebar()">
+            Dispensing <span class="badge"></span>
+          </a>
+
+          <a routerLink="/pharmacist/expiry" routerLinkActive="active" (click)="closeSidebar()">
+            Expiry Alerts <span class="badge"></span>
+          </a>
+
+          <a routerLink="/pharmacist/inventory" routerLinkActive="active" (click)="closeSidebar()">
+            View Inventory <span class="badge"></span>
+          </a>
+
+          <a routerLink="/pharmacist/request-stock" routerLinkActive="active" (click)="closeSidebar()">
+            Request Stock <span class="badge"></span>
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop" [class.open]="sidebarOpen" aria-hidden="true" (click)="closeSidebar()"></div>
+
+    <!-- Main -->
+    <main class="main" id="main" tabindex="-1">
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer (outside app-body, spans full width) -->
+<footer class="app-footer" role="contentinfo">
+  <!-- LEFT -->
+  <div class="footer-left">
+    <a
+      class="footer-logo-link"
+      href="https://www.tcs.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="TCS Website"
+    >
+      <img
+        class="footer-logo"
+        src="assets/images/tcs-logo.png"
+        alt="TCS"
+        loading="lazy"
+      />
+    </a>
+
+    <span class="footer-divider" aria-hidden="true"></span>
+
+    <span class="footer-text">
+      © 2026 TATA Consultancy Services Limited • MediSync
+    </span>
+  </div>
+
+  <!-- RIGHT -->
+  <nav class="footer-links" aria-label="Footer links">
+    <a routerLink="/privacy">Privacy</a>
+    <a routerLink="/terms">Terms</a>
+    <a routerLink="/cookies">Cookies</a>
+    <a routerLink="/contact">Contact</a>
+    <a routerLink="/about">About</a>
+  </nav>
+</footer>
+</div>

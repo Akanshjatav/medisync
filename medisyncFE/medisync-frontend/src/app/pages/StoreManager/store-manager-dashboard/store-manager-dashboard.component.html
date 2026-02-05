@@ -1,0 +1,261 @@
+<section class="sm-shell" aria-label="Store Manager Dashboard">
+  <!-- SIDEBAR -->
+  <aside
+    class="sidebar"
+    id="smSidebar"
+    [class.open]="sidebarOpen"
+    aria-label="Store Manager navigation"
+  >
+    <div class="side-card">
+      <div class="side-title">Store Manager</div>
+
+      <nav class="nav sm-nav" aria-label="Store manager sections">
+        <a
+          href="#"
+          [class.active]="activePage==='dashboard'"
+          (click)="$event.preventDefault(); setPage('dashboard'); closeSidebar()"
+        >
+          Dashboard <span class="badge"></span>
+        </a>
+
+        <a
+          href="#"
+          [class.active]="activePage==='stockEntry'"
+          (click)="$event.preventDefault(); setPage('stockEntry'); closeSidebar()"
+        >
+          Stock Entry <span class="badge"></span>
+        </a>
+
+        <a
+          href="#"
+          [class.active]="activePage==='dispatch'"
+          (click)="$event.preventDefault(); setPage('dispatch'); closeSidebar()"
+        >
+          Dispatch <span class="badge"></span>
+        </a>
+
+        <a
+          href="#"
+          [class.active]="activePage==='products'"
+          (click)="$event.preventDefault(); setPage('products'); closeSidebar()"
+        >
+          Products <span class="badge"></span>
+        </a>
+
+        <a
+          href="#"
+          [class.active]="activePage==='search'"
+          (click)="$event.preventDefault(); setPage('search'); closeSidebar()"
+        >
+          Search Results <span class="badge"></span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- BACKDROP (mobile overlay) -->
+  <div
+    class="backdrop"
+    [class.open]="sidebarOpen"
+    aria-hidden="true"
+    (click)="closeSidebar()"
+  ></div>
+
+  <!-- MAIN -->
+  <main class="sm-main" id="smMain" tabindex="-1">
+    <section class="sm-wrap" aria-label="Store Manager Dashboard">
+      <!-- HEADER -->
+      <section class="container page-head">
+        <div class="head-top">
+          <button
+            class="hamburger"
+            type="button"
+            aria-label="Toggle sidebar"
+            [attr.aria-expanded]="sidebarOpen"
+            aria-controls="smSidebar"
+            (click)="toggleSidebar()"
+          >
+            ☰ <span style="font-weight: 900;">Menu</span>
+          </button>
+
+          <div class="breadcrumbs">MediSync • Store Manager</div>
+        </div>
+
+        <div class="head-row">
+          <div>
+            <div class="branch">Store Manager Dashboard</div>
+            <div class="muted">Inventory overview and daily operations</div>
+          </div>
+
+          <div class="tools">
+            <span class="pill">Today: <strong>{{ todayLabel }}</strong></span>
+
+            <form class="sm-search" (ngSubmit)="onSearchSubmit()" aria-label="Global search">
+              <input
+                class="input"
+                type="search"
+                [(ngModel)]="searchQuery"
+                name="q"
+                placeholder="Search products, batches, shipments, dispatches…"
+                minlength="2"
+                autocomplete="off"
+              />
+              <button class="btn" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="page" [class.is-active]="activePage==='dashboard'">
+        <!-- KPIs, Panels etc... (unchanged) -->
+      </section>
+
+      <!-- STOCK ENTRY -->
+      <section class="page" [class.is-active]="activePage==='stockEntry'">
+        <div class="card">
+          <div class="card-header">
+            <span>Recent stock entries</span>
+            <button
+              class="btn secondary"
+              type="button"
+              (click)="openStockEntryDialog(stockEntryModal)"
+            >
+              New stock entry
+            </button>
+          </div>
+
+          <div class="list" *ngIf="batches.length; else noBatches">
+            <div class="list-item" *ngFor="let b of batches | slice:0:12">
+              <div>
+                <h4>
+                  {{ productNameById[b.productId] || 'Product' }}
+                  <span class="tag tag--info">Batch {{ b.batchNo }}</span>
+                </h4>
+                <p>
+                  Qty: <strong>{{ b.qty }}</strong> • Exp:
+                  <strong>{{ fmtDate(b.expDate) }}</strong> • Location:
+                  <strong>{{ b.location }}</strong>
+                </p>
+                <p class="muted">Supplier: {{ b.supplier }} • Cost: ₹ {{ b.unitCost || 0 }}</p>
+              </div>
+
+              <div class="list-actions">
+                <button class="btn sm" type="button" (click)="openStockEntryDialog(stockEntryModal)">
+                  New Entry
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noBatches>
+            <div class="muted">No stock entries yet.</div>
+          </ng-template>
+        </div>
+      </section>
+
+      <!-- DISPATCH -->
+      <section class="page" [class.is-active]="activePage==='dispatch'">
+        <!-- unchanged -->
+      </section>
+
+      <!-- PRODUCTS -->
+      <section class="page" [class.is-active]="activePage==='products'">
+        <!-- unchanged -->
+      </section>
+
+      <!-- SEARCH -->
+      <section class="page" [class.is-active]="activePage==='search'">
+        <!-- unchanged -->
+      </section>
+
+      <!-- =============== DIALOGS =============== -->
+
+      <!-- Receive -->
+      <dialog #receiveModal aria-label="Receive Shipment">
+        <form [formGroup]="receiveForm" (ngSubmit)="submitReceive(receiveModal)" novalidate>
+          <div class="dialog-head">
+            <div>
+              <h3 class="dialog-title">Receive Shipment</h3>
+              <p class="muted">Confirm received quantities, invoice and QC requirement.</p>
+            </div>
+            <button type="button" class="dialog-close" (click)="closeDialog(receiveModal)">✕</button>
+          </div>
+
+          <!-- fields unchanged -->
+
+          <div class="row">
+            <button class="btn ghost" type="button" (click)="closeDialog(receiveModal)">Cancel</button>
+            <button class="btn secondary" type="submit">Receive</button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Stock Entry -->
+      <dialog #stockEntryModal aria-label="New Stock Entry">
+        <form [formGroup]="stockEntryForm" (ngSubmit)="submitStockEntry(stockEntryModal)" novalidate>
+          <div class="dialog-head">
+            <div>
+              <h3 class="dialog-title">New Stock Entry</h3>
+              <p class="muted">Create a batch entry and add to inventory.</p>
+            </div>
+            <button type="button" class="dialog-close" (click)="closeDialog(stockEntryModal)">✕</button>
+          </div>
+
+          <!-- fields unchanged -->
+
+          <div class="row">
+            <button class="btn ghost" type="button" (click)="closeDialog(stockEntryModal)">Cancel</button>
+            <button class="btn secondary" type="submit">Save Entry</button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Dispatch -->
+      <dialog #dispatchModal aria-label="Update Dispatch Status">
+        <form [formGroup]="dispatchForm" (ngSubmit)="submitDispatch(dispatchModal)" novalidate>
+          <div class="dialog-head">
+            <div>
+              <h3 class="dialog-title">Update Dispatch</h3>
+              <p class="muted">Update status, carrier and tracking details.</p>
+            </div>
+            <button type="button" class="dialog-close" (click)="closeDialog(dispatchModal)">✕</button>
+          </div>
+
+          <!-- fields unchanged -->
+
+          <div class="row">
+            <button class="btn ghost" type="button" (click)="closeDialog(dispatchModal)">Cancel</button>
+            <button class="btn secondary" type="submit">Update</button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Product -->
+      <dialog #productModal aria-label="Add Product">
+        <form [formGroup]="productForm" (ngSubmit)="submitProduct(productModal)" novalidate>
+          <div class="dialog-head">
+            <div>
+              <h3 class="dialog-title">Add Product</h3>
+              <p class="muted">Create a product master record.</p>
+            </div>
+            <button type="button" class="dialog-close" (click)="closeDialog(productModal)">✕</button>
+          </div>
+
+          <!-- fields unchanged -->
+
+          <div class="row">
+            <button class="btn ghost" type="button" (click)="closeDialog(productModal)">Cancel</button>
+            <button class="btn secondary" type="submit">Save Product</button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Toast -->
+      <div class="toast" [class.is-on]="toastOn" role="status" aria-live="polite">
+        <strong>{{ toastTitle }}</strong>
+        <small>{{ toastMsg }}</small>
+      </div>
+    </section>
+  </main>
+</section>

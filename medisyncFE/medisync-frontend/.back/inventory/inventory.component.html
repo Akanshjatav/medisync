@@ -1,0 +1,186 @@
+<div class="inventory-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <svg class="title-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="18" rx="2"/>
+            <line x1="8" y1="7" x2="16" y2="7"/>
+            <line x1="8" y1="11" x2="16" y2="11"/>
+            <line x1="8" y1="15" x2="12" y2="15"/>
+          </svg>
+          Inventory Management
+        </h1>
+        <p class="page-subtitle">Monitor stock levels and expiry dates</p>
+      </div>
+      <div class="header-right">
+        <div class="store-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          {{ branchName }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-primary">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <polyline points="17 11 19 13 23 9"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getTotalItems() }}</div>
+        <div class="stat-label">Total Items</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-success">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getStockOkCount() }}</div>
+        <div class="stat-label">In Stock</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-warning">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getNearExpiryCount() }}</div>
+        <div class="stat-label">Near Expiry</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-danger">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getExpiredCount() }}</div>
+        <div class="stat-label">Expired</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="toolbar">
+    <div class="search-box">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Search by medicine name or batch number..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        aria-label="Search inventory"
+      />
+    </div>
+
+    <div class="toolbar-actions">
+      <select
+        class="sort-select"
+        [(ngModel)]="sortVal"
+        (change)="onSortChange()"
+        aria-label="Sort by"
+      >
+        <option value="expiryAsc">Expiry Date (Oldest First)</option>
+        <option value="expiryDesc">Expiry Date (Newest First)</option>
+        <option value="qtyAsc">Quantity (Low to High)</option>
+        <option value="qtyDesc">Quantity (High to Low)</option>
+      </select>
+
+      <button class="btn-icon" title="Refresh" (click)="refreshData()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Inventory Table -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3 class="table-title">Stock Items ({{ rows.length }})</h3>
+      <span class="table-status" [class.loading]="loading">{{ statusText }}</span>
+    </div>
+
+    <div class="table-container" [class.loading]="loading">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="col-medicine">Medicine Name</th>
+            <th class="col-batch">Batch Number</th>
+            <th class="col-expiry">Expiry Date</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="rows.length === 0 && !loading" class="empty-row">
+            <td colspan="5">
+              <div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <p class="empty-message">No items found</p>
+                <p class="empty-hint">Try adjusting your search or filters</p>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let item of rows; trackBy: trackByRow" class="data-row">
+            <td class="col-medicine">
+              <div class="medicine-cell">
+                <div class="medicine-icon">💊</div>
+                <span class="medicine-name">{{ item.medicine }}</span>
+              </div>
+            </td>
+            <td class="col-batch">
+              <span class="batch-number">{{ item.batch }}</span>
+            </td>
+            <td class="col-expiry">
+              <span class="expiry-date">{{ item.expiry | date:'mediumDate' }}</span>
+            </td>
+            <td class="col-qty">
+              <span class="quantity" [class.low]="item.qty < 50">{{ item.qty }} units</span>
+            </td>
+            <td class="col-status">
+              <span class="status-badge" [ngClass]="'status-' + item.status">
+                <span class="status-dot"></span>
+                {{ item.statusLabel }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

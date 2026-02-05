@@ -1,0 +1,18 @@
+/* =========================
+   Common Layout Specific Styles
+   ========================= */
+
+.main {
+  padding: 14px 20px;
+  z-index: 20;
+}
+
+/* Empty state override */
+.empty {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  background: var(--surface-2);
+  font-weight: 600;
+}

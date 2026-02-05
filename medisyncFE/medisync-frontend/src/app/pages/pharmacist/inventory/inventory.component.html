@@ -1,0 +1,147 @@
+<div class="inventory-page">
+  <!-- Page Header -->
+  <div class="container page-head">
+    <div class="breadcrumbs">PHARMACIST / INVENTORY</div>
+    <div class="head-row">
+      <h1 class="page-title">📦 Inventory Management</h1>
+      <div class="branch">
+        📍 Branch: <strong>{{ branchName }}</strong>
+      </div>
+    </div>
+    <p class="page-subtitle">Monitor stock levels, track expiry dates, and manage inventory</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="container stats-grid">
+    <div class="metric-card">
+      <div class="metric-icon">📊</div>
+      <div class="metric-content">
+        <div class="metric-value">{{ getTotalItems() }}</div>
+        <div class="metric-label">Total Items</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon success-icon">✓</div>
+      <div class="metric-content">
+        <div class="metric-value">{{ getStockOkCount() }}</div>
+        <div class="metric-label">In Stock</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon warning-icon">⚠️</div>
+      <div class="metric-content">
+        <div class="metric-value">{{ getNearExpiryCount() }}</div>
+        <div class="metric-label">Near Expiry</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon danger-icon">🚫</div>
+      <div class="metric-content">
+        <div class="metric-value">{{ getExpiredCount() }}</div>
+        <div class="metric-label">Expired</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="container toolbar-panel">
+    <div class="search-wrapper">
+      <input
+        type="search"
+        class="input search-input"
+        placeholder="🔍 Search by medicine name or batch number..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        aria-label="Search inventory"
+      />
+    </div>
+
+    <div class="toolbar-actions">
+      <select
+        class="input select-input"
+        [(ngModel)]="sortVal"
+        (change)="onSortChange()"
+        aria-label="Sort by"
+      >
+        <option value="expiryAsc">📅 Expiry Date (Oldest First)</option>
+        <option value="expiryDesc">📅 Expiry Date (Newest First)</option>
+        <option value="qtyAsc">📊 Quantity (Low to High)</option>
+        <option value="qtyDesc">📊 Quantity (High to Low)</option>
+      </select>
+
+      <button class="btn secondary refresh-btn" title="Refresh" (click)="refreshData()">
+        🔄 Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="container loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading inventory data...</p>
+  </div>
+
+  <!-- Inventory Table -->
+  <div *ngIf="!loading" class="container">
+    <div class="card">
+      <div class="card-header">
+        <span>📋 Stock Items</span>
+        <span class="item-count-badge">{{ rows.length }} items</span>
+      </div>
+
+      <div class="card-body">
+        <!-- Empty State -->
+        <div *ngIf="rows.length === 0" class="empty-state-box">
+          <div class="empty-icon">📦</div>
+          <div class="empty-title">No Inventory Items Found</div>
+          <div class="empty-desc">Try adjusting your search or filters, or check back later</div>
+        </div>
+
+        <!-- Data Table -->
+        <div *ngIf="rows.length > 0" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Medicine Name</th>
+                <th>Batch Number</th>
+                <th>Expiry Date</th>
+                <th>Quantity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of rows; trackBy: trackByRow" 
+                  [class.row-expired]="item.status === 'expired'"
+                  [class.row-near]="item.status === 'near'">
+                <td>
+                  <div class="medicine-cell">
+                    <span class="medicine-icon">💊</span>
+                    <span class="medicine-name">{{ item.medicine }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="batch-text">{{ item.batch }}</span>
+                </td>
+                <td>
+                  <span class="date-text">{{ item.expiry | date:'mediumDate' }}</span>
+                </td>
+                <td>
+                  <span class="qty-badge" [class.qty-low]="item.qty < 50">{{ item.qty }}</span>
+                  <span class="unit-text">units</span>
+                </td>
+                <td>
+                  <span class="status-chip" [ngClass]="'status-' + item.status">
+                    {{ item.statusLabel }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
