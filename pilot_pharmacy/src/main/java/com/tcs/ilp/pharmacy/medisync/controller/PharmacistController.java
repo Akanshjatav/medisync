@@ -38,6 +38,7 @@ public class PharmacistController {
 
     @GetMapping("/inventory")
     public BranchInventoryResponse viewInventory() {
+
         ctx.requireRole("PHARMACIST");
         return inventoryService.getBranchInventoryDetails(ctx.storeId());
     }

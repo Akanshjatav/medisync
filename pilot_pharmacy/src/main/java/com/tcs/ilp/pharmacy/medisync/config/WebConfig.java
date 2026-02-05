@@ -14,12 +14,16 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     // -----------------------------
-    // Session → RequestContext
+    // Session -> RequestContext
     // -----------------------------
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionContextInterceptor)
-                .addPathPatterns("/api/**");
+                .addPathPatterns("/api/**")
+                .excludePathPatterns(
+                        "/api/v1/auth/**",   // login/logout
+                        "/error"            // spring error
+                );
     }
 
     // -----------------------------
@@ -30,12 +34,12 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(
                         "http://localhost:4200",
-                        "http://127.0.0.1:4200"
+                        "http://127.0.0.1:4200",
+                        "http://localhost:4000"
                 )
-                .allowedMethods(
-                        "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
-                )
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }

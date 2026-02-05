@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/ADMIN")
+@RequestMapping("/api/v1/ho")
 public class HeadOfficeController {
 
     private final RequestContext ctx;

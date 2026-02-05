@@ -37,7 +37,7 @@ public class StockRequestService {
 
     @Transactional(readOnly = true)
     public List<StockRequestDto> findByStatus(String status) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER","PHARMACIST");
 
         return stockRequestsRepository
                 .findByStatusAndStore_StoreId(status, ctx.storeId())
@@ -54,7 +54,7 @@ public class StockRequestService {
 
     //add vendor forwarding function here
     public StockRequestDto approve(Integer requestId) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER");
 
         StockRequests request = findOwnedRequest(requestId);
 
@@ -69,7 +69,7 @@ public class StockRequestService {
     }
 
     public StockRequestDto reject(Integer requestId, String remarks) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER");
 
         StockRequests request = findOwnedRequest(requestId);
 
@@ -84,7 +84,7 @@ public class StockRequestService {
     }
 
     public StockRequestDto fulfill(Integer requestId) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER");
 
         StockRequests request = findOwnedRequest(requestId);
         request.setStatus("FULFILLED");

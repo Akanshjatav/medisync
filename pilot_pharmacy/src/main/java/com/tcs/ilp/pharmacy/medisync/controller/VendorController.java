@@ -42,6 +42,14 @@ public class VendorController {
         return vendorService.getVendor(ctx.vendorId());
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<VendorResponse> registerVendor(
+            @Valid @RequestBody VendorRegisterRequest request
+    ) {
+        VendorResponse created = vendorService.registerVendor(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
     @PostMapping("/documents")
     public VendorDocumentResponse uploadDocument(
             @RequestBody VendorDocumentUploadRequest request) {

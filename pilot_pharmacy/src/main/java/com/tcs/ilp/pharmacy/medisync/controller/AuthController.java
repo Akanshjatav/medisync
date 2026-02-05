@@ -21,7 +21,7 @@ public class AuthController {
     }
 
     // =====================================================
-    // USER LOGIN (HO / STORE_MANAGER / PHARMACIST)
+    // USER LOGIN (HO / MANAGER / PHARMACIST)
     // =====================================================
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(
@@ -34,7 +34,7 @@ public class AuthController {
         session.setAttribute("ROLE", response.getRole());
 
         // ---- resolve store ONLY for store-bound roles ----
-        if ("STORE_MANAGER".equals(response.getRole())) {
+        if ("MANAGER".equals(response.getRole())) {
             session.setAttribute(
                     "STORE_ID",
                     storeService.getStoreForManager(response.getUserId()).getStoreId()

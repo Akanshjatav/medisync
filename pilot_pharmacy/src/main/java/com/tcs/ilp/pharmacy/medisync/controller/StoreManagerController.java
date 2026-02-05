@@ -80,7 +80,7 @@ public class StoreManagerController {
     public List<StockRequestDto> getStockRequests(
             @RequestParam String status
     ) {
-        ctx.requireRole("MANAGER");
+        ctx.requireRole("PHARMACIST","MANAGER");
         return stockRequestService.findByStatus(status);
     }
 

@@ -63,7 +63,7 @@ public class RfqService {
     // ---------- WRITE ----------
 
     public RfqPayloadDto createRfq(RfqPayloadDto payload) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER");
 
         Users creator = usersRepo.findById(ctx.userId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -105,12 +105,12 @@ public class RfqService {
         return res;
     }
     public void award(Integer rfqId, String status) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER");
         findRfq(rfqId).setStatus(status);
     }
 
     public void delete(Integer rfqId) {
-        ctx.requireRole("STORE_MANAGER");
+        ctx.requireRole("MANAGER");
         rfqRepo.delete(findRfq(rfqId));
     }
 
