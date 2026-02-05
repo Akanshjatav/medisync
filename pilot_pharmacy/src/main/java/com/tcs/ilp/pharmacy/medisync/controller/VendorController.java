@@ -42,6 +42,10 @@ public class VendorController {
         return vendorService.getVendor(ctx.vendorId());
     }
 
+
+    @GetMapping("/awarded-vendors")
+    public
+
     @PostMapping("/register")
     public ResponseEntity<VendorResponse> registerVendor(
             @Valid @RequestBody VendorRegisterRequest request

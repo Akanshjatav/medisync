@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
 
+    Optional<Inventory> findByStore_StoreId(Integer storeId);
     boolean existsByStore_StoreId(Integer storeId);
+
 
     @EntityGraph(attributePaths = {"store", "batches"})
     Optional<Inventory> findWithBatchesByStore_StoreId(Integer storeId);

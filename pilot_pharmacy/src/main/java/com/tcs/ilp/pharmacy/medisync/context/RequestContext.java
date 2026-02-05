@@ -1,5 +1,6 @@
 package com.tcs.ilp.pharmacy.medisync.context;
 
+import com.tcs.ilp.pharmacy.medisync.exception.ResourceNotFoundException;
 import com.tcs.ilp.pharmacy.medisync.exception.UnauthorizedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
@@ -53,6 +54,10 @@ public class RequestContext {
         }
     }
 
+    public  void requireStore(Integer storeId){
+        if(storeId==null||!storeId.equals(storeId)) throw new ResourceNotFoundException("Inventory not initiated for this store");
+
+    }
     public void requireRole(String role1, String role2){
 
         if (role == null || (!role1.equals(role) && !role2.equals(role))) {

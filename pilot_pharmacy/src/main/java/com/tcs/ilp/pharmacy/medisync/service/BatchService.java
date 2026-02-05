@@ -3,10 +3,12 @@ package com.tcs.ilp.pharmacy.medisync.service;
 import com.tcs.ilp.pharmacy.medisync.dto.BatchCreateRequest;
 import com.tcs.ilp.pharmacy.medisync.dto.ProductCreateRequest;
 import com.tcs.ilp.pharmacy.medisync.entity.Batch;
+import com.tcs.ilp.pharmacy.medisync.entity.Inventory;
 import com.tcs.ilp.pharmacy.medisync.entity.Product;
 import com.tcs.ilp.pharmacy.medisync.entity.Vendor;
 import com.tcs.ilp.pharmacy.medisync.exception.NotFoundException;
 import com.tcs.ilp.pharmacy.medisync.repository.BatchRepository;
+import com.tcs.ilp.pharmacy.medisync.repository.InventoryRepository;
 import com.tcs.ilp.pharmacy.medisync.repository.VendorRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +21,14 @@ public class BatchService {
 
     private final BatchRepository batchRepository;
     private final VendorRepository vendorRepository;
-
+private final InventoryRepository inventoryRepository;
     public BatchService(BatchRepository batchRepository,
-                        VendorRepository vendorRepository) {
+                        VendorRepository vendorRepository,
+                        InventoryRepository inventoryRepository) {
         this.batchRepository = batchRepository;
         this.vendorRepository = vendorRepository;
+        this.inventoryRepository = inventoryRepository;
+
     }
 
     public Batch addBatch(Batch batch) {
@@ -36,16 +41,22 @@ public class BatchService {
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new NotFoundException("Vendor not found: " + vendorId));
 
+
         batch.setVendor(vendor);
         return batchRepository.save(batch);
     }
 
-    public Batch createBatchWithProducts(BatchCreateRequest request) {
+    public Batch createBatchWithProducts(BatchCreateRequest request, Integer storeId) {
         Vendor vendor = vendorRepository.findById(request.getVendorId())
                 .orElseThrow(() -> new NotFoundException("Vendor not found"));
 
+        Inventory inventory = inventoryRepository.findByStore_StoreId(storeId).orElseThrow(()-> new NotFoundException("Inventory not found. initiate one before adding"));
+
         Batch batch = new Batch();
         batch.setVendor(vendor);
+        batch.setInventory(inventory);
+
+
         batch.setDeliveryDate(request.getDeliveryDate());
 
         for (ProductCreateRequest pReq : request.getProducts()) {

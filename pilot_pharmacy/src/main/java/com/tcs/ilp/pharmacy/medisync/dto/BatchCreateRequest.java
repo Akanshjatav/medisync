@@ -9,6 +9,7 @@ public class BatchCreateRequest {
     private LocalDate deliveryDate;
     private List<ProductCreateRequest> products;
 
+
     public Integer getVendorId() { return vendorId; }
     public void setVendorId(Integer vendorId) { this.vendorId = vendorId; }
 

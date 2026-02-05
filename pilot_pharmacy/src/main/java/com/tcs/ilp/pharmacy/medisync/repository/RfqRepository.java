@@ -23,5 +23,6 @@ public interface RfqRepository extends JpaRepository<Rfq, Integer> {
       and r.awardedVendor is not null
 """)
     List<Vendor> findAwardedVendorsByStore(Integer storeId);
+
     List<Rfq> findByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
 }

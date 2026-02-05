@@ -40,12 +40,15 @@ public class PharmacistController {
     public BranchInventoryResponse viewInventory() {
 
         ctx.requireRole("PHARMACIST");
+
         return inventoryService.getBranchInventoryDetails(ctx.storeId());
     }
 
     // =====================================================
     // BATCH
     // =====================================================
+
+
 
     @PostMapping("/batches")
     @ResponseStatus(HttpStatus.CREATED)
@@ -54,7 +57,7 @@ public class PharmacistController {
     ) {
         ctx.requireRole("PHARMACIST");
 
-        Batch batch = batchService.createBatchWithProducts(request);
+        Batch batch = batchService.createBatchWithProducts(request, ctx.storeId());
 
         BatchResponse response = new BatchResponse();
         response.setBatchId(batch.getBatchId());
