@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
@@ -17,13 +17,43 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
+
+  // 🔑 Role state (THIS FIXES SIDEBAR ISSUE)
+  private roleSubject = new BehaviorSubject<string>('');
+  role$ = this.roleSubject.asObservable();
+
+  constructor() {
+    // Load role from storage on refresh
+    const storedRole = localStorage.getItem('USER_ROLE');
+    if (storedRole) {
+      this.roleSubject.next(storedRole);
+    }
+  }
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.baseUrl}/v1/auth/login`, payload)
-      .pipe(catchError(err => throwError(() => this.extractErrorMessage(err))));
+      .pipe(
+        tap(response => {
+          // ✅ SAVE ROLE IMMEDIATELY AFTER BACKEND RESPONSE
+          localStorage.setItem('USER_ROLE', response.role);
+          this.roleSubject.next(response.role);
+        }),
+        catchError(err => throwError(() => this.extractErrorMessage(err)))
+      );
+  }
+
+  // Optional getter (useful in guards)
+  getRole(): string {
+    return this.roleSubject.value;
+  }
+
+  logout(): void {
+    localStorage.removeItem('USER_ROLE');
+    this.roleSubject.next('');
   }
 
   private extractErrorMessage(err: unknown): string {

@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { BrowserStorageService } from '../../services/browser-storage.service';
+import { AuthService } from '../../services/auth.service';
 
 interface NavItem {
   label: string;
   route: string;
-  icon?: string;
 }
 
 @Component({
@@ -17,29 +17,41 @@ interface NavItem {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
+
   navItems: NavItem[] = [];
-  userRole: string = '';
+  userRole = '';
 
   constructor(
-    private storage: BrowserStorageService,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private storage: BrowserStorageService
   ) {}
 
   ngOnInit(): void {
-    // Get role from session/localStorage
-    this.userRole = this.storage.getItem('USER_ROLE') || this.storage.getItem('USER_ROLE', 'local') || '';
-    
-    // Fallback: Detect role from current route if not in storage (for testing)
-    if (!this.userRole) {
-      this.userRole = this.detectRoleFromRoute();
-    }
-    
+
+    // Load immediately (page refresh support)
+    this.userRole = this.getStoredRole();
     this.loadNavItems();
+
+    // 🔥 AUTO-UPDATE when backend login completes
+    this.authService.role$.subscribe(role => {
+      if (role) {
+        this.userRole = role;
+        this.loadNavItems();
+      }
+    });
   }
-  
+
+  private getStoredRole(): string {
+    return (
+      this.storage.getItem('USER_ROLE') ||
+      this.detectRoleFromRoute()
+    );
+  }
+
   private detectRoleFromRoute(): string {
     const url = this.router.url;
-    if (url.startsWith('/head-office')) return 'HO';
+    if (url.startsWith('/head-office')) return 'ADMIN';
     if (url.startsWith('/pharmacist')) return 'PHARMACIST';
     if (url.startsWith('/store-manager')) return 'MANAGER';
     if (url.startsWith('/vendor')) return 'VENDOR';
@@ -47,8 +59,10 @@ export class SidebarComponent implements OnInit {
   }
 
   private loadNavItems(): void {
+
     switch (this.userRole) {
-      case 'HO':
+
+      case 'ADMIN':
         this.navItems = [
           { label: 'Dashboard', route: '/head-office/dashboard' },
           { label: 'Branches', route: '/head-office/branches' },
