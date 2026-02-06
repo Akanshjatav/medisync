@@ -13,7 +13,7 @@ import { ForgotPasswordComponent as AuthForgotPasswordComponent } from './module
 import { HoDashboardComponent } from './pages/HeadOfficeManager/ho-dashboard/ho-dashboard.component';
 import { BranchRegisterationComponent } from './pages/HeadOfficeManager/branch-registration/branch-registration.component';
 import { BranchListComponent } from './pages/HeadOfficeManager/branch-management/branches/branch-list/branch-list.component';
-import { AddUserComponent } from './pages/HeadOfficeManager/branch-management/branches/manage-branch/manage-branch.component';
+import { AddUserComponent } from './pages/HeadOfficeManager/user-management/manage-branch.component';
 import { BranchDetailComponent } from './pages/HeadOfficeManager/branch-management/branches/branch-detail/branch-detail.component';
 
 // Pharmacist
@@ -68,7 +68,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: HoDashboardComponent },
       { path: 'branches', component: BranchListComponent },
       { path: 'branches/:id', component: BranchDetailComponent },
-      { path: 'branches/:id/users/add', component: AddUserComponent },
+      { path: 'users', component: AddUserComponent },
       { path: 'register-branch', component: BranchRegisterationComponent },
     ]
   },
