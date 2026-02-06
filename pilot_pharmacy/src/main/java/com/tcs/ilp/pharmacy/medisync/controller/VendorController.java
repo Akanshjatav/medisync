@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/vendors")
 public class VendorController {
@@ -24,8 +25,7 @@ public class VendorController {
             RequestContext ctx,
             VendorService vendorService,
             RfqService rfqService,
-            BidsService bidsService
-    ) {
+            BidsService bidsService) {
         this.ctx = ctx;
         this.vendorService = vendorService;
         this.rfqService = rfqService;
@@ -42,14 +42,9 @@ public class VendorController {
         return vendorService.getVendor(ctx.vendorId());
     }
 
-
-    @GetMapping("/awarded-vendors")
-    public
-
     @PostMapping("/register")
     public ResponseEntity<VendorResponse> registerVendor(
-            @Valid @RequestBody VendorRegisterRequest request
-    ) {
+            @Valid @RequestBody VendorRegisterRequest request) {
         VendorResponse created = vendorService.registerVendor(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -86,7 +81,7 @@ public class VendorController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createBid(@RequestBody BidRequestDto request) {
         ctx.requireVendor();
-        bidsService.createBid(request); // service must use ctx.vendorId()
+        bidsService.createBid(request);
     }
 
     @PutMapping("/bids/{bidId}/items")

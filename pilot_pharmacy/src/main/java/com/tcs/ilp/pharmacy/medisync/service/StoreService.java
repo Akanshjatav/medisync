@@ -21,21 +21,25 @@ public class StoreService {
     private final UsersRepository usersRepository;
 
     public StoreService(StoreRepository storeRepository,
-                        UsersRepository usersRepository) {
+            UsersRepository usersRepository) {
         this.storeRepository = storeRepository;
         this.usersRepository = usersRepository;
     }
 
+    // =====================================================
+    // CREATE STORE
+    // =====================================================
     public Stores createStore(Stores store) {
         return storeRepository.save(store);
     }
 
-
+    // =====================================================
+    // GET STORE METHODS
+    // =====================================================
     @Transactional(readOnly = true)
     public Stores getStoreById(int id) {
         return storeRepository.findById(id)
-                .orElseThrow(() ->
-                        new StoreNotFoundException("Store not found: " + id));
+                .orElseThrow(() -> new StoreNotFoundException("Store not found: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -53,21 +57,21 @@ public class StoreService {
                 .findByManager_UserId(userId)
                 .orElseThrow(() -> new NotFoundException("Store not assigned"));
     }
+
     public Stores getStoreForPharmacist(Integer userId) {
         return storeRepository
                 .findByPharmacist_UserId(userId)
                 .orElseThrow(() -> new NotFoundException("Store not assigned"));
     }
 
-
-
-
-
-    // ✅ BRANCH UPDATE + STAFF ASSIGNMENT
+    // =====================================================
+    // UPDATE BRANCH + STAFF ASSIGNMENT
+    // =====================================================
     public Stores updateBranch(int storeId, StoreUpdateRequest r) {
 
         Stores store = getStoreById(storeId);
 
+        // ===== BRANCH BASIC DETAILS UPDATE =====
         if (r.hasBranchUpdates()) {
             r.validateForBranchUpdate();
 
@@ -81,21 +85,44 @@ public class StoreService {
                 store.setAddress(r.getAddress().trim());
         }
 
+        // ===== STAFF ASSIGNMENT =====
         if (r.hasStaffUpdates()) {
 
+            // Prevent same user assigned as both manager & pharmacist
+            if (r.getManagerUserId() != null &&
+                    r.getManagerUserId().equals(r.getPharmacistUserId())) {
+
+                throw new ValidationException(
+                        "Same user cannot be both Manager and Pharmacist.");
+            }
+
+            // ===== MANAGER ASSIGNMENT =====
             if (r.getManagerUserId() != null) {
+
+                if (store.getManager() != null) {
+                    throw new ValidationException(
+                            "Manager already assigned to this branch. Reassignment not allowed.");
+                }
+
                 Users manager = usersRepository.findById(r.getManagerUserId())
-                        .orElseThrow(() ->
-                                new ValidationException("Manager not found: "
-                                        + r.getManagerUserId()));
+                        .orElseThrow(() -> new ValidationException("Manager not found: "
+                                + r.getManagerUserId()));
+
                 store.setManager(manager);
             }
 
+            // ===== PHARMACIST ASSIGNMENT =====
             if (r.getPharmacistUserId() != null) {
+
+                if (store.getPharmacist() != null) {
+                    throw new ValidationException(
+                            "Pharmacist already assigned to this branch. Reassignment not allowed.");
+                }
+
                 Users pharmacist = usersRepository.findById(r.getPharmacistUserId())
-                        .orElseThrow(() ->
-                                new ValidationException("Pharmacist not found: "
-                                        + r.getPharmacistUserId()));
+                        .orElseThrow(() -> new ValidationException("Pharmacist not found: "
+                                + r.getPharmacistUserId()));
+
                 store.setPharmacist(pharmacist);
             }
         }
@@ -103,6 +130,9 @@ public class StoreService {
         return storeRepository.save(store);
     }
 
+    // =====================================================
+    // DELETE STORE
+    // =====================================================
     public void deleteStore(int id) {
         storeRepository.delete(getStoreById(id));
     }

@@ -35,11 +35,16 @@ public class UsersService {
         user.setName(request.getName().trim());
         user.setEmail(request.getEmail().trim());
         user.setPhoneNumber(cleanOptional(request.getPhoneNumber()));
-        user.setUsername(request.getName().substring(0,3)+request.getRoleName());
+        user.setUsername(request.getName().substring(0, 3) + request.getRoleName());
         // NOTE: You should hash password here later using PasswordEncoder
-        user.setPassword(request.getRoleName()+"@123");
+        user.setPassword(request.getRoleName() + "@123");
 
         return usersRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Users> getUsersByRoleName(String roleName) {
+        return usersRepository.findByRole_RoleName(roleName);
     }
 
     public Users updateUser(int userId, UserUpdateRequest request) {
@@ -89,7 +94,8 @@ public class UsersService {
     }
 
     private String cleanOptional(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         String v = value.trim();
         return v.isEmpty() ? null : v;
     }

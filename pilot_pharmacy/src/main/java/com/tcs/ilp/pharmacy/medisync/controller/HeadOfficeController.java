@@ -30,15 +30,13 @@ public class HeadOfficeController {
     private final InventoryService inventoryService;
     private final UsersService usersService;
 
-    private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     public HeadOfficeController(
             RequestContext ctx,
             StoreService storeService,
             InventoryService inventoryService,
-            UsersService usersService
-    ) {
+            UsersService usersService) {
         this.ctx = ctx;
         this.storeService = storeService;
         this.inventoryService = inventoryService;
@@ -52,8 +50,7 @@ public class HeadOfficeController {
     @PostMapping("/register-branch")
     @Transactional
     public ResponseEntity<StoreCreateResponse> registerBranch(
-            @Valid @RequestBody StoreCreateRequest request
-    ) {
+            @Valid @RequestBody StoreCreateRequest request) {
         ctx.requireRole("ADMIN");
 
         Stores exists = storeService.getStoreByStoreName(request.getBranchName());
@@ -81,8 +78,7 @@ public class HeadOfficeController {
                         inventory.getInventoryId(),
                         created.getStoreName(),
                         created.getLocation(),
-                        created.getAddress()
-                ));
+                        created.getAddress()));
     }
 
     @GetMapping("/branches")
@@ -97,8 +93,7 @@ public class HeadOfficeController {
                         s.getLocation(),
                         s.getAddress(),
                         s.getCreatedAt(),
-                        s.getUpdatedAt()
-                ))
+                        s.getUpdatedAt()))
                 .collect(Collectors.toList());
     }
 
@@ -130,8 +125,7 @@ public class HeadOfficeController {
     @PutMapping("/users/{id}")
     public UserResponse updateUser(
             @PathVariable int id,
-            @RequestBody UserUpdateRequest request
-    ) {
+            @RequestBody UserUpdateRequest request) {
         ctx.requireRole("ADMIN");
         return toUserResponse(usersService.updateUser(id, request));
     }
@@ -151,7 +145,56 @@ public class HeadOfficeController {
                 u.getEmail(),
                 u.getPhoneNumber(),
                 u.getCreatedAt(),
-                u.getUpdatedAt()
-        );
+                u.getUpdatedAt());
     }
+    // =====================================================
+    // UPDATE BRANCH
+    // =====================================================
+
+    @PutMapping("/branches/{storeId}")
+    @Transactional
+    public StoreResponse updateBranch(
+            @PathVariable int storeId,
+            @Valid @RequestBody StoreUpdateRequest request) {
+        ctx.requireRole("ADMIN");
+
+        Stores updated = storeService.updateBranch(storeId, request);
+
+        return new StoreResponse(
+                updated.getStoreId(),
+                updated.getStoreName(),
+                updated.getLocation(),
+                updated.getAddress(),
+                updated.getCreatedAt(),
+                updated.getUpdatedAt());
+    }
+
+    // =====================================================
+    // GET SINGLE BRANCH BY ID
+    // =====================================================
+    @GetMapping("/branches/{storeId}")
+    public StoreResponse getBranchById(@PathVariable int storeId) {
+        ctx.requireRole("ADMIN");
+
+        Stores s = storeService.getStoreById(storeId);
+
+        return new StoreResponse(
+                s.getStoreId(),
+                s.getStoreName(),
+                s.getLocation(),
+                s.getAddress(),
+                s.getCreatedAt(),
+                s.getUpdatedAt());
+    }
+
+    @GetMapping("/users/by-role/{roleName}")
+    public List<UserResponse> getUsersByRoleName(@PathVariable String roleName) {
+        ctx.requireRole("ADMIN");
+
+        return usersService.getUsersByRoleName(roleName)
+                .stream()
+                .map(this::toUserResponse)
+                .collect(Collectors.toList());
+    }
+
 }
