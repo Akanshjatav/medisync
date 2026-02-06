@@ -15,6 +15,7 @@ import { BranchRegisterationComponent } from './pages/HeadOfficeManager/branch-r
 import { BranchListComponent } from './pages/HeadOfficeManager/branch-management/branches/branch-list/branch-list.component';
 import { AddUserComponent } from './pages/HeadOfficeManager/user-management/manage-branch.component';
 import { BranchDetailComponent } from './pages/HeadOfficeManager/branch-management/branches/branch-detail/branch-detail.component';
+import { ManageBranchComponent } from './pages/HeadOfficeManager/branch-management/branches/manage-branch/manage-branch.component';
 
 // Pharmacist
 import { DashboardComponent as PharmacistDashboardComponent } from './pages/pharmacist/dashboard/dashboard.component';
@@ -70,6 +71,7 @@ export const routes: Routes = [
       { path: 'branches/:id', component: BranchDetailComponent },
       { path: 'users', component: AddUserComponent },
       { path: 'register-branch', component: BranchRegisterationComponent },
+      {path:'edit-branch/:storeId',component:ManageBranchComponent}
     ]
   },
 

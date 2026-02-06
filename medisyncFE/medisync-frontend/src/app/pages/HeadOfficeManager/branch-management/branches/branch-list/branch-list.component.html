@@ -73,6 +73,13 @@
                     >
                       View Details
                     </a>
+                    <a
+                      class="btn secondary sm"
+                      [routerLink]="['/head-office/edit-branch', branch.store_id]"
+                      [attr.aria-label]="'View details for ' + branch.storename"
+                    >
+                    Update Branch
+                    </a>
                   </td>
                 </tr>
               </ng-container>

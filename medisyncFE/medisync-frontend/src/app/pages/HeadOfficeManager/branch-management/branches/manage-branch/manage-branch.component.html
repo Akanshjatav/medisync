@@ -1,1 +1,136 @@
-<p>manage-branch works!</p>
+<div class="container page-head">
+  <div class="breadcrumbs">
+    HEAD OFFICE / BRANCH MANAGEMENT / UPDATE
+  </div>
+
+  <div class="head-row">
+    <div class="branch">
+      ✏️ Update Branch
+    </div>
+
+    <div class="tools">
+      <a class="btn secondary" routerLink="/head-office/branches">
+        ← Back to Branches
+      </a>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="branch(); else notFound">
+  <div class="dispensing-grid">
+    <div class="card">
+
+      <!-- HEADER -->
+      <div class="card-header">
+        <span>🏢 Branch Information</span>
+        <span class="batch-count-badge">
+          ID: {{ branch()?.store_id }}
+        </span>
+      </div>
+
+      <!-- BODY -->
+      <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <div class="info-grid">
+
+            <!-- Editable Branch Details -->
+            <div class="info-item">
+              <label>Branch Name</label>
+              <input
+                class="input"
+                formControlName="storename"
+                placeholder="Enter branch name" />
+            </div>
+
+            <div class="info-item">
+              <label>Location</label>
+              <input
+                class="input"
+                formControlName="location"
+                placeholder="Enter location" />
+            </div>
+
+            <div class="info-item">
+              <label>Address</label>
+              <textarea
+                class="input"
+                formControlName="storeaddress"
+                placeholder="Enter address"></textarea>
+            </div>
+
+            <!-- Assign Pharmacist -->
+            <div class="info-item">
+              <label>Assign Pharmacist</label>
+
+              <select
+                class="input"
+                formControlName="pharmacistId"
+                [disabled]="!!branch()?.pharmacist_id">
+
+                <option value="">Select Pharmacist</option>
+
+                <option *ngFor="let p of pharmacists"
+                        [value]="p.userId">
+                  {{ p.name }} (ID: {{ p.userId }})
+                </option>
+
+              </select>
+            </div>
+
+            <!-- Assign Manager -->
+            <div class="info-item">
+              <label>Assign Manager</label>
+
+              <select
+                class="input"
+                formControlName="managerId"
+                [disabled]="!!branch()?.manager_id">
+
+                <option value="">Select Manager</option>
+
+                <option *ngFor="let m of managers"
+                        [value]="m.userId">
+                  {{ m.name }} (ID: {{ m.userId }})
+                </option>
+
+              </select>
+            </div>
+
+            <!-- Static Info -->
+            <div class="info-item">
+              <label>Created</label>
+              <div class="info-value">
+                {{ branch()?.created_at | date:'short' }}
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Last Updated</label>
+              <div class="info-value">
+                {{ branch()?.updated_at | date:'short' }}
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Submit -->
+          <div class="form-actions">
+            <button class="btn primary" type="submit">
+              Update Branch
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #notFound>
+  <div class="container">
+    <div class="error-box">
+      Branch not found.
+    </div>
+  </div>
+</ng-template>

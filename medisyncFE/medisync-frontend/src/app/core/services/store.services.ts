@@ -5,11 +5,10 @@ import { Observable, delay, map, tap, of } from 'rxjs';
 import { Store } from '../models/store.model';
 
 export interface InventoryRow {
-  medicineName: string;        // from productName
-  batchId: string;             // from batch.batchId (preferred) or product.batchId
-  availableQuantity: number;   // from quantityTotal
+  medicineName: string;
+  batchId: string;
+  availableQuantity: number;
 
-  // optional extras (not displayed unless you add columns)
   productId?: number;
   category?: string;
   price?: number;
@@ -18,12 +17,16 @@ export interface InventoryRow {
 
 @Injectable({ providedIn: 'root' })
 export class StoreService {
+
+  private base = 'http://localhost:7000/api/v1/ho';
   private latencyMs = 1;
   private debug = true;
 
-  private base = 'http://localhost:7000/api/v1/ho';
-
   constructor(private http: HttpClient) {}
+
+  // --------------------------------------------------
+  // Utility Helpers
+  // --------------------------------------------------
 
   private pick<T = any>(obj: any, ...keys: string[]): T | null {
     for (const k of keys) {
@@ -45,7 +48,10 @@ export class StoreService {
     return Number.isFinite(n) ? n : 0;
   }
 
-  /** ✅ Map backend StoreResponse -> UI Store (unchanged) */
+  // --------------------------------------------------
+  // Mapping Backend StoreResponse → UI Store
+  // --------------------------------------------------
+
   private toStore(row: any): Store {
     return {
       store_id: this.pick<number>(row, 'storeId', 'store_id', 'id') ?? 0,
@@ -60,7 +66,10 @@ export class StoreService {
     };
   }
 
-  /** ✅ Branch list */
+  // --------------------------------------------------
+  // GET ALL BRANCHES
+  // --------------------------------------------------
+
   getStores(): Observable<Store[]> {
     return this.http.get<any>(`${this.base}/branches`).pipe(
       tap(res => this.debug && console.log('HO /branches raw:', res)),
@@ -68,7 +77,8 @@ export class StoreService {
       map(res => {
         const rows: any[] = Array.isArray(res) ? res : (res?.content ?? []);
         const stores = rows.map(r => this.toStore(r));
-        return stores.slice().sort((a, b) => {
+
+        return stores.sort((a, b) => {
           const loc = (a.location ?? '').localeCompare(b.location ?? '');
           if (loc !== 0) return loc;
           return (a.storename ?? '').localeCompare(b.storename ?? '');
@@ -77,13 +87,40 @@ export class StoreService {
     );
   }
 
-  /** ✅ Branch by id (find from list) */
+  // --------------------------------------------------
+  // GET SINGLE BRANCH BY ID (FIXED)
+  // --------------------------------------------------
+
   getStoreById(storeId: number): Observable<Store | undefined> {
     if (!storeId || storeId <= 0) return of(undefined);
-    return this.getStores().pipe(map(list => list.find(s => s.store_id === storeId)));
+
+    return this.http
+      .get<any>(`${this.base}/branches/${storeId}`)
+      .pipe(
+        tap(res => this.debug && console.log('Branch by id raw:', res)),
+        delay(this.latencyMs),
+        map(res => this.toStore(res))
+      );
   }
 
-  /** ✅ Inventory API raw */
+  // --------------------------------------------------
+  // UPDATE BRANCH
+  // --------------------------------------------------
+
+  updateStore(storeId: number, payload: any): Observable<Store> {
+    return this.http
+      .put<any>(`${this.base}/branches/${storeId}`, payload)
+      .pipe(
+        tap(res => this.debug && console.log('Update store raw:', res)),
+        delay(this.latencyMs),
+        map(res => this.toStore(res))
+      );
+  }
+
+  // --------------------------------------------------
+  // INVENTORY
+  // --------------------------------------------------
+
   getBranchInventory(storeId: number): Observable<any> {
     return this.http.get<any>(`${this.base}/branches/${storeId}/inventory`).pipe(
       tap(res => this.debug && console.log(`HO inventory store ${storeId} raw:`, res)),
@@ -91,15 +128,8 @@ export class StoreService {
     );
   }
 
-  /**
-   * ✅ EXACT mapping for your JSON:
-   * res.batches[].batchId + res.batches[].products[]
-   * productName -> medicineName
-   * quantityTotal -> availableQuantity
-   */
   mapInventoryRows(res: any): InventoryRow[] {
     const batches: any[] = Array.isArray(res?.batches) ? res.batches : [];
-
     const out: InventoryRow[] = [];
 
     for (const b of batches) {
@@ -108,19 +138,26 @@ export class StoreService {
 
       for (const p of products) {
         const medicineName = this.pickStr(p, 'productName', 'product_name', 'medicineName', 'name');
+
         const batchId =
           this.pickStr(b, 'batchId', 'batch_id') ||
           this.pickStr(p, 'batchId', 'batch_id') ||
           (batchIdVal !== null ? String(batchIdVal) : '');
 
-        const availableQuantity = this.toNum(this.pick<any>(p, 'quantityTotal', 'quantity_total', 'availableQuantity', 'quantity', 'qty'));
+        const availableQuantity =
+          this.toNum(this.pick<any>(
+            p,
+            'quantityTotal',
+            'quantity_total',
+            'availableQuantity',
+            'quantity',
+            'qty'
+          ));
 
         out.push({
           medicineName,
           batchId,
           availableQuantity,
-
-          // optional extras (future use)
           productId: this.pick<number>(p, 'productId', 'product_id') ?? undefined,
           category: this.pickStr(p, 'category') || undefined,
           price: this.toNum(this.pick<any>(p, 'price')),
@@ -129,7 +166,6 @@ export class StoreService {
       }
     }
 
-    // Nice UX: sort by medicineName then batchId
     return out.sort((a, b) => {
       const n = (a.medicineName ?? '').localeCompare(b.medicineName ?? '');
       if (n !== 0) return n;
