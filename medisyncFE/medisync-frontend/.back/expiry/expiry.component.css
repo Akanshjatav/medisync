@@ -1,8 +1,0 @@
-/* =========================
-   Expiry Page Specific Styles
-   ========================= */
-
-/* Row severity highlights */
-tr.sev-expired { background: rgba(217,83,79,.18); }
-tr.sev-urgent { background: rgba(240,173,78,.18); }
-tr.sev-soon { background: rgba(240,173,78,.10); }
