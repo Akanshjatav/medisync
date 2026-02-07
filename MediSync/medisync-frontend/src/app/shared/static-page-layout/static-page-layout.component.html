@@ -1,0 +1,49 @@
+<div class="app">
+  <!-- Navbar -->
+  <header class="navbar" role="banner" aria-label="Navbar">
+    <div class="nav-left">
+      <div class="brand" aria-label="Brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="brand-title">
+          <strong>MediSync</strong>
+          <small>Inventory Management</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-right" aria-label="Navigation">
+      <a routerLink="/pharmacist/dispensing" class="btn ghost">Go to Dashboard</a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="app-body">
+    <main class="main static-main" id="main" tabindex="-1">
+      <div class="main-content">
+        <ng-content></ng-content>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <!-- LEFT -->
+    <div class="footer-left">
+
+      <span class="footer-divider" aria-hidden="true"></span>
+
+      <span class="footer-text">
+        © 2026 AHDMNT Technologies • MediSync
+      </span>
+    </div>
+
+    <!-- RIGHT -->
+    <nav class="footer-links" aria-label="Footer links">
+      <a routerLink="/privacy">Privacy</a>
+      <a routerLink="/terms">Terms</a>
+      <a routerLink="/cookies">Cookies</a>
+      <a routerLink="/contact">Contact</a>
+      <a routerLink="/about">About</a>
+    </nav>
+  </footer>
+</div>

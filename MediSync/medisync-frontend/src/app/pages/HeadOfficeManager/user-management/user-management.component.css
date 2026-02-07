@@ -1,0 +1,368 @@
+/* ==========================================================
+   Add User - FULL WIDTH + MOBILE RESPONSIVE (Component CSS)
+   Works with your current HTML classes:
+   .app, .navbar, .nav-left, .nav-right, .brand, .pill, .main,
+   .page-title, .card, .um-form-fields, .field-wrap, .label,
+   .input, .select, .um-actions, .btn, .btn.secondary, .btn.ghost
+   ========================================================== */
+
+/* ---------------------------
+   Tokens (keep if you want local overrides)
+---------------------------- */
+:host {
+  --blue: #337AB7;
+  --green: #5CB85C;
+  --navy: #10324A;
+  --black: #111111;
+  --gray: #515151;
+  --white: #FFFFFF;
+  --very-light-blue: #EAF3FA;
+  --off-white: #FAFAF8;
+
+  --blue-dark: #285A8E;
+  --green-dark: #3E8E5A;
+  --aqua: #5BC0DE;
+
+  --bg: var(--off-white);
+  --surface: var(--white);
+  --surface-2: #fcfcfb;
+  --text: var(--black);
+  --muted: var(--gray);
+  --border: rgba(16, 50, 74, 0.14);
+
+  --shadow: 0 8px 24px rgba(17, 17, 17, 0.08);
+  --shadow-2: 0 10px 30px rgba(16, 50, 74, 0.10);
+  --ring: 0 0 0 4px rgba(51, 122, 183, 0.25);
+
+  --radius: 16px;
+  --gap: 16px;
+
+  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* ---------------------------
+   Base
+---------------------------- */
+:host * { box-sizing: border-box; }
+:host a { color: var(--blue); text-decoration: none; }
+:host a:hover { text-decoration: underline; }
+
+/* ✅ FULL WIDTH APP (removes the 1200px box) */
+:host .app {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+
+  font-family: var(--font);
+  color: var(--text);
+
+  /* nice background like the rest of your theme */
+  background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
+
+  /* allow full height layout */
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Skip link */
+:host .skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+:host .skip-link:focus {
+  left: 12px;
+  top: 12px;
+  width: auto;
+  height: auto;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  outline: none;
+  z-index: 9999;
+}
+
+/* ---------------------------
+   Navbar
+---------------------------- */
+:host .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+:host .nav-left,
+:host .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Hamburger (hidden by default; show on mobile) */
+:host .hamburger {
+  display: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--navy);
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  font-weight: 800;
+}
+:host .hamburger:focus { outline: none; box-shadow: var(--ring), var(--shadow); }
+
+/* Brand */
+:host .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+:host .logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: conic-gradient(from 200deg, var(--blue), var(--aqua), var(--green));
+  box-shadow: var(--shadow-2);
+  position: relative;
+  flex: 0 0 auto;
+}
+:host .logo::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.88);
+}
+:host .brand-title strong {
+  color: var(--navy);
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+/* Buttons */
+:host .btn {
+  border: 0;
+  cursor: pointer;
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  box-shadow: var(--shadow);
+  transition: transform 0.08s ease, filter 0.2s ease;
+  white-space: nowrap;
+}
+:host .btn:hover { filter: brightness(1.03); }
+:host .btn:active { transform: translateY(1px); }
+:host .btn:focus { outline: none; box-shadow: var(--ring), var(--shadow); }
+
+:host .btn.secondary { background: var(--green); }
+:host .btn.ghost {
+  background: var(--surface);
+  color: var(--navy);
+  border: 1px solid var(--border);
+}
+
+/* Status pill */
+:host .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+:host .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(92, 184, 92, 0.18);
+}
+
+/* ---------------------------
+   Main container (✅ full width + centered content like other pages)
+---------------------------- */
+:host .main {
+  width: 100%;
+  max-width: 1600px;                 /* ✅ fits wide screens like your other pages */
+  margin: 0 auto;
+  padding: 20px 40px 32px;
+  overflow-x: hidden;
+}
+
+/* Title */
+:host .page-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin: 0 0 14px;
+}
+
+:host .page-title h2 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+  color: var(--navy);
+}
+:host .hint { color: var(--muted); font-size: 12px; }
+:host .req { color: #d93025; font-weight: 900; }
+
+/* ---------------------------
+   Card (✅ full width)
+---------------------------- */
+:host .card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+:host .card h3 {
+  margin: 0 0 12px;
+  color: var(--navy);
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+/* ---------------------------
+   Form grid (✅ responsive)
+---------------------------- */
+:host .um-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: var(--gap);
+}
+
+/* Field wrappers */
+:host .field-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+:host .label {
+  display: block;
+  margin: 0;
+  font-weight: 800;
+  color: var(--navy);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: capitalize;
+}
+
+:host .field-wrap .help {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Inputs & Selects */
+:host .input,
+:host .select {
+  width: 100%;
+  height: 44px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
+}
+
+:host .input::placeholder { color: rgba(81, 81, 81, 0.65); font-weight: 600; }
+
+:host .input:focus,
+:host .select:focus {
+  box-shadow: var(--ring);
+  border-color: rgba(51, 122, 183, 0.55);
+  transform: translateY(-1px);
+}
+
+/* Reactive form validity */
+:host .input.ng-invalid.ng-touched,
+:host .select.ng-invalid.ng-touched { border-color: rgba(217, 48, 37, 0.65); }
+
+:host .input.ng-invalid.ng-touched:focus,
+:host .select.ng-invalid.ng-touched:focus { box-shadow: 0 0 0 4px rgba(217, 48, 37, 0.15); }
+
+/* ---------------------------
+   Actions
+---------------------------- */
+:host .um-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+:host button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* ---------------------------
+   Mobile responsiveness
+---------------------------- */
+@media (max-width: 980px) {
+  :host .hamburger { display: inline-flex; align-items: center; gap: 8px; }
+
+  :host .main {
+    padding: 16px 20px 24px;          /* ✅ smaller padding on tablets */
+  }
+}
+
+@media (max-width: 820px) {
+  :host .um-form-fields { grid-template-columns: 1fr; } /* ✅ 1 column on mobile */
+}
+
+@media (max-width: 600px) {
+  :host .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  :host .nav-right {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  :host .main {
+    padding: 14px 16px 22px;          /* ✅ phone padding */
+  }
+
+  :host .card {
+    padding: 16px;
+  }
+}

@@ -1,0 +1,43 @@
+<dialog #dlg aria-label="Submit Quotation">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" method="dialog" novalidate>
+    <div class="dialog-head">
+      <div>
+        <h3 style="margin:0; color:var(--navy);" id="title">{{title}}</h3>
+        <p class="muted" style="margin:6px 0 0;" id="sub">{{sub}}</p>
+      </div>
+      <button type="button" class="dialog-close" (click)="close()">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <div>
+        <label>RFQ ID <span class="req">*</span></label>
+        <input formControlName="rfqId" [readOnly]="readOnlyRfq" placeholder="RFQ-1842" />
+        <div class="field-error is-on" *ngIf="form.controls.rfqId.touched && form.controls.rfqId.invalid">
+          {{ rfqError }}
+        </div>
+      </div>
+      <div>
+        <label>Total Amount <span class="req">*</span></label>
+        <input type="number" formControlName="amount" step="0.01" min="0.01" />
+      </div>
+      <div>
+        <label>Valid Until <span class="req">*</span></label>
+        <input type="date" formControlName="validUntil" />
+      </div>
+      <div>
+        <label>Delivery Date <span class="req">*</span></label>
+        <input type="date" formControlName="deliveryDate" />
+      </div>
+      <div style="grid-column:1/-1;">
+        <label>Notes</label>
+        <textarea formControlName="notes" maxlength="1200"></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn ghost" type="button" (click)="close()">Cancel</button>
+      <button class="btn secondary" type="submit">{{submitText}}</button>
+    </div>
+  </form>
+</dialog>
+``

@@ -1,0 +1,328 @@
+/* Scoped dashboard styling. Uses your global CSS variables. */
+
+/* Page head */
+.vp-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.vp-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.vp-subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.vp-head-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* KPI grid */
+.vp-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1100px) {
+  .vp-kpis {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+.vp-kpi {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.vp-kpi-label {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--muted);
+  letter-spacing: .08em;
+  text-transform: capitalize;
+  margin-bottom: 10px;
+}
+
+.vp-kpi-value {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.vp-kpi-sub {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.monospace {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: .2px;
+}
+
+/* Cards (use global .card, add head/body conventions) */
+.vp-card {
+  padding: 0;
+}
+
+.vp-card-head {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vp-card-head h2 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--navy);
+  font-weight: 900;
+}
+
+.vp-card-body {
+  padding: 16px 18px;
+}
+
+/* Simple KV layout */
+.vp-kv {
+  display: grid;
+  gap: 10px;
+}
+
+.vp-kv-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(16, 50, 74, 0.18);
+}
+
+.vp-kv-row:last-child {
+  border-bottom: 0;
+}
+
+.vp-kv-row strong {
+  color: var(--navy);
+}
+
+/* List */
+.vp-list {
+  display: grid;
+  gap: 12px;
+}
+
+.vp-list-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--surface-2);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vp-list-item h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--navy);
+  font-weight: 900;
+}
+
+.vp-list-item p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.vp-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn.sm {
+  padding: 9px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Divider */
+.vp-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+/* Pills (avoid conflict with your global .badge dot class) */
+.vp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.vp-pill.green {
+  color: var(--green-dark);
+  border-color: rgba(92, 184, 92, .35);
+  background: rgba(92, 184, 92, .12);
+}
+
+.vp-pill.amber {
+  color: #7a4b00;
+  border-color: rgba(240, 173, 78, .45);
+  background: rgba(240, 173, 78, .12);
+}
+
+.vp-pill.red {
+  color: var(--red);
+  border-color: rgba(217, 83, 79, .45);
+  background: rgba(217, 83, 79, .10);
+}
+
+/* Dialog */
+.vp-dialog {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  width: min(860px, calc(100vw - 24px));
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-2);
+}
+
+.vp-dialog::backdrop {
+  background: rgba(0, 0, 0, .35);
+}
+
+.vp-dialog-form {
+  margin: 0;
+}
+
+.vp-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.vp-dialog-head h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--navy);
+  font-weight: 900;
+}
+
+.vp-dialog-head p {
+  margin: 6px 0 0;
+}
+
+.vp-x {
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.vp-x:focus {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* Form grid */
+.vp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+@media (max-width: 760px) {
+  .vp-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vp-form-grid label {
+  display: block;
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+.vp-form-grid input,
+.vp-form-grid textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  outline: none;
+}
+
+.vp-form-grid input:focus,
+.vp-form-grid textarea:focus {
+  box-shadow: var(--ring);
+  border-color: rgba(51, 122, 183, .55);
+}
+
+.vp-form-grid textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.span-2 {
+  grid-column: 1 / -1;
+}
+
+.req {
+  color: var(--red);
+}
+
+.vp-field-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* Dialog actions row */
+.vp-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 18px;
+  border-top: 1px solid var(--border);
+  align-items: center;
+  flex-wrap: wrap;
+}

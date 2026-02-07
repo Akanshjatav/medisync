@@ -1,0 +1,243 @@
+/* ===============================
+   PAGE HEADER (Full width + aligned)
+================================ */
+
+/* Override global .container max-width for this header */
+.container.page-head {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto 14px auto;
+  padding: 0 24px; /* keep nice spacing from edges */
+}
+
+/* Force breadcrumb casing to NOT be uppercase */
+.container.page-head .breadcrumbs {
+  text-transform: none !important;
+  letter-spacing: 0.06em;
+}
+
+.breadcrumbs {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.branch {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   PAGE WRAPPER (FULL WIDTH)
+================================ */
+.dispensing-grid {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 24px;     /* consistent with header */
+  display: block;      /* full width layout */
+}
+
+/* ===============================
+   CARD (FULL WIDTH)
+================================ */
+.card {
+  width: 100%;
+  max-width: 100%;     /* ✅ remove 900px limit */
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* Card header like other pages */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 28px;
+  font-weight: 900;
+  color: var(--navy);
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.batch-count-badge {
+  background: var(--blue-wash);
+  color: var(--blue-dark);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.card-body {
+  padding: 30px 40px 40px;
+}
+
+/* ===============================
+   FORM
+================================ */
+.form-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--navy);
+  margin: 0 0 6px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+/* Wider screens: use 3 columns since full width is available */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: capitalize;
+  letter-spacing: 0.06em;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Textarea SAME height as input */
+textarea.input {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 11px 12px !important;
+  resize: none !important;
+  overflow-y: auto;
+  white-space: nowrap;
+  line-height: 22px;
+}
+
+/* Focus */
+.input:focus,
+textarea.input:focus {
+  box-shadow: var(--ring);
+  border-color: rgba(51, 122, 183, 0.55);
+}
+
+/* Error */
+.field-error {
+  margin-top: 2px;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ===============================
+   ACTIONS
+================================ */
+.form-actions {
+  margin-top: 32px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Message box */
+.message-box {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.success-box {
+  background: rgba(92, 184, 92, 0.14);
+  border: 1px solid rgba(92, 184, 92, 0.28);
+  color: var(--green-dark);
+}
+
+.error-box {
+  background: rgba(217, 83, 79, 0.12);
+  border: 1px solid rgba(217, 83, 79, 0.28);
+  color: var(--red);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 1200px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-body {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .head-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tools {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .container.page-head,
+  .dispensing-grid {
+    padding: 0 16px;
+  }
+}

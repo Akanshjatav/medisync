@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP</title>
+</head>
+
+<style>
+  :root {
+    --forest-deep: #102716;
+    --sage-green: #4A644D;
+    --warm-amber: #DE6D20;
+    --near-black: #111111;
+    --medium-gray: #515151;
+    --light-gray: #E5E5E5;
+    --white: #FFFFFF;
+    --very-light-green: #f5fbf7;
+    --logo-blue: #337AB7;
+    --logo-green: #5CB85C;
+
+    --forest-tint: #2A3F2C;
+    --sage-shade: #3B513E;
+    --amber-tint: #F4A64A;
+    --amber-shade: #B85A18;
+    --balanced-gray: #A0A0A0;
+    --off-white: #FAFAF8;
+    --green-wash: #e8f7ee;
+
+    --burgundy: #6B1F1F;
+    --navy-blue: #1F3A4D;
+
+    --text: var(--near-black);
+    --muted-text: var(--medium-gray);
+    --border: var(--light-gray);
+
+    --shadow-sm: 0 1px 2px rgba(31,58,77,0.10);
+    --shadow-md: 0 4px 14px rgba(31,58,77,0.14);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    --max-content: 720px;
+  }
+
+  /* ---------- Base ---------- */
+  *,
+  *::before,
+  *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--off-white), var(--very-light-green));
+    line-height: 1.5;
+  }
+  h1,h2,h3 { margin: 0 0 var(--space-3); font-weight: 600; }
+  a { color: var(--logo-blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .sr-only {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+    border: 0;
+  }
+  :focus-visible { outline: 3px solid var(--amber-tint); outline-offset: 3px; }
+
+  /* ---------- App Shell ---------- */
+  .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+
+  /* Header */
+  .app-header {
+    background:
+      radial-gradient(1200px 300px at 0% 0%, rgba(218, 247, 227, 0.15), transparent 60%),
+      linear-gradient(90deg, var(--navy-blue), var(--forest-tint));
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+  }
+  .brand {
+    display: flex; align-items: baseline; gap: var(--space-3);
+    padding: var(--space-6) var(--space-8);
+  }
+  .brand__title { font-size: 1.6rem; letter-spacing: .4px; }
+  .brand__subtitle { color: #CFE5F6; font-size: .95rem; }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    padding: var(--space-8);
+    max-width: var(--max-content);
+    margin: 0 auto;
+  }
+  .content { display: grid; gap: var(--space-8); align-content: start; }
+
+  /* ---------- Panel ---------- */
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-6);
+  }
+  .panel__title {
+    color: var(--navy-blue);
+    font-size: 1.25rem;
+    margin-bottom: var(--space-2);
+    position: relative;
+    padding-left: 12px;
+  }
+  .panel__title::before {
+    content: "";
+    position: absolute;
+    width: 6px; height: 22px;
+    background: linear-gradient(180deg, var(--logo-blue), var(--logo-green));
+    border-radius: 4px; left: 0; top: 2px;
+  }
+  .panel__description { color: var(--muted-text); margin-bottom: var(--space-6); }
+
+  /* ---------- Form fields ---------- */
+  .form-field { display: grid; gap: var(--space-2); margin-bottom: var(--space-5); }
+  .form-field__label { color: var(--near-black); font-weight: 600; }
+  .form-field__input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dfe5ea;
+    border-radius: var(--radius-sm);
+    background: #fafcff;
+    color: var(--near-black);
+    box-shadow: inset 0 1px 2px rgba(31,58,77,0.06);
+    transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  }
+  .form-field__input::placeholder { color: var(--balanced-gray); }
+  .form-field__input:focus {
+    border-color: var(--logo-blue);
+    box-shadow: 0 0 0 3px rgba(51,122,183,0.18);
+    background: #fff;
+  }
+  .form-field__help { color: var(--muted-text); font-size: .95rem; }
+
+  /* OTP input specifics */
+  #fpOtp {
+    letter-spacing: 2px;
+    text-align: center;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+
+  /* ---------- Captcha row ---------- */
+  .panel__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-3) 0 var(--space-4);
+  }
+  .captcha {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--near-black);
+    background:
+      repeating-linear-gradient(135deg, #f5fbf7 0 10px, #ecf5ff 10px 20px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ---------- Buttons ---------- */
+
+  
+
+.form-actions{
+  display: flex;
+  justify-content: center; /* centers buttons horizontally */
+  gap: 12px;               /* space between buttons */
+  margin-top: 16px;
+}
+
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    border-radius: 999px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, border-color 120ms ease, color 120ms ease;
+    padding: 10px 16px;
+  }
+  .btn--primary {
+    background: linear-gradient(180deg, var(--logo-blue), #2b6ca3);
+    color: var(--white);
+    border-color: #2b6ca3;
+  }
+  .btn--primary:hover {
+    background: linear-gradient(180deg, #3a86c8, var(--logo-blue));
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn--primary:active { transform: translateY(0); }
+
+  .btn--secondary {
+    background: var(--burgundy);
+    color: var(--white);
+    border-color: #5b1919;
+  }
+  .btn--secondary:hover {
+    background: #5b1919;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn--secondary:active { transform: translateY(0); }
+
+  /* Actions row (use if you add Verify/Cancel buttons) */
+  .form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+    margin-top: var(--space-4);
+  }
+
+  /* ---------- Alerts (optional placeholders) ---------- */
+  .alert {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-2);
+    min-height: 48px;
+  }
+  .alert--success { background: #EBFAF0; border-color: #CFEBD7; color: var(--forest-deep); }
+  .alert--error   { background: #FDECEA; border-color: #F5C5C4; color: var(--burgundy); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 768px) {
+    .layout { padding: var(--space-6); }
+    .btn { width: 100%; }
+    .panel__header { flex-wrap: wrap; }
+  }
+
+  /* ---------- Print ---------- */
+  @media print {
+    .app-header { display: none; }
+    .layout { padding: 0; }
+    .panel { box-shadow: none; border-color: #ccc; }
+    .btn { display: none; }
+
+
+  }
+</style>
+
+<body>
+        <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <h1 class="brand__title">MediSync</h1>
+        <p class="brand__subtitle">OTP</p>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="layout">
+      <main class="content">
+        <section class="panel forgot-password">
+          <h2 class="panel__title">Enter OTP</h2>
+          <p class="panel__description">
+            Enter the OTP that you received on
+          </p>
+    <!-- OTP -->
+        <div class="form-field">
+        <label for="fpOtp" class="form-field__label">Enter OTP: </label>
+        <input
+            type="text"
+            id="fpOtp"
+            name="otp"
+            class="form-field__input"
+            inputmode="numeric"
+            pattern="\d{6}"
+            maxlength="6"
+            required
+            placeholder="6-digit code"
+            />
+        <p class="form-field__help">Enter the 6-digit OTP sent to your email.</p>
+        </div>
+                    <!-- Captcha -->
+
+              <!-- Static placeholder for captcha visual -->
+              <div class="panel__header">
+                <code class="captcha">AB12CD</code>
+                <button type="button" class="btn btn--secondary">Refresh</button>
+              </div>
+
+              <label for="fpCaptcha" class="form-field__label">Type the captcha: </label>
+              <input
+                type="text"
+                id="fpCaptcha"
+                name="captcha"
+                class="form-field__input"
+                required
+                placeholder="Enter captcha"
+              />
+              <p class="form-field__help">Type the characters shown above.</p>
+            </div>
+
+        
+            <div class="form-actions">
+            <button type="button" id="verifyBtn" class="btn btn--primary">Verify</button>
+            <button type="button" id="cancelBtn" class="btn btn--secondary">Cancel</button>
+            </div>
+
+            
+<script>
+/**
+ * MediSync — OTP Page Script (Focused)
+ * Includes: event listeners, responsiveness, validation, inline errors, captcha refresh
+ * OTP is hardcoded here (demo).
+ */
+(function () {
+  "use strict";
+
+  // ---------- Helpers ----------
+  const qs  = (sel, root = document) => root.querySelector(sel);
+  const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const on  = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
+  const debounce = (fn, wait = 160) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), wait); }; };
+
+  // ---------- Config (change only if your filenames differ) ----------
+  const HARDCODED_OTP = "654321";                 // demo OTP (6 digits)
+  const RESET_PAGE_URL = "./reset_password.html"; // change to "./reset-password.html" if that’s your file
+  const LOGIN_PAGE_URL = "./login.html";
+
+  // Captcha generator (safe chars; avoids confusing I/O/0/1)
+  const SAFE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  function generateCaptcha(len = 6) {
+    let s = "";
+    for (let i = 0; i < len; i++) s += SAFE_CHARS[Math.floor(Math.random() * SAFE_CHARS.length)];
+    return s;
+  }
+
+  // Email-like UX: normalize captcha input to uppercase before compare
+  const normalizeCaptcha = (s) => (s || "").trim().toUpperCase();
+
+  on(document, "DOMContentLoaded", () => {
+    // ---------- DOM refs ----------
+    const form         = qs("form"); // optional (if you have one)
+    const otpInput     = qs("#fpOtp");
+    const captchaEl    = qs(".captcha");
+    const captchaInput = qs("#fpCaptcha");
+    const refreshBtn   = qs(".panel__header .btn.btn--secondary") || qs(".panel__header .btn--secondary");
+
+    // Verify/Cancel buttons (try IDs first; else find by text)
+    const verifyBtn =
+      qs("#verifyBtn") ||
+      qsa(".form-actions button").find(b => /verify|continue|submit/i.test(b.textContent));
+
+    const cancelBtn =
+      qs("#cancelBtn") ||
+      qsa(".form-actions button").find(b => /cancel|back/i.test(b.textContent));
+
+    if (!otpInput || !captchaEl || !captchaInput) {
+      console.warn("OTP Page: required elements missing.", { otpInput, captchaEl, captchaInput });
+      return;
+    }
+
+    // Prevent default submit (if form exists)
+    on(form, "submit", (e) => {
+      e.preventDefault();
+      handleVerify();
+    });
+
+    // ---------- Inline error elements ----------
+    function ensureInlineError(afterEl, id) {
+      let err = qs("#" + id);
+      if (!err) {
+        err = document.createElement("p");
+        err.id = id;
+        err.className = "form-field__help";
+        err.style.color = "var(--burgundy)";
+        err.style.display = "none";
+        err.setAttribute("role", "alert");
+        err.setAttribute("aria-live", "polite");
+        afterEl.insertAdjacentElement("afterend", err);
+      }
+      return err;
+    }
+
+    const otpErrEl = ensureInlineError(otpInput, "fpOtpError");
+    const capErrEl = ensureInlineError(captchaInput, "fpCaptchaError");
+
+    // Attach describedby for accessibility
+    function addDescribedBy(inputEl, errEl) {
+      const existing = (inputEl.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+      if (!existing.includes(errEl.id)) existing.push(errEl.id);
+      inputEl.setAttribute("aria-describedby", existing.join(" "));
+    }
+    addDescribedBy(otpInput, otpErrEl);
+    addDescribedBy(captchaInput, capErrEl);
+
+    // ---------- Error helpers ----------
+    function showErr(inputEl, errEl, msg) {
+      errEl.textContent = msg;
+      errEl.style.display = "block";
+      inputEl.setAttribute("aria-invalid", "true");
+    }
+    function clearErr(inputEl, errEl) {
+      errEl.textContent = "";
+      errEl.style.display = "none";
+      inputEl.setAttribute("aria-invalid", "false");
+    }
+    function clearAllErrors() {
+      clearErr(otpInput, otpErrEl);
+      clearErr(captchaInput, capErrEl);
+    }
+
+    // ---------- Captcha set/refresh ----------
+    function setCaptcha(code) {
+      captchaEl.textContent = code;
+      captchaEl.setAttribute("aria-label", `Captcha code ${code.split("").join(" ")}`);
+    }
+
+    // Initialize captcha (replace the static AB12CD)
+    setCaptcha(generateCaptcha(6));
+
+    function handleRefreshCaptcha(e) {
+      e && e.preventDefault();
+      setCaptcha(generateCaptcha(6));
+      captchaInput.value = "";
+      clearErr(captchaInput, capErrEl);
+      captchaInput.focus();
+    }
+
+    on(refreshBtn, "click", handleRefreshCaptcha);
+
+    // ---------- Validation ----------
+    function validateOtp(show = true) {
+      const val = (otpInput.value || "").trim();
+      const ok = /^\d{6}$/.test(val);
+
+      if (!val) {
+        if (show) showErr(otpInput, otpErrEl, "OTP is required (6 digits).");
+        return false;
+      }
+      if (!ok) {
+        if (show) showErr(otpInput, otpErrEl, "OTP must be exactly 6 digits (e.g., 123456).");
+        return false;
+      }
+
+      clearErr(otpInput, otpErrEl);
+      return true;
+    }
+
+    function validateCaptcha(show = true) {
+      const entered = normalizeCaptcha(captchaInput.value);
+      const expected = normalizeCaptcha(captchaEl.textContent);
+
+      if (!entered) {
+        if (show) showErr(captchaInput, capErrEl, "Captcha is required.");
+        return false;
+      }
+      if (entered !== expected) {
+        if (show) showErr(captchaInput, capErrEl, "Captcha does not match. Please try again.");
+        return false;
+      }
+
+      clearErr(captchaInput, capErrEl);
+      return true;
+    }
+
+    // ---------- Verify flow ----------
+    function handleVerify(e) {
+      e && e.preventDefault();
+      clearAllErrors();
+
+      const otpOk = validateOtp(true);
+      const capOk = validateCaptcha(true);
+
+      if (!otpOk) { otpInput.focus(); return; }
+      if (!capOk) { captchaInput.focus(); return; }
+
+      // Hardcoded OTP check (demo)
+      if ((otpInput.value || "").trim() !== HARDCODED_OTP) {
+        showErr(otpInput, otpErrEl, "Invalid OTP. Please check and try again.");
+        otpInput.focus();
+        return;
+      }
+
+      // Success → redirect
+      window.location.href = RESET_PAGE_URL;
+    }
+
+    // ---------- Cancel flow ----------
+    function handleCancel(e) {
+      e && e.preventDefault();
+      window.location.href = LOGIN_PAGE_URL;
+    }
+
+    // Wire verify/cancel buttons if present
+    on(verifyBtn, "click", handleVerify);
+    on(cancelBtn, "click", handleCancel);
+
+    // ---------- Live validation (responsive feel) ----------
+    on(otpInput, "input", debounce(() => validateOtp(false)));
+    on(captchaInput, "input", debounce(() => validateCaptcha(false)));
+
+    // Keyboard shortcuts
+    [otpInput, captchaInput].forEach((inp) => {
+      on(inp, "keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); handleVerify(); }
+        if (e.key === "Escape") {
+          inp.value = "";
+          // re-validate silently
+          if (inp === otpInput) validateOtp(false);
+          if (inp === captchaInput) validateCaptcha(false);
+        }
+      });
+    });
+
+    // ---------- Media-query responsiveness ----------
+    const mq = window.matchMedia("(max-width: 768px)");
+    function applyResponsive(mql) {
+      otpInput.setAttribute("aria-label", mql.matches ? "OTP" : "One-time password (6 digits)");
+      captchaInput.setAttribute("aria-label", mql.matches ? "Captcha" : "Type the captcha shown");
+    }
+    applyResponsive(mq);
+    on(mq, "change", (e) => applyResponsive(e));
+
+    // Focus OTP by default
+    otpInput.focus();
+  });
+  
+})();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+<div class="main-content">
+  <div class="page-title">
+    <div>
+      <h2>Request Stock</h2>
+    </div>
+
+    <!-- <a class="btn ghost" routerLink="/pharmacist/dashboard">← Dashboard</a> -->
+  </div>
+
+  <!-- @if (showErrorBanner()) {
+    <div class="notice error" role="alert" aria-live="polite">
+      <div class="icon" aria-hidden="true">!</div>
+      <div>
+        <h4>Validation error</h4>
+        <p>Please correct the highlighted fields below.</p>
+      </div>
+      <div class="actions">
+        <button class="xbtn" type="button" (click)="dismissError()" aria-label="Dismiss error">✕</button>
+      </div>
+    </div>
+  } -->
+
+  @if (showSuccessBanner()) {
+    <div class="notice success" role="status" aria-live="polite">
+      <div class="icon ok" aria-hidden="true">✓</div>
+      <div>
+        <h4>Submitted</h4>
+        <p>Your request has been added to Recent Requests (demo mode).</p>
+      </div>
+      <div class="actions">
+        <button class="xbtn" type="button" (click)="dismissSuccess()" aria-label="Dismiss success">✕</button>
+      </div>
+    </div>
+  }
+
+  <section class="card" aria-label="Submit stock request">
+    <h3>Submit Request Stock</h3>
+    <p class="sub">Fields marked with <span class="required">*</span> are required.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" (reset)="onReset()" novalidate style="margin-top:14px;">
+      <div class="actions-grid">
+
+        <section class="action">
+          <label for="medicineNameInput">Medicine Name <span class="required">*</span></label>
+          <input
+            id="medicineNameInput"
+            type="search"
+            formControlName="medicineName"
+            list="medicineOptions"
+            placeholder="Type or select a medicine..."
+            [class.is-invalid]="(f.medicineName.touched || submitted()) && f.medicineName.invalid"
+          />
+          <datalist id="medicineOptions">
+            @for (m of medicineOptions; track m) { <option [value]="m"></option> }
+          </datalist>
+
+          <p class="sub">Start typing to use suggestions.</p>
+          <p class="error-text" [class.show]="(f.medicineName.touched || submitted()) && f.medicineName.invalid" aria-live="polite">
+            @if (f.medicineName.errors?.['required']) { Medicine Name is required. }
+            @else if (f.medicineName.errors?.['minlength']) { Medicine Name must be at least 2 characters. }
+          </p>
+        </section>
+
+        <section class="action">
+          <label for="requiredQuantityInput">Required Quantity <span class="required">*</span></label>
+          <input
+            id="requiredQuantityInput"
+            type="number"
+            formControlName="requiredQty"
+            min="1"
+            step="1"
+            placeholder="Enter quantity (e.g., 25)"
+            [class.is-invalid]="(f.requiredQty.touched || submitted()) && f.requiredQty.invalid"
+          />
+          <p class="sub">Enter total units required.</p>
+          <p class="error-text" [class.show]="(f.requiredQty.touched || submitted()) && f.requiredQty.invalid" aria-live="polite">
+            @if (f.requiredQty.errors?.['required']) { Required Quantity is required. }
+            @else { Required Quantity must be a whole number ≥ 1. }
+          </p>
+        </section>
+
+        <section class="action" style="grid-column: 1 / -1;">
+          <label for="requestNotesTextarea">Notes (optional)</label>
+          <textarea
+            id="requestNotesTextarea"
+            formControlName="notes"
+            rows="4"
+            placeholder="Add any context or reason for this request (optional)..."></textarea>
+          <p class="sub">Any additional info for approval & fulfilment.</p>
+        </section>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn secondary">Submit Request</button>
+        <button type="reset" class="btn ghost">Clear</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card" aria-label="Recent requests" style="margin-top:16px;">
+    <h3>Recent Requests</h3>
+    <p class="sub">A quick view of your latest submitted requests.</p>
+
+    <div class="table-wrap" style="margin-top:12px;">
+      <table aria-label="Recent requests table">
+        <thead>
+          <tr>
+            <th scope="col">Medicine Name</th>
+            <th scope="col">Requested Qty</th>
+            <th scope="col">Date</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (r of recentRequests; track r.medicineName + r.date) {
+            <tr>
+              <td>{{ r.medicineName }}</td>
+              <td>{{ r.requiredQty }}</td>
+              <td>{{ r.date }}</td>
+              <td><span class="status pending">{{ r.status }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,267 @@
+:host {
+  display: block;
+}
+
+* { box-sizing: border-box; }
+
+/* =========================
+   Page base styles (match theme)
+   ========================= */
+
+.create-bids-page {
+  width: 100%;
+}
+
+.page{
+  font-family: var(--font);
+  color: var(--text);
+  background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+/* main container */
+.main{
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* Wrap: avoid full-height stretching, keep clean layout */
+.wrap{
+  display: grid;
+  gap: var(--gap);
+  width: 100%;
+}
+
+/* ✅ Make it look good in wide screens:
+   Use full available content width but cap it so it doesn’t feel empty */
+.grid.single{
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+
+  /* ✅ this makes it look like your screenshot:
+     card has a comfortable width and is centered */
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* =========================
+   Title bar
+   ========================= */
+
+.page-title{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+
+  /* align title with card width */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-title h2{
+  margin: 0;
+  font-size: 22px;
+  color: var(--navy);
+}
+
+.page-title p{
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.title-left{
+  display:flex;
+  align-items:flex-start;
+  gap: 12px;
+}
+
+/* Hamburger */
+.hamburger{
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--navy);
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  line-height: 1;
+  white-space: nowrap;
+}
+.hamburger:hover{
+  background: linear-gradient(90deg, rgba(51,122,183,.10), transparent);
+}
+
+/* Backdrop (optional) */
+.backdrop{ display: none; }
+@media (max-width: 960px){
+  .backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(17,17,17,.35);
+    z-index: 25;
+    display: none;
+  }
+  .backdrop.open{ display: block; }
+}
+
+/* =========================
+   Create Bids UI
+   ========================= */
+
+form{
+  display: grid;
+  gap: 14px;
+}
+
+/* ✅ Keep natural height.
+   Only when many lines are added, bid list scrolls (prevents huge tall page). */
+.bids-shell{
+  display: grid;
+  gap: 12px;
+
+  /* tweak this to taste */
+  max-height: 46vh;
+  overflow: auto;
+
+  padding-right: 6px;
+}
+
+/* When screen is small, let it expand more naturally */
+@media (max-width: 820px){
+  .bids-shell{
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+}
+
+.bid-box{
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.bid-fields{
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 820px){
+  .bid-fields{
+    grid-template-columns: 1fr;
+  }
+}
+
+.field{
+  display: grid;
+  gap: 8px;
+}
+
+.field label{
+  color: var(--navy);
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.field input,
+.field select{
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.field input:focus,
+.field select:focus{
+  box-shadow: var(--ring);
+  border-color: rgba(51,122,183,.55);
+}
+
+/* Inline error */
+.err{
+  margin-top: -2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--red, #D9534F);
+}
+
+/* Row actions */
+.row-actions{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.xbtn{
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-weight: 900;
+  color: var(--muted);
+  box-shadow: var(--shadow);
+}
+.xbtn:hover{
+  background: linear-gradient(90deg, rgba(51,122,183,.10), transparent);
+}
+
+/* Bottom actions: aligned right, no sticky */
+.actions-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  margin-top: 2px;
+  padding-top: 6px;
+}
+
+/* Plus icon button */
+.plus-icon{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  font-size: 22px;
+  font-weight: 1000;
+  line-height: 1;
+}
+.plus-icon:hover{
+  background: linear-gradient(90deg, rgba(51,122,183,.12), transparent);
+}
+.plus-icon:focus{
+  outline: none;
+  box-shadow: var(--ring), var(--shadow);
+}

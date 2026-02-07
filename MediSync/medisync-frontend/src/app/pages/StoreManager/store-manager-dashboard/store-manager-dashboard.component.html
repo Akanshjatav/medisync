@@ -1,0 +1,229 @@
+<div class="container page-head">
+  <div class="breadcrumbs">STORE MANAGER / Dashboard</div>
+
+  <div class="head-row">
+    <div class="branch">Dashboard Overview</div>
+    <div class="tools">
+      <button class="btn ghost" (click)="retry()" [disabled]="loading || actionBusy">
+        {{ loading ? 'Loading...' : 'Refresh' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading">
+  Loading dashboard data...
+</div>
+
+<!-- Error -->
+<div *ngIf="error && !loading" class="error">
+  {{ error }}
+  <button class="btn" (click)="retry()" style="margin-left: 12px;">Retry</button>
+</div>
+
+<!-- Content -->
+<div *ngIf="!loading && !error">
+  <!-- Metrics -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon" style="background: linear-gradient(135deg, var(--blue), var(--blue-soft));">
+        <span style="font-size: 28px;">📄</span>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.totalRfqs }}</div>
+        <div class="metric-label">Total RFQs</div>
+        <div class="metric-sub">{{ metrics.openRfqs }} open / active</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon" style="background: linear-gradient(135deg, var(--green), var(--green-light));">
+        <span style="font-size: 28px;">🏁</span>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.awardedRfqs }}</div>
+        <div class="metric-label">Awarded RFQs</div>
+        <div class="metric-sub">Completed / awarded</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon" style="background: linear-gradient(135deg, var(--amber), #FFB74D);">
+        <span style="font-size: 28px;">🧾</span>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.totalRfqItems }}</div>
+        <div class="metric-label">Total RFQ Items</div>
+        <div class="metric-sub">Across all RFQs</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon" style="background: linear-gradient(135deg, var(--navy, #123), #546E7A);">
+        <span style="font-size: 28px;">💰</span>
+      </div>
+      <div class="metric-content">
+        <div class="metric-value">{{ metrics.bidsForSelected }}</div>
+        <div class="metric-label">Bids (Selected RFQ)</div>
+        <div class="metric-sub" *ngIf="selectedRfqId; else noSel">For RFQ #{{ selectedRfqId }}</div>
+        <ng-template #noSel><div class="metric-sub">Select an RFQ</div></ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="dashboard-grid">
+    <!-- Recent RFQs -->
+    <div class="card">
+      <div class="card-header">
+        <span>📄 Recent RFQs</span>
+        <a routerLink="/store-manager/rfqs" class="btn ghost">View All</a>
+      </div>
+
+      <div *ngIf="rfqs.length === 0" class="empty">
+        No RFQs found
+      </div>
+
+      <table *ngIf="rfqs.length > 0" class="inventory-table">
+        <thead>
+          <tr>
+            <th>RFQ ID</th>
+            <th>Items</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of rfqs.slice(0, 6)">
+            <td><strong>#{{ rfqId(p) }}</strong></td>
+            <td>{{ p.items.length || 0 }} items</td>
+            <td>
+              <span class="status-chip" [ngClass]="statusClass(rfqStatus(p))">
+                <span class="dot"></span>
+                {{ rfqStatus(p) || '—' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bids Panel -->
+    <div class="card">
+      <div class="card-header">
+        <span>💰 Bids (Selected RFQ)</span>
+
+        <div class="inline-controls">
+          <select class="select" [ngModel]="selectedRfqId" (ngModelChange)="onSelectRfq($event)">
+            <option [ngValue]="null">Select RFQ</option>
+            <option *ngFor="let p of rfqs.slice(0, 40)" [ngValue]="rfqId(p)">
+              #{{ rfqId(p) }} — {{ rfqStatus(p) || '—' }}
+            </option>
+          </select>
+
+          <button class="btn ghost" (click)="awardSelectedRfq()" [disabled]="!selectedRfqId || actionBusy">
+            {{ actionBusy ? 'Awarding...' : 'Award RFQ' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedRfqId" class="empty">
+        Select an RFQ to view bids.
+      </div>
+
+      <div *ngIf="selectedRfqId && bidsLoading" class="loading" style="margin: 14px;">
+        Loading bids...
+      </div>
+
+      <div *ngIf="selectedRfqId && !bidsLoading && bidsError" class="error" style="margin: 14px;">
+        {{ bidsError }}
+        <button class="btn" (click)="loadBidsForSelected()" style="margin-left: 12px;">Retry</button>
+      </div>
+
+      <div *ngIf="selectedRfqId && !bidsLoading && !bidsError">
+        <div *ngIf="bids.length === 0" class="empty">No bids found for this RFQ.</div>
+
+        <table *ngIf="bids.length > 0" class="inventory-table">
+          <thead>
+            <tr>
+              <th>Bid ID</th>
+              <th>Vendor</th>
+              <th>Items</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of bids.slice(0, 6)">
+              <td><strong>#{{ b.bidId }}</strong></td>
+              <td>{{ b.vendorName }}</td>
+              <td>{{ b.items.length || 0 }} items</td>
+              <td>
+                <span class="status-chip" [ngClass]="statusClass(b.status)">
+                  <span class="dot"></span>
+                  {{ b.status || '—' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Success Popup (shows after award success) -->
+<div
+  *ngIf="showUpdateSuccess()"
+  style="position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;"
+  role="presentation"
+  (click)="closeUpdateSuccess()"
+  (keydown.escape)="closeUpdateSuccess()"
+  tabindex="-1"
+>
+  <div
+    style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+           border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+           padding: 32px 20px 20px; text-align: center;"
+    role="dialog"
+    aria-modal="true"
+    aria-label="RFQ awarded successfully"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+             border-radius: 999px; background: #34C759; display:grid; place-items:center;
+             box-shadow: 0 6px 18px rgba(52,199,89,.45), 0 0 0 6px rgba(52,199,89,.15);"
+      aria-hidden="true"
+    >
+      <svg width="38" height="38" viewBox="0 0 24 24">
+        <path d="M20 6L9 17l-5-5" fill="none" stroke="#fff" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+
+    <h3 style="margin: 28px 0 6px; font-size: 1.35rem; color:#10324A; letter-spacing:.2px;">
+      {{ successTitle }}
+    </h3>
+
+    <p style="margin:0 0 18px; color:#515151;">
+      {{ successMessage }}
+    </p>
+
+    <div style="display:flex; justify-content:center;">
+      <button
+        type="button"
+        (click)="closeUpdateSuccess()"
+        style="border:0; cursor:pointer; padding:12px 18px; border-radius: 12px; background:#34C759;
+               color:#fff; font-weight:800; letter-spacing:.2px; min-width: 120px;
+               box-shadow: 0 8px 20px rgba(52,199,89,.35);"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+</div>

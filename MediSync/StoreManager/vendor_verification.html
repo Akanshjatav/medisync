@@ -1,0 +1,988 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendor Verification</title>
+  <style>
+    /* =========================================================
+       THEME TOKENS (shared & extended for sidebar/navbar)
+       ========================================================= */
+    :root{
+      /* Brand palette (aligned with your previous portal tokens) */
+      --blue: #337AB7;
+      --green: #5CB85C;
+      --navy: #10324A;
+      --black: #111111;
+      --gray: #515151;
+      --light-gray: #E5E5E5;
+      --white: #FFFFFF;
+      --very-light-green: #F5FBF7;
+      --very-light-blue: #EAF3FA;
+
+      --blue-dark: #285A8E;
+      --blue-soft: #6FA8DC;
+      --green-dark: #3E8E5A;
+      --green-light: #8FD19E;
+      --off-white: #FAFAF8;
+
+      --amber: #F0AD4E;
+      --red: #D9534F;
+      --aqua: #5BC0DE;
+
+      --bg: var(--off-white);
+      --surface: var(--white);
+      --surface-2: #fcfcfb;
+      --text: var(--black);
+      --muted: var(--gray);
+      --border: rgba(16, 50, 74, 0.14);
+      --shadow: 0 8px 24px rgba(17,17,17,.08);
+      --shadow-2: 0 10px 30px rgba(16, 50, 74, .10);
+      --ring: 0 0 0 4px rgba(51, 122, 183, .25);
+
+      --radius: 16px;
+      --gap: 16px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --sidebar-w: 290px;
+      --navbar-h: 72px;
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b141b;
+        --surface: #0f1e28;
+        --surface-2: #10222d;
+        --text: #f4f6f8;
+        --muted: #c1c7cd;
+        --border: rgba(229,229,229,.12);
+        --shadow: 0 10px 30px rgba(0,0,0,.45);
+        --shadow-2: 0 10px 30px rgba(0,0,0,.5);
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
+      line-height: 1.4;
+    }
+    a{ color: var(--blue); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .sr-only{
+      position:absolute;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      white-space:nowrap; border:0;
+    }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto; padding:10px 12px;
+      border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+      outline:none; z-index: 9999;
+    }
+
+    /* Layout */
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: var(--navbar-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas:
+        "nav nav"
+        "side main";
+    }
+
+    /* Navbar */
+    .navbar{
+      grid-area: nav;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.7);
+      backdrop-filter: blur(10px);
+    }
+    @media (prefers-color-scheme: dark){
+      .navbar{ background: rgba(15,30,40,.75); }
+    }
+
+    .nav-left, .nav-right{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 220px;
+    }
+    .logo{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: conic-gradient(from 200deg, var(--blue), var(--aqua), var(--green));
+      box-shadow: var(--shadow-2);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:10px;
+      border-radius:10px;
+      background: rgba(255,255,255,.88);
+    }
+    .brand-title{
+      display:grid;
+      gap:2px;
+      min-width:0;
+    }
+    .brand-title strong{
+      color: var(--navy);
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .brand-title small{
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hamburger{
+      display:none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--navy);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+    }
+    .hamburger:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:1;
+      max-width: 640px;
+      min-width: 220px;
+    }
+    .search input[type="search"]{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    .search input[type="search"]:focus{
+      box-shadow: var(--ring);
+      border-color: rgba(51,122,183,.55);
+    }
+
+    .btn{
+      border: 0;
+      cursor: pointer;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: .2px;
+      box-shadow: var(--shadow);
+      transition: transform .08s ease, filter .2s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn:hover{ filter: brightness(1.03); text-decoration:none; }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+    .btn-primary{ background: var(--green); }
+    .btn.secondary{ background: var(--green); }
+    .btn.danger{ background: var(--red); }
+    .btn.ghost{
+      background: transparent;
+      color: var(--blue-dark);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn.ghost:hover{ background: rgba(51,122,183,.08); }
+    .btn.sm{ padding: 8px 10px; border-radius: 12px; font-size: 12px; font-weight: 900; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(92,184,92,.18);
+    }
+
+    details.menu{ position: relative; }
+    details.menu > summary{
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      color: var(--navy);
+      outline: none;
+      white-space: nowrap;
+    }
+    details.menu > summary:focus{ box-shadow: var(--ring), var(--shadow); }
+    details.menu > summary::-webkit-details-marker{ display:none; }
+
+    .dropdown{
+      position:absolute;
+      right: 0;
+      top: 52px;
+      width: 240px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-2);
+      padding: 10px;
+      z-index: 60;
+    }
+    .dropdown a, .dropdown button{
+      display:block;
+      width:100%;
+      text-align:left;
+      padding: 10px 10px;
+      border-radius: 12px;
+      color: var(--text);
+      font-weight: 700;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+    .dropdown a:hover, .dropdown button:hover{
+      background: linear-gradient(90deg, rgba(51,122,183,.12), transparent);
+      text-decoration:none;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      grid-area: side;
+      padding: 16px;
+      border-right: 1px solid var(--border);
+      background: rgba(245, 251, 247, .65);
+      backdrop-filter: blur(8px);
+      overflow:auto;
+    }
+    @media (prefers-color-scheme: dark){
+      .sidebar{ background: rgba(15,30,40,.55); }
+    }
+    .side-card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .side-title{
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 4px 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .nav{
+      display:grid;
+      gap: 8px;
+    }
+    .nav a{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      color: var(--navy);
+      font-weight: 800;
+    }
+    .nav a:hover{
+      border-color: rgba(51,122,183,.25);
+      text-decoration:none;
+    }
+    .nav a[aria-current="page"]{
+      border-color: rgba(51,122,183,.40);
+      box-shadow: 0 0 0 4px rgba(51,122,183,.12);
+    }
+
+    /* =========================================================
+       MAIN PAGE LAYOUT (your content)
+       ========================================================= */
+    .main{ grid-area: main; padding: 24px; min-width: 0; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: grid; gap: 18px; }
+
+    /* Page-level header (title + search) */
+    .header-wrap {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+    .header-wrap h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.2vw, 28px);
+      letter-spacing: 0.3px;
+    }
+    .searchbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+    }
+    .searchbar input {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1px solid #d7dde7;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 999px;
+      outline: none;
+      transition: box-shadow 0.2s ease, background 0.2s ease, border 0.2s ease;
+    }
+    .searchbar input::placeholder { color: rgba(0, 0, 0, 0.7); }
+    .searchbar input:focus { box-shadow: var(--focus-ring); background: #fff; }
+    .btn-primary {
+      padding: 10px 16px;
+      border: none;
+      background: var(--blue-dark);
+      color: #fff;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      box-shadow: 0 6px 16px rgba(44, 119, 181, .35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(44, 119, 181, .45); }
+
+    /* Status */
+    #status {
+      display: none;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: #fff6f6;
+      color: #7a1f1f;
+      border: 1px solid #ffd8d8;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(19,25,56,0.06);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #e9eef6;
+      background: linear-gradient(135deg, rgba(44,119,181,0.08), rgba(103,181,64,0.06));
+    }
+    .card-header .title { font-weight: 700; color: var(--primary); }
+    .card-body { padding: 0; }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #eef2f7;
+      background: #fbfcff;
+    }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .select {
+      padding: 10px 12px;
+      border: 1px solid #e3e7ee;
+      border-radius: 999px;
+      background: #fafbfe;
+      outline: none;
+    }
+    .select:focus { border-color: var(--primary); box-shadow: var(--focus-ring); background: #fff; }
+    .page-indicator { color: var(--text-muted); font-weight: 600; }
+
+    /* Table */
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 15px; }
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      background: #f6f9fd;
+      color: var(--text);
+      border-bottom: 1px solid #e3e7ee;
+      position: sticky; top: 0; z-index: 1;
+    }
+    tbody td { padding: 12px 16px; border-bottom: 1px solid #eef2f7; color: var(--text); }
+    tbody tr:hover { background: #f9fbff; }
+    tbody tr:nth-child(odd) { background: #fcfdff; }
+
+    .vendor-cell { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      overflow: hidden; flex: 0 0 36px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid rgba(19,25,56,0.08);
+    }
+    .badge-new {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #4ba540);
+    }
+
+    /* Status dot for table */
+    .status-dot {
+      display:inline-block; width:10px; height:10px; border-radius:50%;
+      margin-right:6px; vertical-align:middle;
+      box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+    }
+    .status-text { vertical-align:middle; font-weight: 600; color: var(--text); }
+
+    /* Pagination */
+    nav.pagination {
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+      margin: 16px 0; padding: 12px 18px; background: #fbfcff; border-top: 1px solid #eef2f7;
+    }
+    .pager {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #e3e7ee;
+      background: #fff;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease, border 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    }
+    .pager:hover { background: #f2f5fb; border-color: #cfd6e1; transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+    .pager:disabled, .pager.disabled { opacity: 0.6; pointer-events: none; }
+
+    /* =========================================================
+       FOOTER — REUSABLE BLOCK
+       ========================================================= */
+    footer{
+      margin-top: 16px;
+      color: var(--text-muted);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 4px 0;
+    }
+    .footer-links{ display:flex; gap: 12px; flex-wrap: wrap; }
+
+    /* =========================================================
+       RESPONSIVE (sidebar drawer + table → cards)
+       ========================================================= */
+    .backdrop{ display: none; } /* only shown on mobile */
+    @media (max-width: 980px){
+      .app{
+        grid-template-columns: 1fr;
+        grid-template-areas: "nav" "main";
+      }
+      .hamburger{ display:inline-flex; align-items:center; gap:8px; }
+
+      .sidebar{
+        position: fixed;
+        top: var(--navbar-h);
+        left: 0;
+        width: min(var(--sidebar-w), 88vw);
+        height: calc(100vh - var(--navbar-h));
+        transform: translateX(-110%);
+        transition: transform .18s ease;
+        z-index: 80;
+        box-shadow: var(--shadow-2);
+        border-right: none;
+      }
+      body.sidebar-open .sidebar{ transform: translateX(0); }
+
+      .backdrop{
+        display:block;
+        position: fixed; inset: var(--navbar-h) 0 0 0;
+        background: rgba(17,17,17,.35);
+        opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 70;
+      }
+      body.sidebar-open .backdrop{ opacity: 1; pointer-events: auto; }
+    }
+
+    @media (max-width: 720px) {
+      .header-wrap { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      thead { display: none; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      tbody tr { margin: 10px 0; border: 1px solid #eef2f7; border-radius: var(--radius); overflow: hidden; }
+      tbody td { border: none; padding: 10px 14px; }
+      tbody td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- =========================================================
+         HEADER (Navbar) — REUSABLE BLOCK (copy/paste into pages)
+         ========================================================= -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button"
+                aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          ☰ <span style="font-weight:900;">Menu</span>
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>Store Manager Portal</strong>
+            <small>MediSync · Store Manager</small>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-right" aria-label="Account and status">
+        <span class="pill" title="System status">
+          <span class="dot" aria-hidden="true"></span>
+          Online
+        </span>
+
+        <details class="menu" id="accountMenu">
+          <summary aria-label="Open account menu">Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <a href="../Common Features/index.html" id="logoutLink">Logout</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- =========================================================
+         SIDEBAR — REUSABLE BLOCK (copy/paste into pages)
+         ========================================================= -->
+    <aside id="sidebar" class="sidebar" aria-label="Primary Navigation">
+      <div class="side-card profile">
+        <div class="side-title">Profile</div>
+        <p><strong id="profileName">Store Manager</strong></p>
+        <p class="muted" style="margin:6px 0 0;">MediSync Inventory</p>
+        <p class="muted" style="margin:6px 0 0;">Session: <strong id="sessionStatus">—</strong></p>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Actions</div>
+        <nav class="nav nav__list" aria-label="Dashboard Options">
+          <a href="sm2_dashboard.html#dashboard" data-route="dashboard">Dashboard</a>
+          <!-- <a href="#receiving" data-route="receiving">Stock Receiving</a> -->
+          <a href="sm2_dashboard.html#stockEntry" data-route="stockEntry">Stock Entry</a>
+          <a href="sm2_dashboard.html#dispatch" data-route="dispatch">Dispatch Status</a>
+          <a href="sm2_dashboard.html#products" data-route="products">Browse Products</a>
+          <a href="stock_dispatch.html" >RFQ Creation</a>
+          <a href="bid_details.html" >Bid details</a>
+          <a href="vendor_verification.html" >Vendors</a>
+          <!-- <a href="#search" data-route="search">Search Results</a> -->
+        </nav>
+      </div>  
+
+      <!-- <div class="side-card logout">
+        <button type="button" class="btn secondary" id="sidebarLogoutBtn">Logout</button>
+      </div> -->
+    </aside>
+
+    <!-- Backdrop for mobile drawer -->
+    <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+    <!-- =========================================================
+         MAIN — Your Vendor Verification page content
+         ========================================================= -->
+    <section class="main">
+      <div class="page">
+        <!-- Page-level header (title + search) -->
+        <div class="header-wrap">
+          <h1>Vendor Verification Status</h1>
+          <div class="searchbar">
+            <input id="searchInput" type="search" placeholder="Search vendors…" aria-label="Search vendors" />
+            <button class="btn-primary" id="searchBtn" type="button">Search</button>
+          </div>
+        </div>
+
+        <!-- Live Status -->
+        <div id="status" aria-live="polite"></div>
+
+        <!-- Card with Table -->
+        <div class="card" role="region" aria-label="Verification Requests">
+          <div class="card-header">
+            <div class="title">Verification Requests</div>
+            <div class="count"><span id="count"></span> vendors</div>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <select id="sortBy" class="select" aria-label="Sort by">
+                <option value="date">Sort by: Submission Date</option>
+                <option value="name">Sort by: Vendor Name</option>
+              </select>
+              <select id="sortDir" class="select" aria-label="Sort direction">
+                <option value="desc">Desc</option>
+                <option value="asc">Asc</option>
+              </select>
+              <select id="quickFilter" class="select" aria-label="Quick filter">
+                <option value="">All</option>
+                <option value="new">New (last 7 days)</option>
+                <option value="older">Older (7+ days)</option>
+              </select>
+            </div>
+            <div class="toolbar-right">
+              <div id="activeSummary" class="page-indicator"></div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <section aria-labelledby="requests">
+              <table id="requestsTable">
+                <thead>
+                  <tr>
+                    <th scope="col">Vendor Name</th>
+                    <th scope="col">Submission Date</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody">
+                  <!-- Rows rendered by JS -->
+                </tbody>
+              </table>
+            </section>
+          </div>
+
+          <nav class="pagination" aria-label="Pagination">
+            <button class="pager" id="firstPage">First</button>
+            <button class="pager" id="prevPage">Prev</button>
+            <span class="page-indicator" id="pageIndicator">Page 1 of 1</span>
+            <button class="pager" id="nextPage">Next</button>
+            <button class="pager" id="lastPage">Last</button>
+          </nav>
+        </div>
+
+        <!-- =========================================================
+             FOOTER — REUSABLE BLOCK (copy/paste into pages)
+             ========================================================= -->
+        <footer>
+        <span>© <span id="footer-year"></span> Store Management</span>
+        <div class="footer-links">
+          <a href="#">Help</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </footer>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+    const logoutLink = document.getElementById('logoutLink');
+
+    logoutLink?.addEventListener('click', (ev) => {
+      // Show native confirm dialog
+      const ok = window.confirm('Are you sure you want to log out?');
+      if (!ok) {
+        // Cancel navigation
+        ev.preventDefault();
+        return;
+      }
+      // Optional: show a quick message before redirect (for UX)
+      // Then continue to the link’s href (default behavior)
+      // If you want to redirect manually:
+      // ev.preventDefault();
+      // window.location.href = logoutLink.href;
+    });
+  })();
+    (function(){
+      /* =========================================================
+         HEADER/SIDEBAR behaviors (mobile drawer, account menu)
+         ========================================================= */
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const backdrop = document.getElementById('backdrop');
+      const body = document.body;
+
+      sidebarToggle?.addEventListener('click', () => {
+        const open = body.classList.toggle('sidebar-open');
+        sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      backdrop?.addEventListener('click', () => {
+        body.classList.remove('sidebar-open');
+        sidebarToggle?.setAttribute('aria-expanded', 'false');
+      });
+
+      // Account menu: close when clicking outside
+      document.addEventListener('click', (ev) => {
+        const details = document.getElementById('accountMenu');
+        if (!details) return;
+        const inMenu = ev.target.closest('#accountMenu');
+        if (!inMenu) details.open = false;
+      });
+
+      // Footer year
+      const fy = document.getElementById('footer-year');
+      if (fy) fy.textContent = new Date().getFullYear();
+    })();
+  </script>
+
+  <script>
+    // ===== Demo Data (replace with your API results) =====
+    const data = [
+      { id: "V-101", name: "Vendor 1", date: "2025-12-20", action:"verified" },
+      { id: "V-102", name: "Vendor 2", date: "2025-12-01", action:"verified" },
+      { id: "V-103", name: "Vendor 3", date: "2025-11-26", action:"pending" },
+      { id: "V-104", name: "CarePlus Medicals", date: "2025-12-22", action:"pending" },
+      { id: "V-105", name: "MedCare Supplies Pvt Ltd", date: "2025-12-27", action:"verified" },
+      { id: "V-106", name: "HealthBridge Traders", date: "2025-11-18", action:"verified" },
+      { id: "V-107", name: "SterileTech Pvt Ltd", date: "2025-12-11", action:"verified" },
+      { id: "V-108", name: "WellNest Distributors", date: "2025-12-28", action:"rejected" },
+      { id: "V-109", name: "MedAxis Global", date: "2025-12-29", action:"pending" },
+    ];
+
+    const PAGE_SIZE = 5;
+    let currentPage = 1;
+    let filtered = data.slice();
+
+    // ===== Utilities =====
+    const parseDate = (s) => new Date(s + "T00:00:00");
+    const formatDate = (d) => d.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "2-digit" });
+
+    function initials(name) {
+      return name.split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase();
+    }
+
+    function avatarSVG(name) {
+      const colors = ["#2C77B5","#67B540","#131938","#ADADAD"];
+      const color = colors[(name || "").length % colors.length];
+      const text = initials(name || "V");
+      const svg =
+        `<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'>
+          <defs>
+            <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+              <stop offset='0%' stop-color='${color}' />
+              <stop offset='100%' stop-color='#0f1a34' />
+            </linearGradient>
+          </defs>
+          <rect width='100%' height='100%' rx='36' fill='url(#g)' />
+          <text x='50%' y='56%' text-anchor='middle' font-size='26' font-family='Segoe UI, Roboto, Arial' fill='white' opacity='0.9'>${text}</text>
+        </svg>`;
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    function readControls() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const sortBy = document.getElementById("sortBy").value;
+      const dir = document.getElementById("sortDir").value;
+      const quick = document.getElementById("quickFilter").value;
+      return { q, sortBy, dir, quick };
+    }
+
+    function applyFilters() {
+      const { q, sortBy, dir, quick } = readControls();
+      // Filter
+      filtered = data.filter(row => {
+        const matchesText = !q || row.name.toLowerCase().includes(q);
+        let matchesQuick = true;
+        const days = (Date.now() - parseDate(row.date)) / (1000*60*60*24);
+        if (quick === "new")      matchesQuick = days <= 7;
+        else if (quick === "older") matchesQuick = days > 7;
+        return matchesText && matchesQuick;
+      });
+
+      // Sort
+      filtered.sort((a,b) => {
+        const mult = dir === "desc" ? -1 : 1;
+        if (sortBy === "name") return a.name.localeCompare(b.name) * mult;
+        // default date
+        return (parseDate(a.date) - parseDate(b.date)) * mult;
+      });
+
+      currentPage = 1;
+      render();
+    }
+
+    function render() {
+      const tbody = document.getElementById("tbody");
+      const countEl = document.getElementById("count");
+      const indicator = document.getElementById("pageIndicator");
+      const statusDiv = document.getElementById("status");
+
+      const total = filtered.length;
+      countEl.textContent = total;
+
+      const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+      indicator.textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById("firstPage").disabled = currentPage === 1;
+      document.getElementById("prevPage").disabled  = currentPage === 1;
+      document.getElementById("nextPage").disabled  = currentPage === totalPages;
+      document.getElementById("lastPage").disabled  = currentPage === totalPages;
+
+      tbody.innerHTML = "";
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const sub = filtered.slice(start, start + PAGE_SIZE);
+
+      if (sub.length === 0) {
+        statusDiv.textContent = "No verification requests found.";
+        statusDiv.style.display = "block";
+      } else {
+        statusDiv.style.display = "none";
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      sub.forEach(row => {
+        const tr = document.createElement("tr");
+
+        const tdVendor = document.createElement("td");
+        tdVendor.className = "vendor-cell";
+        tdVendor.setAttribute("data-label", "Vendor Name");
+        const avatar = document.createElement("img");
+        avatar.className = "avatar";
+        avatar.alt = row.name;
+        avatar.src = avatarSVG(row.name);
+        const nameWrap = document.createElement("div");
+        const nameStrong = document.createElement("strong");
+        nameStrong.textContent = row.name;
+        nameWrap.appendChild(nameStrong);
+
+        // "NEW" badge for submissions in last 7 days
+        const days = (Date.now() - parseDate(row.date)) / (1000*60*60*24);
+        if (days <= 7) {
+          const badge = document.createElement("span");
+          badge.className = "badge-new";
+          badge.textContent = "NEW";
+          nameWrap.appendChild(badge);
+        }
+
+        tdVendor.appendChild(avatar);
+        tdVendor.appendChild(nameWrap);
+
+        const tdDate = document.createElement("td");
+        tdDate.setAttribute("data-label", "Submission Date");
+        tdDate.textContent = formatDate(parseDate(row.date));
+
+        // --- Status cell (dot + label) ---
+        const tdAction = document.createElement("td");
+        tdAction.setAttribute("data-label", "Status");
+
+        const statusMap = {
+          verified: { label: "Approved", color: "#22c55e" }, // green
+          pending:  { label: "Pending",  color: "#f59e0b" }, // yellow
+          rejected: { label: "Rejected", color: "#ef4444" }, // red
+        };
+        const s = statusMap[row.action] || { label: "Unknown", color: "#9ca3af" };
+
+        tdAction.innerHTML = `
+          <span class="status-dot" style="background:${s.color}" aria-hidden="true"></span>
+          <span class="status-text">${s.label}</span>
+        `;
+
+        tr.appendChild(tdVendor);
+        tr.appendChild(tdDate);
+        tr.appendChild(tdAction);
+        fragment.appendChild(tr);
+      });
+
+      tbody.appendChild(fragment);
+
+      // Active filters summary
+      const { q, sortBy, dir, quick } = readControls();
+      const chips = [];
+      if (q) chips.push(`🔎 "${q}"`);
+      chips.push(`↕ Sort: ${sortBy} (${dir})`);
+      if (quick === "new")   chips.push(`✨ New (≤ 7 days)`);
+      if (quick === "older") chips.push(`🗂️ Older (> 7 days)`);
+      document.getElementById("activeSummary").textContent = chips.join(" • ");
+    }
+
+    // ===== Events =====
+    document.getElementById("searchBtn").addEventListener("click", applyFilters);
+    document.getElementById("searchInput").addEventListener("input", () => {
+      clearTimeout(window.__searchTimer);
+      window.__searchTimer = setTimeout(applyFilters, 200);
+    });
+    document.getElementById("sortBy").addEventListener("change", applyFilters);
+    document.getElementById("sortDir").addEventListener("change", applyFilters);
+    document.getElementById("quickFilter").addEventListener("change", applyFilters);
+
+    // Pagination controls
+    document.getElementById("firstPage").addEventListener("click", () => { currentPage = 1; render(); });
+    document.getElementById("prevPage").addEventListener("click",  () => { currentPage = Math.max(1, currentPage - 1); render(); });
+    document.getElementById("nextPage").addEventListener("click",  () => {
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      currentPage = Math.min(totalPages, currentPage + 1);
+      render();
+    });
+    document.getElementById("lastPage").addEventListener("click",  () => {
+      currentPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      render();
+    });
+
+    // Initial render
+    applyFilters();
+  </script>
+</body>
+</html>

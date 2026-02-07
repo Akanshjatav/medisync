@@ -1,0 +1,1127 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediSync</title>
+  <meta name="description" content="MediSync: Enterprise-scale inventory management for multi-store pharmacy chains. Real-time stock visibility, purchase orchestration, and regulatory-ready reporting." />
+
+  <style>
+    :root{
+      /* Primary Colors */
+      --blue:#337AB7;      /* Logo Blue */
+      --green:#5CB85C;     /* Logo Green */
+      --navy:#10324A;      /* Deep Navy Blue */
+      --forest:#1F4E2E;    /* Deep Forest Green */
+      --black:#111111;     /* Near Black */
+      --gray:#515151;      /* Medium Gray */
+      --light-gray:#E5E5E5;
+      --white:#FFFFFF;
+      --vlg:#F5FBF7;       /* Very Light Green */
+      --vlb:#EAF3FA;       /* Very Light Blue */
+
+      /* Shades & Tints */
+      --blue-dark:#285A8E;
+      --blue-soft:#6FA8DC;
+      --green-dark:#3E8E5A;
+      --green-light:#8FD19E;
+      --off:#FAFAF8;
+      --washg:#E8F7EE;
+      --washb:#D6EAF8;
+
+      /* Accents */
+      --amber:#F0AD4E;
+      --red:#D9534F;
+      --purple:#8E44AD;
+      --yellow:#FFCE54;
+      --aqua:#5BC0DE;
+
+      /* UI */
+      --bg: var(--off);
+      --text: var(--black);
+      --muted: rgba(17,17,17,.66);
+      --border: rgba(16,50,74,.12);
+
+      --shadow: 0 20px 60px rgba(16,50,74,.14);
+      --shadow-soft: 0 10px 26px rgba(16,50,74,.10);
+      --ring: 0 0 0 4px rgba(51,122,183,.20);
+
+      --radius: 18px;
+      --radius-lg: 26px;
+      --gap: 18px;
+      --container: 1140px;
+      --nav-h: 76px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    a{ color: var(--blue); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    .container{
+      width: min(var(--container), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto;
+      padding:10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: var(--shadow-soft);
+      outline:none;
+      z-index: 9999;
+    }
+
+    /* =========================================
+       Stripe-style background: hero gradient band
+       ========================================= */
+    .hero-band{
+      position: relative;
+      background:
+        radial-gradient(1200px 680px at 20% -10%, rgba(51,122,183,.26), transparent 60%),
+        radial-gradient(1200px 680px at 80% 0%, rgba(92,184,92,.22), transparent 60%),
+        radial-gradient(900px 520px at 50% 40%, rgba(91,192,222,.12), transparent 65%),
+        linear-gradient(180deg, var(--vlb), rgba(250,250,248,.85) 65%, var(--bg));
+      overflow: hidden;
+      border-bottom: 1px solid rgba(16,50,74,.08);
+    }
+
+    /* Diagonal stripes (subtle) */
+    .hero-band::before{
+      content:"";
+      position:absolute;
+      inset:-160px -80px auto -80px;
+      height: 420px;
+      transform: rotate(-8deg);
+      background:
+        linear-gradient(90deg,
+          rgba(51,122,183,.18),
+          rgba(91,192,222,.16),
+          rgba(92,184,92,.16),
+          rgba(214,234,248,.20));
+      filter: blur(0.5px);
+      opacity: .55;
+      border-radius: 999px;
+      pointer-events:none;
+    }
+
+    /* =========================
+       Navbar
+       ========================= */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      height: var(--nav-h);
+      display:flex;
+      align-items:center;
+      background: rgba(250,250,248,.72);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(16,50,74,.10);
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 240px;
+    }
+    .mark{
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--blue), var(--aqua), var(--green));
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .mark::after{
+      content:"";
+      position:absolute;
+      inset: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.92);
+    }
+    .brand-title{
+      display:grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .brand-title strong{
+      color: var(--navy);
+      letter-spacing: .2px;
+      font-size: 14px;
+    }
+    .brand-title small{
+      color: rgba(17,17,17,.62);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 360px;
+    }
+
+    .navlinks{
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .navlinks a{
+      font-weight: 800;
+      color: var(--navy);
+      padding: 10px 12px;
+      border-radius: 999px;
+    }
+    .navlinks a:hover{
+      background: rgba(51,122,183,.08);
+      text-decoration:none;
+    }
+
+    .btn-nav{
+      font-weight: 900;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.60);
+      color: var(--navy);
+    }
+    .btn-nav:hover{ background: rgba(51,122,183,.08); text-decoration:none; }
+
+    .btn-nav.primary{
+      border: 0;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color:#fff;
+      box-shadow: var(--shadow-soft);
+    }
+    .btn-nav.primary:hover{ filter: brightness(1.03); text-decoration:none; }
+
+    .hamburger{
+      display:none;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.70);
+      color: var(--navy);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-soft);
+      cursor:pointer;
+    }
+    .hamburger:focus{ outline:none; box-shadow: var(--ring), var(--shadow-soft); }
+
+    /* Mobile drawer */
+    .backdrop{
+      display:none;
+      position: fixed;
+      inset: var(--nav-h) 0 0 0;
+      background: rgba(17,17,17,.35);
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+      z-index: 70;
+    }
+    .drawer{
+      display:none;
+      position: fixed;
+      top: var(--nav-h);
+      right: 0;
+      width: min(400px, 92vw);
+      height: calc(100vh - var(--nav-h));
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-left: 1px solid rgba(16,50,74,.12);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      z-index: 80;
+      transform: translateX(110%);
+      transition: transform .18s ease;
+    }
+    .drawer a{
+      display:block;
+      padding: 12px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      color: var(--navy);
+      border: 1px solid transparent;
+    }
+    .drawer a:hover{
+      border-color: rgba(51,122,183,.22);
+      background: rgba(51,122,183,.08);
+      text-decoration:none;
+    }
+    .drawer a.primary{
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color:#fff;
+      border-color: transparent;
+      box-shadow: var(--shadow-soft);
+    }
+    .drawer a.primary:hover{ filter: brightness(1.03); }
+
+    body.nav-open .drawer{ transform: translateX(0); }
+    body.nav-open .backdrop{ opacity: 1; pointer-events:auto; }
+
+    @media (max-width: 980px){
+      .navlinks{ display:none; }
+      .hamburger{ display:inline-flex; align-items:center; gap:8px; }
+      .drawer, .backdrop{ display:block; }
+      .brand-title small{ max-width: 180px; }
+    }
+
+    /* =========================
+       Hero (Stripe-style)
+       ========================= */
+    main{ padding-bottom: 46px; }
+    section{ padding: 76px 0; }
+    .hero{
+      padding: 70px 0 58px;
+      position: relative;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 28px;
+      align-items: center;
+    }
+    @media (max-width: 980px){
+      .hero-grid{ grid-template-columns: 1fr; }
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(51,122,183,.18);
+      background: rgba(51,122,183,.08);
+      color: var(--blue-dark);
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(92,184,92,.18);
+    }
+
+    .hero h1{
+      margin: 14px 0 0;
+      font-size: 56px;
+      line-height: 1.04;
+      letter-spacing: -.03em;
+      color: var(--navy);
+      max-width: 16ch;
+    }
+    @media (max-width: 980px){ .hero h1{ font-size: 44px; } }
+    @media (max-width: 520px){ .hero h1{ font-size: 34px; } }
+
+    .hero p{
+      margin: 16px 0 0;
+      color: rgba(17,17,17,.72);
+      font-size: 16px;
+      max-width: 70ch;
+    }
+
+    .cta-row{
+      margin-top: 22px;
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 900;
+      border: 0;
+      cursor:pointer;
+      box-shadow: var(--shadow-soft);
+      white-space: nowrap;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color:#fff;
+    }
+    .btn.primary:hover{ filter: brightness(1.03); text-decoration:none; }
+    .btn.secondary{
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color:#fff;
+    }
+    .btn.secondary:hover{ filter: brightness(1.03); text-decoration:none; }
+    .btn.ghost{
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid rgba(16,50,74,.14);
+      box-shadow: none;
+    }
+    .btn.ghost:hover{ background: rgba(51,122,183,.06); text-decoration:none; }
+
+    .micro{
+      margin-top: 18px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: rgba(17,17,17,.70);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .micro span{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.70);
+    }
+
+    /* Hero visual: Stripe-like “product screenshot card” */
+    .visual{
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .visual-top{
+      height: 44px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding: 0 12px;
+      background: linear-gradient(90deg, var(--washb), #fff);
+      border-bottom: 1px solid rgba(16,50,74,.10);
+    }
+    .dots{
+      display:flex; gap: 6px; align-items:center;
+    }
+    .dots i{
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display:inline-block;
+      border: 1px solid rgba(16,50,74,.14);
+      background: rgba(16,50,74,.06);
+    }
+    .visual-body{
+      padding: 14px;
+      background:
+        radial-gradient(520px 260px at 30% 10%, rgba(214,234,248,.70), transparent 65%),
+        radial-gradient(520px 260px at 85% 35%, rgba(232,247,238,.65), transparent 65%),
+        #fff;
+    }
+    .mock-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mock-card{
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 8px 18px rgba(16,50,74,.08);
+      padding: 12px;
+      min-height: 106px;
+    }
+    .mock-card strong{
+      display:block;
+      color: var(--navy);
+      font-size: 13px;
+      letter-spacing: .2px;
+    }
+    .mock-card small{
+      display:block;
+      color: rgba(17,17,17,.62);
+      margin-top: 6px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(16,50,74,.08);
+      overflow:hidden;
+      margin-top: 10px;
+      border: 1px solid rgba(16,50,74,.08);
+    }
+    .bar span{
+      display:block;
+      height: 100%;
+      width: var(--w, 60%);
+      background: linear-gradient(90deg, var(--blue), var(--aqua));
+    }
+    .mock-wide{
+      grid-column: 1 / -1;
+      min-height: 140px;
+    }
+
+    /* =========================
+       Sections (Stripe-like spacing)
+       ========================= */
+    .section-title{
+      margin: 0;
+      font-size: 22px;
+      color: var(--navy);
+      letter-spacing: .2px;
+    }
+    .section-sub{
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 75ch;
+      font-size: 14px;
+    }
+
+    .grid3{
+      margin-top: 18px;
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+    }
+    @media (max-width: 980px){
+      .grid3{ grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    }
+    @media (max-width: 620px){
+      .grid3{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border-radius: var(--radius);
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.82);
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+    }
+    .ico{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      font-weight: 900;
+      color: var(--blue-dark);
+      background: rgba(51,122,183,.10);
+      border: 1px solid rgba(51,122,183,.16);
+    }
+    .ico.green{
+      color: var(--green-dark);
+      background: rgba(92,184,92,.12);
+      border-color: rgba(92,184,92,.18);
+    }
+    .card h3{
+      margin: 12px 0 0;
+      color: var(--navy);
+      font-size: 15px;
+    }
+    .card p{
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Stats row */
+    .stats{
+      margin-top: 16px;
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+    }
+    @media (max-width: 1100px){
+      .stats{ grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+    }
+    @media (max-width: 620px){
+      .stats{ grid-template-columns: 1fr; }
+    }
+    .stat{
+      border-radius: var(--radius);
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.82);
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+    }
+    .stat strong{
+      display:block;
+      font-size: 22px;
+      color: var(--navy);
+      letter-spacing: .2px;
+    }
+    .stat span{
+      display:block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    /* Tenders as cards (Stripe-like list) */
+    .tools{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      margin-top: 14px;
+    }
+    .tools input{
+      width: min(560px, 100%);
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.92);
+      outline:none;
+    }
+    .tools input:focus{ box-shadow: var(--ring); border-color: rgba(51,122,183,.55); }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.14);
+      background: rgba(255,255,255,.72);
+      color: var(--navy);
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tender-grid{
+      margin-top: 14px;
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(240px, 1fr));
+    }
+    @media (max-width: 980px){
+      .tender-grid{ grid-template-columns: 1fr; }
+    }
+    .tender{
+      border-radius: var(--radius);
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.82);
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+    }
+    .tender h3{
+      margin: 0;
+      color: var(--navy);
+      font-size: 15px;
+      letter-spacing: .1px;
+    }
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(17,17,17,.64);
+    }
+    .meta span{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(16,50,74,.04);
+    }
+    .tender p{
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .tender .actions{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* FAQ */
+    details{
+      margin-top: 12px;
+      border: 1px solid rgba(16,50,74,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.82);
+      box-shadow: var(--shadow-soft);
+      padding: 12px 14px;
+    }
+    summary{
+      cursor:pointer;
+      color: var(--navy);
+      font-weight: 900;
+      outline:none;
+    }
+    details p{
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Contact CTA */
+    .cta{
+      border: 1px solid rgba(51,122,183,.18);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(520px 240px at 18% 30%, rgba(51,122,183,.16), transparent 60%),
+        radial-gradient(520px 240px at 82% 40%, rgba(92,184,92,.14), transparent 60%),
+        linear-gradient(90deg, rgba(214,234,248,.72), rgba(232,247,238,.60));
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display:flex;
+      gap: 18px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .cta h2{
+      margin: 0;
+      color: var(--navy);
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+    .cta p{
+      margin: 6px 0 0;
+      color: rgba(17,17,17,.70);
+      font-size: 13px;
+      max-width: 70ch;
+    }
+
+    /* Footer */
+    footer{
+      padding: 22px 0 28px;
+      color: rgba(17,17,17,.65);
+      font-size: 12px;
+      border-top: 1px solid rgba(16,50,74,.10);
+      background: rgba(255,255,255,.65);
+      backdrop-filter: blur(8px);
+    }
+    .foot{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .foot a{ font-weight: 900; }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="hero-band">
+    <!-- NAVBAR -->
+    <header role="banner">
+      <div class="container">
+        <nav class="nav" aria-label="Primary">
+          <div class="brand" aria-label="MediSync brand">
+            <div class="mark" aria-hidden="true"></div>
+            <div class="brand-title">
+              <strong>MediSync</strong>
+              <small>Enterprise inventory + tender procurement for pharmacy chains</small>
+            </div>
+          </div>
+
+          <button class="hamburger" id="navToggle" type="button"
+                  aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+            ☰ Menu
+          </button>
+
+          <div class="navlinks" aria-label="Top links">
+            <a href="#features">Features</a>
+            <a href="#tenders">Tenders</a>
+            <a href="#pricing">Pricing</a>
+            <a class="btn-link" href="login.html">Log in</a>
+            <a class="btn-nav primary" href="vendor-registration.html">Vendor Registration</a>
+          </div>
+        </nav>
+      </div>
+
+      <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+      <aside class="drawer" id="drawer" aria-label="Mobile menu">
+        <a href="#features">Features</a>
+        <a href="#stats">Active Users</a>
+        <a href="#tenders">View Tenders</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact / Demo</a>
+        <div style="height:10px;"></div>
+        <a href="login.html">Log in</a>
+        <a class="primary" href="vendor-registration.html">Vendor Registration</a>
+        <a href="vendor-dashboard.html">Vendor Dashboard</a>
+      </aside>
+    </header>
+
+    <!-- HERO -->
+    <main id="main">
+      <section class="hero" id="hero" aria-label="Hero">
+        <div class="container">
+          <div class="hero-grid">
+            <div>
+              <span class="eyebrow"><span class="dot" aria-hidden="true"></span> Multi‑store • Batch & expiry • Audit‑ready</span>
+
+              <h1>Enterprise pharmacy inventory—built to scale.</h1>
+
+              <p>
+                Real‑time stock visibility across every store. Automated replenishment. Tender‑ready procurement with audit trails and compliance reporting.
+              </p>
+
+              <div class="cta-row" aria-label="Primary actions">
+                <a class="btn primary" href="vendor-registration.html">Vendor Registration</a>
+                <a class="btn secondary" href="#tenders">View Tenders</a>
+                <a class="btn ghost" href="#contact">Get a Demo</a>
+              </div>
+
+              <div class="micro" aria-label="Highlights">
+                <span><strong>Unified</strong> inventory + transfers</span>
+                <span><strong>Smart</strong> min/max + ABC rules</span>
+                <span><strong>Compliance</strong> reporting built-in</span>
+              </div>
+            </div>
+
+            <!-- Hero visual placeholder -->
+            <div class="visual" aria-label="Product preview">
+              <div class="visual-top">
+                <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+                <div style="font-weight:900; color:rgba(16,50,74,.70); font-size:12px;">MediSync — Dashboard</div>
+              </div>
+              <div class="visual-body">
+                <div class="mock-grid">
+                  <div class="mock-card">
+                    <strong>Compliance</strong>
+                    <small>Review pending: 2 docs</small>
+                    <div class="bar"><span style="--w:82%"></span></div>
+                  </div>
+                  <div class="mock-card">
+                    <strong>Active RFQs</strong>
+                    <small>12 open • 3 urgent</small>
+                    <div class="bar"><span style="--w:65%; --aqua: var(--amber);"></span></div>
+                  </div>
+                  <div class="mock-card mock-wide">
+                    <strong>Delivery performance</strong>
+                    <small>On-time trend (placeholder)</small>
+                    <div class="bar"><span style="--w:78%; --aqua: var(--aqua);"></span></div>
+                    <div style="margin-top:10px; color:rgba(17,17,17,.60); font-size:12px; font-weight:700;">
+                      Stores • Transfers • Expiry risk • Tender pipeline
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top:12px; font-size:12px; color:rgba(17,17,17,.60); font-weight:700;">
+                  Replace this placeholder with a real product screenshot anytime.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features" aria-labelledby="features-title">
+    <div class="container">
+      <h2 class="section-title" id="features-title">Platform Features</h2>
+      <p class="section-sub">
+        Built for enterprise chains: speed, traceability, and compliance without the operational overhead.
+      </p>
+
+      <div class="grid3" role="list">
+        <article class="card" role="listitem">
+          <div class="ico">✓</div>
+          <h3>Unified Inventory</h3>
+          <p>Multi-store stock visibility with batch &amp; expiry tracking, transfers, and movement history.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <div class="ico green">✓</div>
+          <h3>Smart Replenishment</h3>
+          <p>Min/Max rules, ABC analysis, reorder automation, and purchase orchestration.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <div class="ico">✓</div>
+          <h3>Tender Management</h3>
+          <p>Create, publish, evaluate, and award tenders with audit trails and controlled access.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <div class="ico green">✓</div>
+          <h3>Compliance &amp; Reports</h3>
+          <p>GST-ready outputs, schedule support, and exportable reporting for audits.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <div class="ico">✓</div>
+          <h3>Supplier Portal</h3>
+          <p>Vendor onboarding, compliance uploads, quotations, delivery updates, support tickets.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <div class="ico green">✓</div>
+          <h3>APIs &amp; Integrations</h3>
+          <p>Connect ERP, POS, e‑pharmacy, and logistics with secure APIs.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats" aria-labelledby="stats-title">
+    <div class="container">
+      <h2 class="section-title" id="stats-title">At a Glance</h2>
+      <p class="section-sub">Sample metrics for layout — replace with real production numbers.</p>
+
+      <div class="stats" aria-label="Platform stats">
+        <div class="stat"><strong>12,480+</strong><span>Active Users</span></div>
+        <div class="stat"><strong>530+</strong><span>Stores Onboarded</span></div>
+        <div class="stat"><strong>85,000+</strong><span>Monthly Orders</span></div>
+        <div class="stat"><strong>99.95%</strong><span>System Uptime</span></div>
+        <div class="stat"><strong>7–10 days</strong><span>Avg Tender Cycle</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TENDERS -->
+  <section id="tenders" aria-labelledby="tenders-title">
+    <div class="container">
+      <h2 class="section-title" id="tenders-title">View Tenders (Preview)</h2>
+      <p class="section-sub">
+        <a href="login.html"><strong>Log in</strong></a> to download full documents and submit bids, or
+        <a href="vendor-registration.html"><strong>register</strong></a> to request vendor access.
+      </p>
+
+      <div class="tools" aria-label="Tender tools">
+        <input id="tenderSearch" type="search" placeholder="Search tenders by title, ID, or category..." aria-label="Search tenders" />
+        <span class="pill" id="tenderCount">3 shown</span>
+        <a class="btn ghost" href="vendor-dashboard.html">Vendor Dashboard</a>
+      </div>
+
+      <div class="tender-grid" id="tenderGrid">
+        <article class="tender" data-tender>
+          <h3>Bulk Procurement: Antibiotics (Schedule H)</h3>
+          <div class="meta">
+            <span>ID: PC-TND-2025-0012</span>
+            <span>Category: Pharmaceuticals</span>
+            <span>Deadline: Jan 15, 2026</span>
+          </div>
+          <p>Inviting qualified vendors for bulk supply across multiple regions. Batch-wise expiry and compliance required.</p>
+          <div class="actions">
+            <a class="btn ghost" href="login.html">Login to Download</a>
+            <a class="btn primary" href="login.html">Login to Submit</a>
+          </div>
+        </article>
+
+        <article class="tender" data-tender>
+          <h3>Cold Chain Storage Units</h3>
+          <div class="meta">
+            <span>ID: PC-TND-2025-0198</span>
+            <span>Category: Devices</span>
+            <span>Deadline: Jan 28, 2026</span>
+          </div>
+          <p>Supply &amp; installation of medical-grade cold chain units with remote monitoring and maintenance SLAs.</p>
+          <div class="actions">
+            <a class="btn ghost" href="login.html">Login to Download</a>
+            <a class="btn primary" href="login.html">Login to Submit</a>
+          </div>
+        </article>
+
+        <article class="tender" data-tender>
+          <h3>Disposable Syringes &amp; Gloves</h3>
+          <div class="meta">
+            <span>ID: PC-TND-2025-0231</span>
+            <span>Category: Consumables</span>
+            <span>Deadline: Feb 05, 2026</span>
+          </div>
+          <p>Seeking vendors for high-volume consumables with quality certifications and delivery SLAs.</p>
+          <div class="actions">
+            <a class="btn ghost" href="login.html">Login to Download</a>
+            <a class="btn primary" href="login.html">Login to Submit</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" aria-labelledby="testimonials-title">
+    <div class="container">
+      <h2 class="section-title" id="testimonials-title">What our customers say</h2>
+      <p class="section-sub">Short, credible quotes. Replace with real customers anytime.</p>
+
+      <div class="grid3">
+        <article class="card" aria-label="Testimonial 1">
+          <p style="margin:0; font-weight:900; color:var(--navy);">“MediSync cut our stock-outs by 43% across 120+ stores.”</p>
+          <p style="margin:10px 0 0; color:var(--muted); font-size:13px;">— <strong>Ananya S.</strong>, Head of Operations</p>
+        </article>
+        <article class="card" aria-label="Testimonial 2">
+          <p style="margin:0; font-weight:900; color:var(--navy);">“Tender workflows are faster, clearer, and audit-friendly.”</p>
+          <p style="margin:10px 0 0; color:var(--muted); font-size:13px;">— <strong>Rahul M.</strong>, Procurement Lead</p>
+        </article>
+        <article class="card" aria-label="Testimonial 3">
+          <p style="margin:0; font-weight:900; color:var(--navy);">“Expiry tracking and automated transfers saved lakhs in write-offs.”</p>
+          <p style="margin:10px 0 0; color:var(--muted); font-size:13px;">— <strong>Priya K.</strong>, Regional Manager</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" aria-labelledby="pricing-title">
+    <div class="container">
+      <h2 class="section-title" id="pricing-title">Pricing Plans</h2>
+      <p class="section-sub">Contact us for enterprise pricing tailored to your pharmacy network.</p>
+
+      <div class="grid3">
+        <article class="card">
+          <div class="ico">₹</div>
+          <h3>Starter</h3>
+          <p>Single/small chains. Inventory + expiry tracking + standard reports.</p>
+        </article>
+        <article class="card">
+          <div class="ico green">★</div>
+          <h3>Enterprise</h3>
+          <p>Multi-store + tenders + vendor portal + advanced reporting.</p>
+        </article>
+        <article class="card">
+          <div class="ico">⚙</div>
+          <h3>Enterprise + Integrations</h3>
+          <p>ERP/POS/logistics connectors, SSO, custom workflows, priority support.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" aria-labelledby="faq-title">
+    <div class="container">
+      <h2 class="section-title" id="faq-title">Frequently Asked Questions</h2>
+      <p class="section-sub">Fast answers for procurement and operations teams.</p>
+
+      <details>
+        <summary>How long does onboarding take?</summary>
+        <p><strong>A:</strong> Typically 7–14 days for multi-store chains depending on integrations and compliance checks.</p>
+      </details>
+
+      <details>
+        <summary>Do you support Schedule H/X compliance?</summary>
+        <p><strong>A:</strong> Yes — designed to support regulated products with audit trails and reporting.</p>
+      </details>
+
+      <details>
+        <summary>Can vendors submit bids and update deliveries?</summary>
+        <p><strong>A:</strong> Yes — the vendor portal supports onboarding, compliance uploads, bid submission, delivery updates, and support tickets.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" aria-label="Contact">
+    <div class="container">
+      <div class="cta">
+        <div>
+          <h2>Get a demo tailored to your chain</h2>
+          <p>Email: <strong>support@medisync.com</strong> • Phone: <strong>+91-9876543210</strong></p>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a class="btn primary" href="mailto:support@medisync.com?subject=MediSync%20Demo%20Request">Email us</a>
+          <a class="btn ghost" href="vendor-registration.html">Vendor Registration</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer aria-label="Footer">
+    <div class="container">
+      <div class="foot">
+        <div>© <span id="year"></span> MediSync. All rights reserved.</div>
+        <div>
+          <a href="#hero">Top</a> •
+          <a href="vendor-dashboard.html">Vendor Dashboard</a> •
+          <a href="login.html">Log in</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const $ = (s, r=document) => r.querySelector(s);
+
+    // Year
+    $('#year').textContent = new Date().getFullYear();
+
+    // Mobile menu
+    const toggle = $('#navToggle');
+    const backdrop = $('#backdrop');
+    const drawer = $('#drawer');
+
+    function setNav(open){
+      document.body.classList.toggle('nav-open', open);
+      toggle?.setAttribute('aria-expanded', String(open));
+    }
+
+    toggle?.addEventListener('click', () => setNav(!document.body.classList.contains('nav-open')));
+    backdrop?.addEventListener('click', () => setNav(false));
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape') setNav(false); });
+    drawer?.addEventListener('click', (e) => { if(e.target.tagName === 'A') setNav(false); });
+
+    // Smooth scroll for internal anchors
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[href^="#"]');
+      if(!a) return;
+      const id = a.getAttribute('href');
+      const target = document.querySelector(id);
+      if(!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setNav(false);
+    });
+
+    // Tender search filter
+    const search = $('#tenderSearch');
+    const count = $('#tenderCount');
+    const tenders = [...document.querySelectorAll('[data-tender]')];
+
+    function updateCount(){
+      const shown = tenders.filter(t => !t.hidden).length;
+      if(count) count.textContent = `${shown} shown`;
+    }
+
+    search?.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      tenders.forEach(t => {
+        const text = t.innerText.toLowerCase();
+        t.hidden = q ? !text.includes(q) : false;
+      });
+      updateCount();
+    });
+
+    updateCount();
+  </script>
+</body>
+</html>

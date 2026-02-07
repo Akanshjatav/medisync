@@ -1,0 +1,1269 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediSync • Vendor Registration</title>
+
+  <style>
+    :root{
+      /* Primary */
+      --blue:#337AB7; --green:#5CB85C; --navy:#10324A; --forest:#1F4E2E;
+      --black:#111111; --gray:#515151; --white:#FFFFFF;
+      --vlb:#EAF3FA; --vlg:#F5FBF7; --off:#FAFAF8;
+
+      /* Expanded */
+      --blue-dark:#285A8E; --blue-soft:#6FA8DC;
+      --green-dark:#3E8E5A; --green-light:#8FD19E;
+      --washb:#D6EAF8; --washg:#E8F7EE;
+
+      /* Accents */
+      --amber:#F0AD4E; --red:#D9534F; --aqua:#5BC0DE;
+
+      /* UI */
+      --bg: var(--off);
+      --text: var(--black);
+      --muted: rgba(17,17,17,.66);
+      --border: rgba(16,50,74,.12);
+      --shadow: 0 20px 60px rgba(16,50,74,.14);
+      --shadow-soft: 0 10px 26px rgba(16,50,74,.10);
+      --ring: 0 0 0 4px rgba(51,122,183,.20);
+
+      --radius: 18px;
+      --radius-lg: 26px;
+      --gap: 18px;
+      --container: 980px;
+      --nav-h: 74px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    a{ color: var(--blue); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+
+    .container{
+      width: min(var(--container), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto;
+      padding:10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: var(--shadow-soft);
+      outline:none;
+      z-index: 9999;
+    }
+
+    /* =========================================
+       Stripe-style band background (top only)
+       ========================================= */
+    .band{
+      position: relative;
+      background:
+        radial-gradient(1200px 680px at 20% -10%, rgba(51,122,183,.26), transparent 60%),
+        radial-gradient(1200px 680px at 80% 0%, rgba(92,184,92,.22), transparent 60%),
+        radial-gradient(900px 520px at 50% 40%, rgba(91,192,222,.12), transparent 65%),
+        linear-gradient(180deg, var(--vlb), rgba(250,250,248,.90) 65%, var(--bg));
+      border-bottom: 1px solid rgba(16,50,74,.08);
+      overflow:hidden;
+    }
+    .band::before{
+      content:"";
+      position:absolute;
+      inset:-160px -80px auto -80px;
+      height: 420px;
+      transform: rotate(-8deg);
+      background:
+        linear-gradient(90deg,
+          rgba(51,122,183,.18),
+          rgba(91,192,222,.16),
+          rgba(92,184,92,.16),
+          rgba(214,234,248,.20));
+      opacity: .55;
+      border-radius: 999px;
+      pointer-events:none;
+    }
+
+    /* =========================
+       Minimal top nav
+       ========================= */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      height: var(--nav-h);
+      display:flex;
+      align-items:center;
+      background: rgba(250,250,248,.74);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(16,50,74,.10);
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 240px;
+    }
+    .mark{
+      width: 42px; height: 42px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--blue), var(--aqua), var(--green));
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .mark::after{
+      content:"";
+      position:absolute;
+      inset: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.92);
+    }
+    .brand-title{
+      display:grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .brand-title strong{
+      color: var(--navy);
+      letter-spacing: .2px;
+      font-size: 14px;
+    }
+    .brand-title small{
+      color: rgba(17,17,17,.62);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 360px;
+    }
+
+    .navlinks{
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .navlinks a{
+      font-weight: 800;
+      color: var(--navy);
+      padding: 10px 12px;
+      border-radius: 999px;
+    }
+    .navlinks a:hover{
+      background: rgba(51,122,183,.08);
+      text-decoration:none;
+    }
+    .btn-nav{
+      font-weight: 900;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.60);
+      color: var(--navy);
+    }
+    .btn-nav:hover{ background: rgba(51,122,183,.08); text-decoration:none; }
+    .btn-nav.primary{
+      border: 0;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color:#fff;
+      box-shadow: var(--shadow-soft);
+    }
+    .btn-nav.primary:hover{ filter: brightness(1.03); text-decoration:none; }
+
+    /* =========================
+       Hero header
+       ========================= */
+    .hero{
+      padding: 44px 0 24px;
+      position: relative;
+    }
+    .hero h1{
+      margin: 0;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      color: var(--navy);
+      max-width: 22ch;
+    }
+    @media (max-width: 520px){ .hero h1{ font-size: 32px; } }
+    .hero p{
+      margin: 12px 0 0;
+      color: rgba(17,17,17,.70);
+      font-size: 15px;
+      max-width: 75ch;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(51,122,183,.18);
+      background: rgba(51,122,183,.08);
+      color: var(--blue-dark);
+      font-weight: 900;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(92,184,92,.18);
+    }
+
+    /* =========================
+       Card + Stepper
+       ========================= */
+    main{ padding: 26px 0 50px; }
+    .shell{
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .toprow{
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(16,50,74,.10);
+      background: linear-gradient(90deg, var(--washb), rgba(255,255,255,.90));
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .crumbs{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      color: rgba(17,17,17,.66);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .crumbs a{ font-weight: 900; }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      border: 0;
+      cursor:pointer;
+      box-shadow: var(--shadow-soft);
+      white-space: nowrap;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color:#fff;
+    }
+    .btn.primary:hover{ filter: brightness(1.03); }
+    .btn.secondary{
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color:#fff;
+    }
+    .btn.secondary:hover{ filter: brightness(1.03); }
+    .btn.ghost{
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid rgba(16,50,74,.14);
+      box-shadow: none;
+    }
+    .btn.ghost:hover{ background: rgba(51,122,183,.06); }
+
+    .stepper{
+      padding: 16px 18px 12px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .steps{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .step{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.65);
+      color: rgba(17,17,17,.70);
+      font-weight: 900;
+      font-size: 12px;
+      user-select: none;
+    }
+    .step .n{
+      width: 22px; height: 22px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      background: rgba(16,50,74,.06);
+      border: 1px solid rgba(16,50,74,.10);
+      color: var(--navy);
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .step.active{
+      border-color: rgba(51,122,183,.30);
+      background: rgba(51,122,183,.08);
+      color: var(--navy);
+    }
+    .step.done{
+      border-color: rgba(92,184,92,.26);
+      background: rgba(92,184,92,.10);
+    }
+    .step.done .n{
+      background: rgba(92,184,92,.18);
+      border-color: rgba(92,184,92,.28);
+    }
+
+    .progress{
+      flex: 1;
+      min-width: 220px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(16,50,74,.08);
+      border: 1px solid rgba(16,50,74,.08);
+      overflow:hidden;
+    }
+    .progress > span{
+      display:block;
+      height:100%;
+      width: 25%;
+      background: linear-gradient(90deg, var(--blue), var(--aqua), var(--green));
+      transition: width .18s ease;
+    }
+
+    /* =========================
+       Form body
+       ========================= */
+    form{ margin:0; }
+    .body{
+      padding: 18px;
+    }
+
+    fieldset{
+      border:0;
+      padding:0;
+      margin:0;
+      display:none;
+    }
+    fieldset.active{ display:block; }
+
+    legend{
+      font-weight: 900;
+      color: var(--navy);
+      font-size: 16px;
+      margin-bottom: 10px;
+      letter-spacing: .2px;
+    }
+    .hint{
+      margin: 6px 0 14px;
+      color: rgba(17,17,17,.62);
+      font-size: 13px;
+      max-width: 75ch;
+    }
+
+    .grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+    }
+    @media (max-width: 720px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(17,17,17,.70);
+      margin: 0 0 6px;
+    }
+    .req{ color: var(--red); font-weight: 900; }
+
+    input, select{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.92);
+      outline:none;
+      color: var(--text);
+    }
+    input:focus, select:focus{
+      box-shadow: var(--ring);
+      border-color: rgba(51,122,183,.55);
+    }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(16,50,74,.10);
+    }
+
+    .note{
+      font-size: 12px;
+      color: rgba(17,17,17,.62);
+      max-width: 80ch;
+    }
+
+    .filebox{
+      border-radius: 14px;
+      border: 1px dashed rgba(16,50,74,.22);
+      background: rgba(214,234,248,.25);
+      padding: 12px;
+    }
+    .filebox input[type="file"]{
+      background: transparent;
+      border: 1px solid rgba(16,50,74,.12);
+    }
+    .filename{
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(17,17,17,.62);
+      font-weight: 700;
+    }
+
+    .check{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(232,247,238,.55);
+    }
+    .check input{
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+    }
+    .check p{
+      margin: 0;
+      color: rgba(17,17,17,.70);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .error{
+      margin-top: 8px;
+      color: #8b1f1b;
+      font-weight: 800;
+      font-size: 12px;
+      display:none;
+    }
+    .error.show{ display:block; }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      width: min(360px, 92vw);
+      border-radius: 16px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display:none;
+      z-index: 999;
+    }
+    .toast strong{ display:block; color: var(--navy); }
+    .toast small{ display:block; margin-top: 4px; color: rgba(17,17,17,.62); font-weight: 700; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ transition:none !important; }
+    }
+
+    /* =========================================================
+       ADD-ON (Per-input errors + invalid highlight)
+       Keeping styling consistent
+       ========================================================= */
+    .field-error{
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #8b1f1b;
+      display:none;
+    }
+    .field-error.show{ display:block; }
+
+    input[aria-invalid="true"], select[aria-invalid="true"]{
+      border-color: rgba(217, 83, 79, .78) !important;
+      box-shadow: 0 0 0 4px rgba(217, 83, 79, .14) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="band">
+    <!-- NAV -->
+    <header role="banner">
+      <div class="container">
+        <nav class="nav" aria-label="Primary navigation">
+          <div class="brand" aria-label="MediSync">
+            <div class="mark" aria-hidden="true"></div>
+            <div class="brand-title">
+              <strong>MediSync</strong>
+              <small>Vendor onboarding for tenders &amp; procurement</small>
+            </div>
+          </div>
+
+          <div class="navlinks" aria-label="Links">
+            <a href="../Common Features/index.html">Home</a>
+            <a href="../Common Features/login.html">Log in</a>
+            <!-- <a class="btn-nav" href="app.html">Vendor Dashboard</a> -->
+            <!-- <a class="btn-nav primary" href="vendor-registration.html" aria-current="page">Register</a> -->
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Header">
+      <div class="container">
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Vendor registration • Step-by-step • Secure uploads</div>
+        <h1>Register your business to access MediSync tenders.</h1>
+        <p>
+          Complete your business profile, contact details, address, and upload compliance documents. You can save a draft anytime.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <!-- FORM -->
+  <main id="main">
+    <div class="container">
+      <div class="shell" aria-label="Vendor registration form card">
+        <div class="toprow">
+          <div class="crumbs">
+            <a href="index.html">← Back to Landing</a>
+            <span>•</span>
+            <span>Vendor Registration</span>
+          </div>
+
+          <div class="actions">
+            <button class="btn ghost" type="button" id="restoreDraftBtn">Restore Draft</button>
+            <button class="btn secondary" type="button" id="saveDraftBtn">Save as Draft</button>
+          </div>
+        </div>
+
+        <div class="stepper" aria-label="Steps">
+          <div class="steps" id="steps">
+            <div class="step active" data-step="0"><span class="n">1</span> Business</div>
+            <div class="step" data-step="1"><span class="n">2</span> Contact</div>
+            <div class="step" data-step="2"><span class="n">3</span> Address</div>
+            <div class="step" data-step="3"><span class="n">4</span> Documents</div>
+          </div>
+          <div class="progress" aria-label="Progress">
+            <span id="progressBar" style="width:25%"></span>
+          </div>
+        </div>
+
+        <form id="regForm" action="registration-success.html" method="post" enctype="multipart/form-data" novalidate>
+          <div class="body">
+
+            <!-- Step 1 -->
+            <fieldset class="active" data-panel="0">
+              <legend>Business Details</legend>
+              <p class="hint">Tell us about your business. Fields marked <span class="req">*</span> are required.</p>
+
+              <div class="grid">
+                <div>
+                  <label for="businessName">Business Name <span class="req">*</span></label>
+                  <input id="businessName" name="businessName" type="text" required autocomplete="organization" />
+                </div>
+
+                <div>
+                  <label for="gstNumber">GST Number <span class="req">*</span></label>
+                  <input id="gstNumber" name="gstNumber" type="text" required placeholder="e.g., 32ABCDE1234F1Z5" />
+                </div>
+
+                <div>
+                  <label for="businessType">Business Type <span class="req">*</span></label>
+                  <select id="businessType" name="businessType" required>
+                    <option value="">Select</option>
+                    <option>Manufacturer</option>
+                    <option>Distributor</option>
+                    <option>Wholesaler</option>
+                    <option>Retailer</option>
+                    <option>Service Provider</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="yearOfEstablishment">Year of Establishment <span class="req">*</span></label>
+                  <input id="yearOfEstablishment" name="yearOfEstablishment" type="number" required min="1800" max="2099" placeholder="e.g., 2012" />
+                </div>
+              </div>
+
+              <!-- kept for structure compatibility (not used for per-input errors) -->
+              <div class="error" id="err0">Please fill all required Business Details correctly.</div>
+
+              <div class="row">
+                <div class="note">Tip: GST format is validated lightly on the client. Full validation should happen on the server.</div>
+                <div class="actions">
+                  <button class="btn primary" type="button" data-next>Next →</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 2 -->
+            <fieldset data-panel="1">
+              <legend>Contact Details</legend>
+              <p class="hint">Provide primary contact information for onboarding and tender communication.</p>
+
+              <div class="grid">
+                <div>
+                  <label for="primaryEmail">Primary Email <span class="req">*</span></label>
+                  <input id="primaryEmail" name="primaryEmail" type="email" required autocomplete="email" placeholder="name@company.com" />
+                </div>
+
+                <div>
+                  <label for="primaryPhone">Primary Phone <span class="req">*</span></label>
+                  <input id="primaryPhone" name="primaryPhone" type="tel" required autocomplete="tel" placeholder="+91 9xxxx xxxxx" />
+                </div>
+
+                <div>
+                  <label for="alternatePhone">Alternate Phone</label>
+                  <input id="alternatePhone" name="alternatePhone" type="tel" autocomplete="tel" placeholder="Optional" />
+                </div>
+              </div>
+
+              <!-- kept for structure compatibility -->
+              <div class="error" id="err1">Please fill all required Contact Details correctly.</div>
+
+              <div class="row">
+                <div class="note">We’ll use your email and phone for RFQ updates, compliance requests, and ticket communication.</div>
+                <div class="actions">
+                  <button class="btn ghost" type="button" data-prev>← Back</button>
+                  <button class="btn primary" type="button" data-next>Next →</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 3 -->
+            <fieldset data-panel="2">
+              <legend>Address</legend>
+              <p class="hint">Enter your registered business address for verification and invoicing.</p>
+
+              <div class="grid">
+                <div>
+                  <label for="address1">Address Line 1 <span class="req">*</span></label>
+                  <input id="address1" name="address1" type="text" required autocomplete="address-line1" />
+                </div>
+
+                <div>
+                  <label for="address2">Address Line 2</label>
+                  <input id="address2" name="address2" type="text" autocomplete="address-line2" />
+                </div>
+
+                <div>
+                  <label for="city">City <span class="req">*</span></label>
+                  <input id="city" name="city" type="text" required autocomplete="address-level2" />
+                </div>
+
+                <div>
+                  <label for="state">State/UT <span class="req">*</span></label>
+                  <select id="state" name="state" required>
+                    <option value="">Select</option>
+                    <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+                    <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option>
+                    <option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option>
+                    <option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+                    <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option>
+                    <option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option>
+                    <option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+                    <option>West Bengal</option><option>Andaman and Nicobar Islands</option><option>Chandigarh</option>
+                    <option>Dadra &amp; Nagar Haveli and Daman &amp; Diu</option><option>Delhi</option><option>Jammu &amp; Kashmir</option>
+                    <option>Ladakh</option><option>Lakshadweep</option><option>Puducherry</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="pin">PIN Code <span class="req">*</span></label>
+                  <input id="pin" name="pin" type="text" required inputmode="numeric" placeholder="e.g., 695001" />
+                </div>
+              </div>
+
+              <!-- kept for structure compatibility -->
+              <div class="error" id="err2">Please fill all required Address fields correctly.</div>
+
+              <div class="row">
+                <div class="note">Address is used for verification and compliance records.</div>
+                <div class="actions">
+                  <button class="btn ghost" type="button" data-prev>← Back</button>
+                  <button class="btn primary" type="button" data-next>Next →</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Step 4 -->
+            <fieldset data-panel="3">
+              <legend>Upload Documents</legend>
+              <p class="hint">
+                Upload required documents (PDF/JPG/PNG). For drafts: files can’t be saved by the browser—only form text fields.
+              </p>
+
+              <div class="grid">
+                <div class="filebox">
+                  <label for="docGst">GST Certificate <span class="req">*</span></label>
+                  <input id="docGst" name="docGst" type="file" required accept=".pdf,.jpg,.jpeg,.png" />
+                  <div class="filename" id="docGstName">No file selected</div>
+                </div>
+
+                <div class="filebox">
+                  <label for="docPan">PAN <span class="req">*</span></label>
+                  <input id="docPan" name="docPan" type="file" required accept=".pdf,.jpg,.jpeg,.png" />
+                  <div class="filename" id="docPanName">No file selected</div>
+                </div>
+
+                <div class="filebox" style="grid-column: 1 / -1;">
+                  <label for="docLicense">Business License <span class="req">*</span></label>
+                  <input id="docLicense" name="docLicense" type="file" required accept=".pdf,.jpg,.jpeg,.png" />
+                  <div class="filename" id="docLicenseName">No file selected</div>
+                </div>
+              </div>
+
+              <div class="check" style="margin-top:14px;">
+                <input id="confirmAccurate" type="checkbox" name="confirmAccurate" required />
+                <p>
+                  I confirm that the details provided are accurate. <span class="req">*</span><br />
+                  <span style="font-weight:700; color: rgba(17,17,17,.60); font-size:12px;">
+                    Submitting false information may lead to rejection or account suspension.
+                  </span>
+                </p>
+              </div>
+
+              <!-- kept for structure compatibility -->
+              <div class="error" id="err3">Please upload all required documents and confirm accuracy.</div>
+
+              <div class="row">
+                <div class="note">
+                  On submit, this form posts to <code>registration-success.html</code>. Hook it to your backend endpoint when ready.
+                </div>
+                <div class="actions">
+                  <button class="btn ghost" type="button" data-prev>← Back</button>
+                  <button class="btn secondary" type="submit">Submit</button>
+                  <button class="btn ghost" type="reset" id="cancelBtn">Cancel</button>
+                </div>
+              </div>
+            </fieldset>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <strong id="toastTitle">Saved</strong>
+    <small id="toastMsg">Draft saved.</small>
+  </div>
+
+  <script>
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+    const form = $('#regForm');
+    const panels = $$('fieldset[data-panel]');
+    const stepEls = $$('#steps .step');
+    const progressBar = $('#progressBar');
+
+    const draftKey = 'medisync_vendor_reg_draft_v1';
+
+    let step = 0;
+
+    // Toast
+    let toastTimer = null;
+    function toast(title, msg){
+      $('#toastTitle').textContent = title;
+      $('#toastMsg').textContent = msg;
+      const t = $('#toast');
+      t.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.style.display = 'none', 2600);
+    }
+
+    function setStep(next){
+      step = Math.max(0, Math.min(panels.length - 1, next));
+
+      panels.forEach(p => p.classList.toggle('active', Number(p.dataset.panel) === step));
+
+      stepEls.forEach(s => {
+        const n = Number(s.dataset.step);
+        s.classList.toggle('active', n === step);
+        s.classList.toggle('done', n < step);
+      });
+
+      const pct = ((step + 1) / panels.length) * 100;
+      progressBar.style.width = pct + '%';
+
+      // keep original step error blocks hidden (structure unchanged)
+      $$('#err0, #err1, #err2, #err3').forEach(e => e.classList.remove('show'));
+
+      // scroll a bit into the card for mobile
+      document.querySelector('.shell')?.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    /* =========================================================
+       PER-FIELD ERROR SYSTEM (NO HTML CHANGES REQUIRED)
+       ========================================================= */
+    function ensureErrorNode(el){
+      if(!el || !el.id) return null;
+      const id = el.id + '__err';
+      let node = document.getElementById(id);
+      if(node) return node;
+
+      node = document.createElement('div');
+      node.className = 'field-error';
+      node.id = id;
+
+      el.insertAdjacentElement('afterend', node);
+      return node;
+    }
+
+    function setFieldError(el, msg){
+      if(!el) return;
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+
+      const node = ensureErrorNode(el);
+      if(node){
+        node.textContent = msg || '';
+        node.classList.toggle('show', !!msg);
+      }
+    }
+
+    function clearFieldError(el){
+      if(!el) return;
+      el.setAttribute('aria-invalid', 'false');
+      if(el.id){
+        const node = document.getElementById(el.id + '__err');
+        if(node){
+          node.textContent = '';
+          node.classList.remove('show');
+        }
+      }
+    }
+
+    function clearPanelErrors(panel){
+      if(!panel) return;
+      $$('input, select, textarea', panel).forEach(clearFieldError);
+    }
+
+    function focusFirstInvalid(panel){
+      const first = panel?.querySelector('[aria-invalid="true"]');
+      if(first){
+        first.focus({preventScroll:true});
+        first.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    }
+
+    /* =========================================================
+       VALIDATION RULES
+       ========================================================= */
+    function looksLikeGST(gst){
+      return /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i.test((gst||'').trim());
+    }
+
+    function looksLikePhone(v){
+      const raw = (v || '').trim();
+      if(!raw) return false;
+      const norm = raw.replace(/[^\d+]/g,'');
+      return /^(\+?\d{10,15})$/.test(norm);
+    }
+
+    function looksLikePIN(v){
+      return /^[1-9][0-9]{5}$/.test((v||'').trim());
+    }
+
+    const DOC_EXT_OK = /\.(pdf|jpg|jpeg|png)$/i;
+    const DOC_MIME_OK = new Set(['application/pdf','image/jpeg','image/png']);
+    const MAX_DOC_BYTES = 5 * 1024 * 1024; // 5MB
+
+    function validateFileInput(el, label){
+      const f = el.files?.[0];
+      if(!f){
+        setFieldError(el, `${label} is required.`);
+        return false;
+      }
+
+      const nameOk = DOC_EXT_OK.test(f.name || '');
+      const mimeOk = !f.type || DOC_MIME_OK.has(f.type);
+      if(!nameOk || !mimeOk){
+        setFieldError(el, `${label} must be PDF/JPG/PNG.`);
+        return false;
+      }
+
+      if(f.size > MAX_DOC_BYTES){
+        setFieldError(el, `${label} must be under 5MB.`);
+        return false;
+      }
+
+      clearFieldError(el);
+      return true;
+    }
+
+    function validateRequiredText(el, label, minLen=2, maxLen=120){
+      const v = (el.value || '').trim();
+      if(!v){
+        setFieldError(el, `${label} is required.`);
+        return false;
+      }
+      if(v.length < minLen){
+        setFieldError(el, `${label} must be at least ${minLen} characters.`);
+        return false;
+      }
+      if(v.length > maxLen){
+        setFieldError(el, `${label} must be under ${maxLen} characters.`);
+        return false;
+      }
+      clearFieldError(el);
+      return true;
+    }
+
+    function validateSelectRequired(el, label){
+      if(!el.value){
+        setFieldError(el, `Please select ${label}.`);
+        return false;
+      }
+      clearFieldError(el);
+      return true;
+    }
+
+    function validateEmail(el, label){
+      const v = (el.value || '').trim();
+      if(!v){
+        setFieldError(el, `${label} is required.`);
+        return false;
+      }
+      if(!el.checkValidity()){
+        setFieldError(el, `Enter a valid ${label}.`);
+        return false;
+      }
+      clearFieldError(el);
+      return true;
+    }
+
+    function validateNumberRange(el, label, min, max){
+      const v = (el.value || '').trim();
+      if(!v){
+        setFieldError(el, `${label} is required.`);
+        return false;
+      }
+      const n = Number(v);
+      if(!Number.isFinite(n) || n < min || n > max){
+        setFieldError(el, `${label} must be between ${min} and ${max}.`);
+        return false;
+      }
+      clearFieldError(el);
+      return true;
+    }
+
+    function validateOptionalPhone(el, label){
+      const v = (el.value || '').trim();
+      if(!v){
+        clearFieldError(el);
+        return true;
+      }
+      if(!looksLikePhone(v)){
+        setFieldError(el, `Enter a valid ${label}.`);
+        return false;
+      }
+      clearFieldError(el);
+      return true;
+    }
+
+    /* =========================================================
+       STEP VALIDATION (PER INPUT)
+       FIX: focus only when requested (Next/Submit)
+       ========================================================= */
+    function validateStep(i, { focusInvalid = false } = {}){
+      const panel = panels[i];
+      if(!panel) return false;
+
+      clearPanelErrors(panel);
+      let ok = true;
+
+      if(i === 0){
+        ok = validateRequiredText($('#businessName'), 'Business Name', 2, 80) && ok;
+
+        const gstEl = $('#gstNumber');
+        const gst = (gstEl.value || '').trim();
+        if(!gst){
+          setFieldError(gstEl, 'GST Number is required.');
+          ok = false;
+        } else if(!looksLikeGST(gst)){
+          setFieldError(gstEl, 'Enter a valid GST (e.g., 32ABCDE1234F1Z5).');
+          ok = false;
+        } else {
+          clearFieldError(gstEl);
+        }
+
+        ok = validateSelectRequired($('#businessType'), 'Business Type') && ok;
+        ok = validateNumberRange($('#yearOfEstablishment'), 'Year of Establishment', 1800, 2099) && ok;
+      }
+
+      if(i === 1){
+        ok = validateEmail($('#primaryEmail'), 'Primary Email') && ok;
+
+        const ph = $('#primaryPhone');
+        if(!validateRequiredText(ph, 'Primary Phone', 8, 20)) ok = false;
+        else if(!looksLikePhone(ph.value)) { setFieldError(ph, 'Enter a valid Primary Phone (digits, optional +).'); ok = false; }
+        else clearFieldError(ph);
+
+        ok = validateOptionalPhone($('#alternatePhone'), 'Alternate Phone') && ok;
+      }
+
+      if(i === 2){
+        ok = validateRequiredText($('#address1'), 'Address Line 1', 3, 120) && ok;
+
+        const a2 = $('#address2');
+        if(a2){
+          const v = (a2.value || '').trim();
+          if(v.length > 0 && v.length < 3){
+            setFieldError(a2, 'Address Line 2 must be at least 3 characters (or leave blank).');
+            ok = false;
+          } else {
+            clearFieldError(a2);
+          }
+        }
+
+        ok = validateRequiredText($('#city'), 'City', 2, 60) && ok;
+        ok = validateSelectRequired($('#state'), 'State/UT') && ok;
+
+        const pinEl = $('#pin');
+        const pin = (pinEl.value || '').trim();
+        if(!pin){
+          setFieldError(pinEl, 'PIN Code is required.');
+          ok = false;
+        } else if(!looksLikePIN(pin)){
+          setFieldError(pinEl, 'Enter a valid 6-digit PIN Code.');
+          ok = false;
+        } else {
+          clearFieldError(pinEl);
+        }
+      }
+
+      if(i === 3){
+        ok = validateFileInput($('#docGst'), 'GST Certificate') && ok;
+        ok = validateFileInput($('#docPan'), 'PAN') && ok;
+        ok = validateFileInput($('#docLicense'), 'Business License') && ok;
+
+        const c = $('#confirmAccurate');
+        if(c && !c.checked){
+          setFieldError(c, 'You must confirm accuracy to submit.');
+          ok = false;
+        } else if(c){
+          clearFieldError(c);
+        }
+      }
+
+      // ✅ FIX: focus only when user is trying to proceed
+      if(!ok && focusInvalid) focusFirstInvalid(panel);
+
+      return ok;
+    }
+
+    /* =========================================================
+       NEXT/PREV BUTTONS
+       FIX: focus invalid only on Next
+       ========================================================= */
+    $$('[data-next]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if(validateStep(step, { focusInvalid: true })) setStep(step + 1);
+        else toast('Fix required fields', 'Please correct the highlighted inputs before continuing.');
+      });
+    });
+
+    $$('[data-prev]').forEach(btn => {
+      btn.addEventListener('click', () => setStep(step - 1));
+    });
+
+    // Step click (optional)
+    stepEls.forEach(s => {
+      s.addEventListener('click', () => {
+        const target = Number(s.dataset.step);
+        if(target <= step) return setStep(target);
+
+        if(validateStep(step, { focusInvalid: true })) setStep(target);
+        else toast('Fix required fields', 'Complete the current step before moving forward.');
+      });
+    });
+
+    /* =========================================================
+       LIVE VALIDATION (NO FOCUS STEAL)
+       Fix: validate without focus while typing
+       ========================================================= */
+    function validateSingleInput(el){
+      const panel = el.closest('fieldset[data-panel]');
+      if(!panel) return;
+      const idx = Number(panel.dataset.panel);
+      validateStep(idx, { focusInvalid: false }); // ✅ never focus during typing
+    }
+
+    form.addEventListener('input', (e) => {
+      if(e.target.matches('input, select')) validateSingleInput(e.target);
+    }, true);
+
+    form.addEventListener('change', (e) => {
+      if(e.target.matches('input, select')) validateSingleInput(e.target);
+    }, true);
+
+    /* =========================================================
+       FILE NAME PREVIEWS
+       ========================================================= */
+    function bindFileName(inputId, labelId){
+      const inp = $('#' + inputId);
+      const out = $('#' + labelId);
+      inp.addEventListener('change', () => {
+        const f = inp.files?.[0];
+        out.textContent = f ? f.name : 'No file selected';
+      });
+    }
+    bindFileName('docGst','docGstName');
+    bindFileName('docPan','docPanName');
+    bindFileName('docLicense','docLicenseName');
+
+    /* =========================================================
+       SAVE DRAFT (text/select/checkbox only; no files)
+       ========================================================= */
+    function saveDraft(){
+      const data = {};
+      const elements = $$('input, select', form);
+
+      for(const el of elements){
+        if(!el.name) continue;
+
+        if(el.type === 'file'){
+          continue;
+        } else if(el.type === 'checkbox'){
+          data[el.name] = el.checked;
+        } else {
+          data[el.name] = el.value;
+        }
+      }
+
+      data.__savedAt = new Date().toISOString();
+      localStorage.setItem(draftKey, JSON.stringify(data));
+      toast('Draft saved', 'Your form entries were saved locally (files not included).');
+    }
+
+    function restoreDraft(){
+      const raw = localStorage.getItem(draftKey);
+      if(!raw){
+        toast('No draft found', 'There is no saved draft on this browser.');
+        return;
+      }
+      let data;
+      try{ data = JSON.parse(raw); }catch{ data = null; }
+      if(!data){
+        toast('Draft error', 'Draft data could not be read.');
+        return;
+      }
+
+      const elements = $$('input, select', form);
+      for(const el of elements){
+        if(!el.name) continue;
+        if(el.type === 'file') continue;
+
+        if(el.type === 'checkbox'){
+          el.checked = !!data[el.name];
+        } else if(data[el.name] != null){
+          el.value = data[el.name];
+        }
+      }
+
+      toast('Draft restored', 'Draft restored. Please re-select files before submitting.');
+    }
+
+    $('#saveDraftBtn').addEventListener('click', saveDraft);
+    $('#restoreDraftBtn').addEventListener('click', restoreDraft);
+
+    // Cancel/reset behavior
+    $('#cancelBtn').addEventListener('click', () => {
+      setStep(0);
+      $('#docGstName').textContent = 'No file selected';
+      $('#docPanName').textContent = 'No file selected';
+      $('#docLicenseName').textContent = 'No file selected';
+
+      // clear all per-field errors
+      panels.forEach(clearPanelErrors);
+
+      toast('Cleared', 'Form reset. Draft (if any) still remains until you delete it.');
+    });
+
+    // Submit validation
+    form.addEventListener('submit', (e) => {
+      for(let i=0;i<panels.length;i++){
+        if(!validateStep(i, { focusInvalid: true })){
+          e.preventDefault();
+          setStep(i);
+          toast('Submission blocked', 'Please fix the highlighted inputs before submitting.');
+          return;
+        }
+      }
+      // allow submit to action URL
+    });
+
+    // Initialize
+    setStep(0);
+  </script>
+</body>
+</html>

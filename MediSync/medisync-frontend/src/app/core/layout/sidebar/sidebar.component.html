@@ -1,0 +1,17 @@
+<aside class="sidebar" role="navigation" aria-label="Main Navigation" *ngIf="navItems.length > 0">
+  <nav class="sidebar-nav">
+    <div class="side-card">
+      <ul class="nav-list">
+        <li *ngFor="let item of navItems" class="nav-item">
+          <a 
+            [routerLink]="item.route" 
+            routerLinkActive="active"
+            class="nav-link"
+            [attr.aria-label]="item.label">
+            {{ item.label }} <span class="badge"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</aside>

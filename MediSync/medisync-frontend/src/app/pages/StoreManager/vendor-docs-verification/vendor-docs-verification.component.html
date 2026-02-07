@@ -1,0 +1,358 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <h2>Vendor Document Verification</h2>
+    </div>
+  </header>
+
+  <!-- Filters Card -->
+  <div class="card filters">
+    <form [formGroup]="filtersForm" class="filters-grid">
+      <input type="text" placeholder="Search vendor name..." formControlName="q" />
+      <select formControlName="status">
+        <option value="">All statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
+      <select formControlName="docType">
+        <option value="">All document types</option>
+        <option value="BUSINESS_LICENSE">Business License</option>
+        <option value="TAX_CERTIFICATE">Tax Certificate</option>
+        <option value="DRUG_LICENSE">Drug License</option>
+        <option value="GST_CERTIFICATE">GST Certificate</option>
+        <option value="BANK_DETAILS">Bank Details</option>
+        <option value="INCORPORATION">Certificate of Incorporation</option>
+      </select>
+      <input type="date" formControlName="uploadedAfter" placeholder="Uploaded after" />
+    </form>
+  </div>
+
+  <div *ngIf="errorMsg() as err" class="error">
+    {{ err }}
+  </div>
+
+  <div *ngIf="loading()" class="loading">Loading vendor documents...</div>
+
+  <div *ngIf="!loading() && filteredDocs().length === 0" class="empty">
+    No documents found with current filters.
+  </div>
+
+  <!-- ===========================
+       DOCUMENT GRID VIEW
+       =========================== -->
+  <div class="docs-grid" *ngIf="!loading() && filteredDocs().length > 0">
+    <div 
+      class="doc-card" 
+      *ngFor="let doc of filteredDocs(); trackBy: trackById"
+      (click)="openDocumentPreview(doc)"
+      tabindex="0"
+      role="button"
+      (keydown.enter)="openDocumentPreview(doc)"
+      (keydown.space)="openDocumentPreview(doc); $event.preventDefault()"
+    >
+      <!-- Document Icon/Preview -->
+      <div class="doc-preview">
+        <div class="doc-icon" [class.has-image]="doc.fileType === 'image'">
+          <!-- <svg *ngIf="doc.fileType === 'pdf'" viewBox="0 0 24 24" width="48" height="48">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" 
+                  fill="none" stroke="#E63946" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 2v6h6M10 13h4M10 17h4M10 9h1" 
+                  fill="none" stroke="#E63946" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg> -->
+          <!-- <svg *ngIf="doc.fileType === 'image'" viewBox="0 0 24 24" width="48" height="48">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" 
+                  fill="none" stroke="#2F6FDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8.5" cy="8.5" r="1.5" fill="#2F6FDB"/>
+            <path d="M21 15l-5-5L5 21" 
+                  fill="none" stroke="#2F6FDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg> -->
+          <!-- <svg *ngIf="doc.fileType === 'document'" viewBox="0 0 24 24" width="48" height="48">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" 
+                  fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" 
+                  fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg> -->
+        </div>
+      </div>
+
+      <!-- Document Info -->
+      <div class="doc-info">
+        <h4 class="doc-vendor">{{ doc.vendorName }}</h4>
+        <p class="doc-type">{{ doc.documentType ? formatDocType(doc.documentType) : '—' }}</p>
+        <p class="doc-meta">
+          <span class="doc-date">{{ doc.uploadedAt | date:'MMM d, y' }}</span>
+          <span class="doc-size">{{ formatFileSize(doc.fileSize) }}</span>
+        </p>
+      </div>
+
+      <!-- Status Badge -->
+      <div class="doc-status">
+        <span 
+          class="status-chip"
+          [class.is-pending]="doc.status === 'PENDING'"
+          [class.is-approved]="doc.status === 'APPROVED'"
+          [class.is-rejected]="doc.status === 'REJECTED'"
+        >
+          {{ doc.status }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       DOCUMENT PREVIEW MODAL
+       =========================== -->
+  <div
+    class="modal-backdrop"
+    *ngIf="previewOpen()"
+    (click)="closePreview()"
+    aria-hidden="true"
+  >
+    <div class="modal-card modal-preview" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          {{ selectedDoc()?.vendorName }} - {{ selectedDoc()?.documentType ? formatDocType(selectedDoc()!.documentType) : '' }}
+          <span
+            class="badge"
+            [class.badge-pending]="selectedDoc()?.status === 'PENDING'"
+            [class.badge-approved]="selectedDoc()?.status === 'APPROVED'"
+            [class.badge-rejected]="selectedDoc()?.status === 'REJECTED'"
+            *ngIf="selectedDoc()?.status"
+          >
+            {{ selectedDoc()?.status }}
+          </span>
+        </h3>
+        <button class="icon-btn" (click)="closePreview()" aria-label="Close preview">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <ng-container *ngIf="selectedDoc() as doc">
+          <!-- Document Details -->
+          <div class="detail-grid">
+            <div><strong>Vendor:</strong> {{ doc.vendorName }}</div>
+            <div><strong>Document Type:</strong> {{ doc.documentType ? formatDocType(doc.documentType) : '—' }}</div>
+            <div><strong>Uploaded:</strong> {{ doc.uploadedAt | date:'medium' }}</div>
+            <div><strong>File Size:</strong> {{ formatFileSize(doc.fileSize) }}</div>
+            <div><strong>File Name:</strong> {{ doc.fileName }}</div>
+            <div><strong>Status:</strong> {{ doc.status }}</div>
+          </div>
+
+          <!-- Document Preview Area -->
+          <div class="preview-area">
+            <div class="preview-container">
+              <!-- PDF Preview -->
+              <iframe 
+                *ngIf="doc.fileType === 'pdf' && doc.fileUrl"
+                [src]="sanitizeUrl(doc.fileUrl)"
+                class="preview-iframe"
+                title="Document preview"
+              ></iframe>
+
+              <!-- Image Preview -->
+              <img 
+                *ngIf="doc.fileType === 'image' && doc.fileUrl"
+                [src]="doc.fileUrl"
+                [alt]="doc.fileName"
+                class="preview-image"
+              />
+
+              <!-- Other Documents -->
+              <div *ngIf="doc.fileType === 'document'" class="preview-placeholder">
+                <svg viewBox="0 0 24 24" width="64" height="64">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" 
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" 
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>Preview not available</p>
+                <a [href]="doc.fileUrl" download class="btn btn-ghost" style="margin-top: 12px;">
+                  Download Document
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rejection Reason (if rejected) -->
+          <div *ngIf="doc.status === 'REJECTED' && doc.rejectionReason" class="rejection-notice">
+            <strong>Rejection Reason:</strong>
+            <p>{{ doc.rejectionReason }}</p>
+          </div>
+
+          <!-- Rejection Reason Input (when rejecting) -->
+          <div *ngIf="showRejectReason()" class="reject-reason-input">
+            <label class="lbl">Rejection Reason <span class="req">*</span></label>
+            <textarea 
+              class="in textarea"
+              [(ngModel)]="rejectionReason"
+              placeholder="Please provide a reason for rejection..."
+              rows="4"
+            ></textarea>
+            <div class="hint" *ngIf="!rejectionReason && rejectionReasonError()">
+              Rejection reason is required
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="modal-footer">
+        <ng-container *ngIf="!showRejectReason()">
+          <button class="btn btn-ghost" (click)="closePreview()">Close</button>
+          <ng-container *ngIf="selectedDoc()?.status === 'PENDING'">
+            <button class="btn btn-danger" (click)="initiateReject()" [disabled]="actionLoading()">
+              Reject
+            </button>
+            <button class="btn btn-success" (click)="openApproveConfirm()" [disabled]="actionLoading()">
+              Approve
+            </button>
+          </ng-container>
+        </ng-container>
+
+        <!-- Reject Reason Submission -->
+        <ng-container *ngIf="showRejectReason()">
+          <button class="btn btn-ghost" (click)="cancelReject()">Cancel</button>
+          <button class="btn btn-danger" (click)="openRejectConfirm()" [disabled]="actionLoading()">
+            Confirm Rejection
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       APPROVE CONFIRMATION MODAL
+       =========================== -->
+  <div
+    *ngIf="approveConfirmOpen()"
+    style="position: fixed; inset: 0; z-index: 1001; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeApproveConfirm()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 28px 20px 18px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="Confirm approval" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #22C55E; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(34,197,94,.45), 0 0 0 6px rgba(34,197,94,.15);" aria-hidden="true">
+        <svg width="38" height="38" viewBox="0 0 24 24">
+          <path d="M20 6L9 17l-5-5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 22px 0 6px; font-size: 1.25rem; color:#10324A;">Approve Document?</h3>
+      <p style="margin:0 0 16px; color:#515151;">
+        Are you sure you want to approve this document from <strong>{{ selectedDoc()?.vendorName }}</strong>?
+      </p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button type="button" (click)="closeApproveConfirm()" class="btn btn-ghost">Cancel</button>
+        <button type="button" (click)="confirmApprove()" [disabled]="actionLoading()" class="btn btn-success">
+          {{ actionLoading() ? 'Approving…' : 'Approve' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       REJECT CONFIRMATION MODAL
+       =========================== -->
+  <div
+    *ngIf="rejectConfirmOpen()"
+    style="position: fixed; inset: 0; z-index: 1001; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeRejectConfirm()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 28px 20px 18px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="Confirm rejection" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #ef4444; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(239,68,68,.45), 0 0 0 6px rgba(239,68,68,.15);" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24">
+          <path d="M12 8v4m0 4h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"
+                fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 22px 0 6px; font-size: 1.25rem; color:#10324A;">Reject Document?</h3>
+      <p style="margin:0 0 16px; color:#515151;">
+        Are you sure you want to reject this document from <strong>{{ selectedDoc()?.vendorName }}</strong>?
+      </p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button type="button" (click)="closeRejectConfirm()" class="btn btn-ghost">Cancel</button>
+        <button type="button" (click)="confirmReject()" [disabled]="actionLoading()" class="btn btn-danger">
+          {{ actionLoading() ? 'Rejecting…' : 'Reject' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       SUCCESS MODAL (Approval)
+       =========================== -->
+  <div
+    *ngIf="showApproveSuccess()"
+    style="position: fixed; inset: 0; z-index: 1001; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeApproveSuccess()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 32px 20px 20px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="Document approved successfully" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #22C55E; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(34,197,94,.45), 0 0 0 6px rgba(34,197,94,.15);" aria-hidden="true">
+        <svg width="38" height="38" viewBox="0 0 24 24">
+          <path d="M20 6L9 17l-5-5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 28px 0 6px; font-size: 1.35rem; color:#10324A; letter-spacing:.2px;">Approved</h3>
+      <p style="margin:0 0 18px; color:#515151;">Document approved successfully.</p>
+      <div style="display:flex; justify-content:center;">
+        <button type="button" (click)="closeApproveSuccess()"
+                style="border:0; cursor:pointer; padding:12px 18px; border-radius: 12px; background:#22C55E;
+                       color:#fff; font-weight:800; letter-spacing:.2px; min-width: 120px; box-shadow: 0 8px 20px rgba(34,197,94,.35);">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       SUCCESS MODAL (Rejection)
+       =========================== -->
+  <div
+    *ngIf="showRejectSuccess()"
+    style="position: fixed; inset: 0; z-index: 1001; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeRejectSuccess()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 32px 20px 20px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="Document rejected successfully" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #F59E0B; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(245,158,11,.45), 0 0 0 6px rgba(245,158,11,.15);" aria-hidden="true">
+        <svg width="38" height="38" viewBox="0 0 24 24">
+          <path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" 
+                fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 28px 0 6px; font-size: 1.35rem; color:#10324A; letter-spacing:.2px;">Rejected</h3>
+      <p style="margin:0 0 18px; color:#515151;">Document rejected successfully.</p>
+      <div style="display:flex; justify-content:center;">
+        <button type="button" (click)="closeRejectSuccess()"
+                style="border:0; cursor:pointer; padding:12px 18px; border-radius: 12px; background:#F59E0B;
+                       color:#fff; font-weight:800; letter-spacing:.2px; min-width: 120px; box-shadow: 0 8px 20px rgba(245,158,11,.35);">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

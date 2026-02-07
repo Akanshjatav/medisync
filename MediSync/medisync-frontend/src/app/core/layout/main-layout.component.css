@@ -1,0 +1,36 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 20px;
+  background: #ffffff;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;              /* stop centering box */
+}
+
+@media (max-width: 768px) {
+  .app-body {
+    flex-direction: column;
+  }
+
+  .main {
+    padding: 1rem;
+  }
+}

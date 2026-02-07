@@ -1,0 +1,371 @@
+/* =========================================================
+   NAVBAR (SPA) - Consistent UI styling
+   - Neutral light UI
+   - Blue accent
+   - Clean hover/active states
+   - Vendor CTA button
+   ========================================================= */
+
+/* Component scope reset */
+:host {
+  display: block;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #111827;
+}
+
+/* --- Design tokens (keeps the UI consistent) --- */
+:host {
+  --bg: #ffffff;
+  --border: #e5e7eb;
+  --muted: #6b7280;
+  --text: #111827;
+
+  --surface: #f9fafb;
+  --surface-2: #f3f4f6;
+
+  --primary: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+
+  --radius: 10px;
+  --radius-sm: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  --focus: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* =========================================================
+   Layout
+   ========================================================= */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-left {
+  min-width: 0;
+}
+
+/* =========================================================
+   Hamburger
+   ========================================================= */
+
+.hamburger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--text);
+
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.hamburger:hover {
+  background: var(--surface-2);
+  border-color: #cbd5e1;
+}
+
+.hamburger:active {
+  transform: translateY(1px);
+}
+
+.hamburger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.menu-text {
+  font-weight: 800;
+}
+
+/* =========================================================
+   Brand / Logo / Title
+   ========================================================= */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+}
+
+.brand-title {
+  min-width: 0;
+}
+
+.brand-title strong {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   Primary navigation (Home / About / Services)
+   ========================================================= */
+
+.primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;        /* tighter spacing looks cleaner */
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--border);
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #374151;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.nav-link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.nav-link:active {
+  transform: translateY(1px);
+}
+
+.nav-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+/* routerLinkActive="active" */
+.nav-link.active {
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* =========================================================
+   Vendor CTA button (Vendor Registration)
+   ========================================================= */
+
+.vendor-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.5rem 0.95rem;
+  border-radius: 10px;
+
+  background: var(--primary);
+  color: #ffffff !important;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  border: 1px solid var(--primary-700);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
+
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.vendor-cta:hover {
+  background: var(--primary-700);
+  border-color: var(--primary-800);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.28);
+  transform: translateY(-1px);
+}
+
+.vendor-cta:active {
+  transform: translateY(0px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
+}
+
+.vendor-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--focus), 0 10px 22px rgba(37, 99, 235, 0.28);
+}
+
+/* Optional "exclusive" treatment if you want it to stand out more
+.vendor-cta::after {
+  content: "Vendor";
+  margin-left: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+} */
+
+/* =========================================================
+   Account menu (details/summary)
+   ========================================================= */
+
+.menu {
+  position: relative;
+}
+
+.menu summary {
+  list-style: none;
+  cursor: pointer;
+
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.95rem;
+
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+
+  transition: background 160ms ease;
+}
+
+.menu summary:hover {
+  background: var(--surface-2);
+}
+
+.menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+/* Dropdown panel you added in HTML */
+.menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+
+  min-width: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menu-panel a {
+  display: block;
+  text-decoration: none;
+  color: #374151;
+
+  font-size: 0.92rem;
+  font-weight: 600;
+
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.menu-panel a:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.menu-panel a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .primary-nav {
+    gap: 0.15rem;
+    margin-left: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.93rem;
+  }
+
+  .vendor-cta {
+    padding: 0.48rem 0.8rem;
+  }
+
+  .vendor-cta::after {
+    display: none; /* reduce clutter on mid screens */
+  }
+}
+
+@media (max-width: 640px) {
+  .brand-title strong {
+    font-size: 0.95rem;
+  }
+
+  /* On small screens, hide primary nav (optional) */
+  .primary-nav {
+    display: none;
+  }
+
+  .hamburger {
+    padding: 0.45rem 0.6rem;
+  }
+
+  .vendor-cta {
+    padding: 0.45rem 0.75rem;
+    border-radius: 10px;
+  }
+}

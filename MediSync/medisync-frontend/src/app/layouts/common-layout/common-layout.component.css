@@ -1,0 +1,17 @@
+/* Common Layout - Minimal wrapper for vendor pages */
+
+.app {
+  display: contents;
+}
+
+.app-body {
+  display: contents;
+}
+
+.main {
+  display: contents;
+}
+
+.main-content {
+  display: contents;
+}

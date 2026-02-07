@@ -1,0 +1,113 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <h2>RFQs</h2>
+    </div>
+  </header>
+
+  <!-- Filters Card -->
+  <div class="card filters">
+    <form [formGroup]="filtersForm" class="filters-grid">
+      <input 
+        type="text" 
+        placeholder="Search by ID, title, or store..." 
+        formControlName="q" 
+        aria-label="Search RFQs"
+      />
+      <select formControlName="status" aria-label="Filter by status">
+        <option value="">All statuses</option>
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+      <input 
+        type="date" 
+        formControlName="fromDate" 
+        placeholder="From date"
+        aria-label="Filter from date"
+      />
+      <input 
+        type="date" 
+        formControlName="toDate" 
+        placeholder="To date"
+        aria-label="Filter to date"
+      />
+    </form>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMsg() as err" class="error">
+    {{ err }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading">Loading RFQs...</div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && filteredRfqs().length === 0" class="empty">
+    No RFQs found with current filters.
+  </div>
+
+  <!-- RFQ Table -->
+  <div class="rfq-table" *ngIf="!loading() && filteredRfqs().length > 0">
+    <div class="rfq-tbody">
+      <div 
+        class="rfq-row" 
+        *ngFor="let rfq of filteredRfqs(); trackBy: trackById"
+        tabindex="0"
+        role="article"
+        [attr.aria-label]="'RFQ ' + rfq.id + ': ' + rfq.title"
+      >
+        <!-- RFQ Details Column -->
+        <div class="rfq-details">
+          <h3 class="rfq-title">{{ rfq.title }}</h3>
+          
+          <div class="rfq-meta-grid">
+            <div class="rfq-meta-item">
+              <span class="rfq-label">RFQ ID:</span>
+              <strong>{{ rfq.id }}</strong>
+            </div>
+
+            <!-- <div class="rfq-meta-item">
+              <span class="rfq-label">Store:</span>
+              <strong>{{ rfq.storeName }}</strong>
+            </div> -->
+
+            <div class="rfq-meta-item">
+              <span class="rfq-label">Status:</span>
+              <span 
+                class="status-chip"
+                [class.is-under-review]="rfq.status === 'Under Review'"
+                [class.is-submitted]="rfq.status === 'Submitted'"
+                [class.is-awarded]="rfq.status === 'ACCEPTED'"
+                [class.is-open]="rfq.status === 'OPEN'"
+                [class.is-cancelled]="rfq.status === 'CANCELLED'"
+              >
+                {{ rfq.status.replace('_', ' ') }}
+              </span>
+            </div>
+
+            <div class="rfq-meta-item">
+              <span class="rfq-label">Submission Deadline:</span>
+              <strong>{{ rfq.deadline | date:'medium' }}</strong>
+            </div>
+
+            <div class="rfq-meta-item">
+              <span class="rfq-label">Delivery Date:</span>
+              <strong>{{ rfq.deliveryDate | date:'medium' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Column -->
+        <div class="rfq-actions">
+          <button
+            class="btn btn-primary"
+            (click)="goToCreateBid(rfq.id)"
+            [attr.aria-label]="'Respond to RFQ ' + rfq.id"
+          >
+            Respond
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

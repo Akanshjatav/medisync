@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Keep the CSS in the same folder as this file -->
+  <link rel="stylesheet" href="header_style.css">
+
+  <!-- Optional: basic meta for responsive behavior -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Header</title>
+</head>
+<body>
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          ☰ <span style="font-weight:900;">Menu</span>
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>Manager Portal</strong>
+            <small>
+              <a href="landing.html" aria-label="Go to landing page">Landing page</a>
+            </small>
+          </div>
+        </div>
+      </div>
+
+      
+
+      <div class="nav-right" aria-label="Account and status">
+        <span class="pill" title="System status">
+          <span class="dot" aria-hidden="true"></span>
+          Online
+        </span>
+
+        <details class="menu" id="accountMenu">
+          <summary aria-label="Open account menu">Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <a href="../vendor_modules/profile.html">Profile</a>
+            <a href="logout.html">Logout</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+</body>
+</html>

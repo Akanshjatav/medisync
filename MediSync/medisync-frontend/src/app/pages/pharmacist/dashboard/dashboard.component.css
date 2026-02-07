@@ -1,0 +1,260 @@
+/* Intentionally empty - uses global styles only */
+/* ===============================
+   PAGE HEADER
+================================ */
+.container.page-head {
+  margin-bottom: 24px;
+}
+
+.breadcrumbs {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.branch {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* ===============================
+   STATES
+================================ */
+.loading,
+.error {
+  padding: 24px;
+  background: var(--surface);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.error {
+  border: 1px solid var(--red);
+  color: var(--red);
+}
+
+/* ===============================
+   METRICS GRID
+================================ */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.metric-card {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+.metric-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-value {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.metric-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.metric-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===============================
+   Dashboard GRID
+================================ */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* ===============================
+   CARDS
+================================ */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  font-weight: 800;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ===============================
+   TABLES
+================================ */
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.inventory-table thead th {
+  background: var(--bg-soft);
+  font-weight: 800;
+  text-align: left;
+}
+
+.inventory-table tbody tr {
+  border-top: 1px solid var(--border);
+}
+
+.qty {
+  font-weight: 800;
+}
+
+/* ===============================
+   STATUS CHIPS
+================================ */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-chip .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-chip.near {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ff9800;
+}
+
+.status-chip.safe {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.status-chip.expired {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+/* ===============================
+   EMPTY STATES
+================================ */
+.empty {
+  padding: 24px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ===============================
+   QUICK ACTIONS
+================================ */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+}
+
+.action-btn {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease;
+}
+
+.action-btn:hover {
+  background: var(--surface);
+}
+
+.action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-title {
+  font-weight: 800;
+}
+
+.action-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 1200px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/inventory.css">
+</head>
+
+
+<body>
+  <!-- Accessible skip link -->
+
+  <div class="app">
+    <!-- Navbar -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button" aria-label="Toggle sidebar" aria-expanded="false"
+          aria-controls="sidebar">
+          ☰ <span style="font-weight:900;">Menu</span>
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>MediSync</strong>
+            <small>Inventory Management</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-right" aria-label="Account and status">
+        <span class="pill" title="System status">
+          <span class="dot" aria-hidden="true"></span>
+          Online
+        </span>
+
+        <details class="menu" id="accountMenu">
+          <summary aria-label="Open account menu">Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <a href="../Common Features/login.html" id="logoutLink">Logout</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Pharmacist navigation">
+
+
+      <div class="side-card">
+        <div class="side-title"></div>
+        <nav class="nav">
+          <a href="pharmacist_dashboard.html" aria-current="page">
+            Dashboard <span class="badge green"></span>
+          </a>
+          <a href="addnewmedicine.html">
+            Batch Entry <span class="badge"></span>
+          </a>
+          <a href="dispensing.html">
+            Dispensing <span class="badge amber"></span>
+          </a>
+          <a href="expiry.html">
+            Expiry Alerts <span class="badge red"></span>
+          </a>
+          <a href="requeststock.html">
+            Request Stock <span class="badge"></span>
+          </a>
+          <a href="vendorfeedback.html">
+            Vendor Feedback <span class="badge"></span>
+          </a>
+        </nav>
+      </div>
+
+
+    </aside>
+
+    <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+    <!-- Main: Inventory Content -->
+    <main class="main" id="main" tabindex="-1">
+      <section class="container page-head">
+        <div class="head-row">
+          <div class="branch" aria-live="polite"><span id="branchName"></span></div>
+          <div class="tools" role="group" aria-label="Inventory tools">
+            <input class="input" id="searchInput" type="search" placeholder="Search by medicine or batch…"
+              aria-label="Search medicines" />
+            <select class="select" id="sortSelect" aria-label="Sort inventory">
+              <option value="expiryAsc">Expiry ↑</option>
+              <option value="expiryDesc">Expiry ↓</option>
+              <option value="qtyAsc">Quantity ↑</option>
+              <option value="qtyDesc">Quantity ↓</option>
+            </select>
+            <span class="badge live" title="Live data">Live updates</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="card" id="inventoryCard" aria-busy="true">
+        <div class="card-header">
+          <span>Branch Inventory</span>
+          <span id="statusText" class="loading">Loading inventory…</span>
+        </div>
+        <div id="tableWrap">
+          <!-- Table renders here -->
+        </div>
+      </div>
+      <!--footer section-->
+       <footer>
+        <span>© ILP 2025 MediSync</span>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="js/scripts.js"></script>
+
+
+</body>
+
+</html>

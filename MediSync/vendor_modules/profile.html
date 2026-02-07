@@ -1,0 +1,1242 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendor Portal • Profile</title>
+
+  <style>
+    :root{
+      /* Primary Colors */
+      --blue:#337AB7; --green:#5CB85C; --navy:#10324A; --forest:#1F4E2E;
+      --black:#111111; --gray:#515151; --light-gray:#E5E5E5; --white:#FFFFFF;
+      --vlg:#F5FBF7; --vlb:#EAF3FA;
+
+      /* Expanded */
+      --blue-dark:#285A8E; --blue-soft:#6FA8DC;
+      --green-dark:#3E8E5A; --green-light:#8FD19E;
+      --off:#FAFAF8; --washg:#E8F7EE; --washb:#D6EAF8;
+
+      /* Accents */
+      --amber:#F0AD4E; --red:#D9534F; --aqua:#5BC0DE;
+
+      /* UI */
+      --bg: var(--off);
+      --surface: var(--white);
+      --surface-2: #fcfcfb;
+      --border: rgba(16,50,74,.14);
+      --shadow: 0 10px 28px rgba(17,17,17,.10);
+      --shadow2: 0 14px 40px rgba(16,50,74,.12);
+      --ring: 0 0 0 4px rgba(51,122,183,.25);
+
+      --radius: 16px;
+      --gap: 16px;
+
+      --sidebar-w: 280px;
+      --navbar-h: 70px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--black);
+      background: linear-gradient(180deg, var(--vlb), var(--bg) 45%);
+    }
+    a{ color: var(--blue); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto; padding:10px 12px;
+      border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+      outline:none; z-index: 9999;
+    }
+
+    /* Layout */
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-rows: var(--navbar-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas:
+        "nav nav"
+        "side main";
+    }
+
+    /* Navbar */
+    .navbar{
+      grid-area: nav;
+      position: sticky; top:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 12px 16px;
+      gap: 12px;
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-left,.nav-right{
+      display:flex; align-items:center; gap: 12px; min-width:0;
+    }
+
+    .hamburger{
+      display:none;
+      border:1px solid var(--border);
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      color: var(--navy);
+    }
+    .hamburger:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .brand{ display:flex; align-items:center; gap: 10px; min-width: 220px; }
+    .logo{
+      width: 42px; height: 42px; border-radius: 14px;
+      background: conic-gradient(from 200deg, var(--blue), var(--aqua), var(--green));
+      box-shadow: var(--shadow);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .logo::after{
+      content:""; position:absolute; inset: 10px; border-radius: 10px;
+      background: rgba(255,255,255,.92);
+    }
+    .brand strong{ display:block; color: var(--navy); font-size: 14px; }
+    .brand small{ display:block; color: var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .search{
+      flex:1; max-width: 520px; min-width: 200px;
+      display:flex; gap:10px; align-items:center;
+    }
+    .search input{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      outline:none;
+    }
+    .search input:focus{ box-shadow: var(--ring); border-color: rgba(51,122,183,.55); }
+
+    .btn{
+      border:0; cursor:pointer;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: var(--blue);
+      color:#fff;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+      white-space: nowrap;
+    }
+    .btn.secondary{ background: var(--green); }
+    .btn.ghost{
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn.danger{ background: var(--red); }
+    .btn:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+    .btn:active{ transform: translateY(1px); }
+
+    details.menu{ position: relative; }
+    details.menu > summary{
+      list-style:none;
+      cursor:pointer; user-select:none;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      color: var(--navy);
+      outline:none;
+    }
+    details.menu > summary::-webkit-details-marker{ display:none; }
+    details.menu > summary:focus{ box-shadow: var(--ring), var(--shadow); }
+
+    .dropdown{
+      position:absolute; right:0; top: 50px;
+      width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow2);
+      padding: 8px;
+      z-index: 60;
+    }
+    .dropdown a{
+      display:block;
+      width:100%;
+      text-align:left;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: 900;
+      color: var(--black);
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .dropdown a:hover{
+      background: rgba(51,122,183,.10);
+      text-decoration:none;
+    }
+
+    /* Backdrop (mobile sidebar) */
+    .backdrop{
+      display:none;
+      position: fixed;
+      inset: 0;
+      background: rgba(16,50,74,.45);
+      z-index: 40;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      grid-area: side;
+      padding: 16px;
+      border-right: 1px solid var(--border);
+      background: rgba(245,251,247,.70);
+      backdrop-filter: blur(8px);
+      overflow:auto;
+    }
+    .side-card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .side-title{
+      font-size: 12px;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin: 0 0 10px;
+    }
+    .nav{
+      display:grid; gap: 8px;
+    }
+    .nav a{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      border: 1px solid transparent;
+      font-weight: 900;
+      color: var(--navy);
+    }
+    .nav a:hover{ border-color: rgba(51,122,183,.25); text-decoration:none; }
+    .nav a[aria-current="page"]{
+      border-color: rgba(51,122,183,.42);
+      box-shadow: 0 0 0 4px rgba(51,122,183,.12);
+    }
+    .badge{
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(51,122,183,.18);
+      background: rgba(51,122,183,.12);
+      color: var(--blue-dark);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    /* Main */
+    .main{
+      grid-area: main;
+      padding: 16px;
+      overflow:auto;
+    }
+    .grid{
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: 1.2fr .8fr;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .card h2{
+      margin:0 0 10px;
+      color: var(--navy);
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    .card h3{
+      margin: 0 0 10px;
+      color: var(--navy);
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .muted{ color: var(--gray); }
+    .divider{ height:1px; background: var(--border); margin: 12px 0; }
+
+    .profile-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .who{ display:flex; align-items:center; gap: 12px; min-width: 260px; }
+    .avatar{
+      width: 52px; height: 52px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      box-shadow: var(--shadow);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; }
+    .avatar span{ font-weight: 1000; color: var(--navy); letter-spacing: .06em; }
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; }
+
+    .kv{ display:grid; gap: 8px; }
+    .kv-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.10);
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    }
+    .kv-row strong{ color: var(--navy); }
+    .kv-row span{ color: var(--black); overflow-wrap:anywhere; }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.10);
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      margin-top: 10px;
+    }
+
+    /* Switch used in notif modal */
+    .switch{
+      width: 52px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(16,50,74,.12);
+      position: relative;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.18);
+      outline: none;
+    }
+    .switch::after{
+      content:"";
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      position:absolute;
+      top: 50%;
+      left: 3px;
+      transform: translateY(-50%);
+      background: var(--surface);
+      box-shadow: 0 6px 14px rgba(16,50,74,.22);
+      transition: left .16s ease, background .16s ease;
+    }
+    .switch[aria-checked="true"]{
+      background: rgba(92,184,92,.30);
+      border-color: rgba(92,184,92,.45);
+    }
+    .switch[aria-checked="true"]::after{ left: 25px; }
+
+    .row{
+      display:flex;
+      justify-content:flex-end;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Dialog + form */
+    dialog{
+      width: min(820px, calc(100% - 24px));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      padding: 16px;
+      background: rgba(255,255,255,.98);
+    }
+    dialog::backdrop{
+      background: rgba(16, 50, 74, .45);
+      backdrop-filter: blur(2px);
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 14px;
+    }
+    label{
+      display:block;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--gray);
+      margin: 0 0 6px;
+    }
+    input{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      outline:none;
+      font-family: var(--font);
+      font-size: 14px;
+    }
+    input:focus{ box-shadow: var(--ring); border-color: rgba(51,122,183,.55); }
+    input[type="file"]{ padding: 10px; cursor: pointer; }
+
+    @media (max-width: 720px){
+      .form-grid{ grid-template-columns: 1fr; }
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: min(360px, calc(100% - 32px));
+      background: rgba(255,255,255,.95);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow2);
+      padding: 12px 14px;
+      z-index: 999;
+      display:none;
+    }
+    .toast strong{
+      display:block;
+      color: var(--navy);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .toast small{
+      display:block;
+      color: var(--gray);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    /* Responsive sidebar */
+    @media (max-width: 980px){
+      .hamburger{ display:inline-flex; align-items:center; gap:8px; }
+      .app{
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "nav"
+          "main";
+      }
+      .sidebar{
+        position: fixed;
+        top: var(--navbar-h);
+        left: 0;
+        height: calc(100vh - var(--navbar-h));
+        width: var(--sidebar-w);
+        transform: translateX(-110%);
+        transition: transform .18s ease;
+        z-index: 45;
+        border-right: 1px solid var(--border);
+      }
+      body.sidebar-open .sidebar{ transform: translateX(0); }
+      body.sidebar-open .backdrop{ display:block; }
+    }
+
+    /* =========================================================
+       VALIDATION (ADD-ON)
+       Works with JS setting aria-invalid="true"/"false"
+       ========================================================= */
+
+    input[aria-invalid="true"]{
+      border-color: rgba(217, 83, 79, .78) !important;
+      box-shadow: 0 0 0 4px rgba(217, 83, 79, .18) !important;
+    }
+    input[aria-invalid="true"]:focus{
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(217, 83, 79, .24), var(--shadow) !important;
+    }
+    input[aria-invalid="false"]:not(:placeholder-shown){
+      border-color: rgba(92, 184, 92, .55);
+    }
+    .search input[aria-invalid="true"]{
+      border-color: rgba(217, 83, 79, .78) !important;
+      box-shadow: 0 0 0 4px rgba(217, 83, 79, .18) !important;
+    }
+    input[type="file"][aria-invalid="true"]{
+      border-color: rgba(217, 83, 79, .78) !important;
+      box-shadow: 0 0 0 4px rgba(217, 83, 79, .18) !important;
+    }
+    input{ scroll-margin-top: 90px; }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app">
+    <!-- NAVBAR -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button"
+                aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          ☰ Menu
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <strong>Vendor Portal</strong>
+            <small><a href="index.html">← Landing page</a></small>
+          </div>
+        </div>
+      </div>
+
+      <form class="search" id="searchForm" role="search" aria-label="Search">
+        <input id="q" name="q" type="search" placeholder="Search RFQs, deliveries, tickets…" maxlength="80" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+
+      <div class="nav-right">
+        <details class="menu" id="accountMenu">
+          <summary>Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <a href="app.html">Dashboard</a>
+            <a href="profile.html">Profile</a>
+            <a href="logout.html">Logout</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- BACKDROP (mobile) -->
+    <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+      <div class="side-card">
+        <div class="side-title">Navigation</div>
+        <nav class="nav">
+          <a href="app.html">Dashboard <span class="badge">Home</span></a>
+          <a href="profile.html" aria-current="page">Profile <span class="badge">You</span></a>
+          <a href="compliance.html">Compliance</a>
+          <a href="rfqs.html">Active RFQs</a>
+          <a href="quotations.html">Quotations</a>
+          <a href="deliveries.html">Deliveries</a>
+          <a href="support.html">Support</a>
+        </nav>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Quick actions</div>
+        <p class="muted"><a href="compliance.html">Upload compliance documents</a></p>
+        <p class="muted"><a href="support.html">Open support ticket</a></p>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="main" aria-label="Profile content">
+      <div class="grid">
+        <!-- Profile (view mode) -->
+        <section class="card" aria-label="Profile details">
+          <h2>Profile</h2>
+
+          <div class="profile-head">
+            <div class="who">
+              <div class="avatar" aria-label="Avatar">
+                <img id="avatarImg" alt="Avatar" hidden />
+                <span id="avatarText" aria-hidden="true">AJ</span>
+              </div>
+              <div>
+                <div style="font-weight:900; color:var(--navy); font-size:18px;" id="nameTop">Akansh Jatav</div>
+                <div class="muted" id="roleTop">Vendor Admin</div>
+                <div class="muted">Vendor ID: <strong id="vendorIdTop">VND-10291</strong></div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn secondary" type="button" id="editProfileBtn">Edit Profile</button>
+              <button class="btn ghost" type="button" id="changePwBtn">Change Password</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h3>Details (view only)</h3>
+          <div class="kv" aria-label="Key values">
+            <div class="kv-row"><strong>Email</strong> <span id="emailView">akansh@example.com</span></div>
+            <div class="kv-row"><strong>Phone</strong> <span id="phoneView">—</span></div>
+            <div class="kv-row"><strong>Company</strong> <span id="companyView">Acme Pharma Supplies</span></div>
+            <div class="kv-row"><strong>Location</strong> <span id="locationView">Trivandrum</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="muted">
+            Last updated: <strong id="updatedView">just now</strong>
+          </div>
+        </section>
+
+        <!-- Preferences (view mode) -->
+        <aside class="card" aria-label="Preferences">
+          <h2>Preferences</h2>
+          <div class="muted">These are view-only here. Click “Edit Notifications” to change.</div>
+
+          <div class="toggle" aria-label="RFQ alerts view">
+            <div>
+              <strong>RFQ alerts</strong>
+              <div class="muted">Deadlines and updates</div>
+            </div>
+            <div class="badge" id="rfqPrefView">On</div>
+          </div>
+
+          <div class="toggle" aria-label="Compliance reminders view">
+            <div>
+              <strong>Compliance reminders</strong>
+              <div class="muted">Pending review / expiry</div>
+            </div>
+            <div class="badge" id="compPrefView">On</div>
+          </div>
+
+          <div class="toggle" aria-label="Delivery updates view">
+            <div>
+              <strong>Delivery updates</strong>
+              <div class="muted">Shipment changes</div>
+            </div>
+            <div class="badge" id="delPrefView">Off</div>
+          </div>
+
+          <div class="row">
+            <button class="btn secondary" type="button" id="editNotifBtn">Edit Notifications</button>
+            <button class="btn ghost" type="button" id="resetBtn">Reset</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <h3>Quick Links</h3>
+          <div class="muted">
+            <div><a href="app.html">Go to Dashboard</a></div>
+            <div><a href="support.html">Open Support</a></div>
+            <div><a href="logout.html">Logout</a></div>
+          </div>
+        </aside>
+      </div>
+
+      <footer style="margin-top:16px; color:var(--gray); font-size:12px;">
+        © <span id="year"></span> Vendor Portal • <a href="index.html">Landing</a> • <a href="app.html">Dashboard</a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <dialog id="profileDialog" aria-label="Edit Profile">
+    <form method="dialog" id="profileForm" novalidate>
+      <h3 style="margin:0; color:var(--navy);">Edit Profile</h3>
+      <p class="muted" style="margin:6px 0 0;">Update your info. All inputs are validated.</p>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label for="fullName">Full name</label>
+          <input id="fullName" name="fullName" type="text"
+                 required minlength="2" maxlength="60"
+                 autocomplete="name" />
+        </div>
+
+        <div>
+          <label for="role">Role</label>
+          <input id="role" name="role" type="text"
+                 minlength="2" maxlength="60"
+                 autocomplete="organization-title" />
+        </div>
+
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email"
+                 required maxlength="120"
+                 autocomplete="email" />
+        </div>
+
+        <div>
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel"
+                 maxlength="20" inputmode="tel"
+                 placeholder="+91 9xxxx xxxxx"
+                 autocomplete="tel" />
+        </div>
+
+        <div>
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text"
+                 minlength="2" maxlength="80"
+                 autocomplete="organization" />
+        </div>
+
+        <div>
+          <label for="location">Location</label>
+          <input id="location" name="location" type="text"
+                 minlength="2" maxlength="80"
+                 autocomplete="address-level2" />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label for="avatarFile">Profile photo</label>
+          <input id="avatarFile" name="avatarFile" type="file" accept="image/*" />
+          <div class="muted">Preview updates instantly. Saved locally for demo.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit">Cancel</button>
+        <button class="btn secondary" value="save" type="submit" id="saveProfileModalBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Edit Notifications Modal -->
+  <dialog id="notifDialog" aria-label="Edit Notifications">
+    <form method="dialog" id="notifForm" novalidate>
+      <h3 style="margin:0; color:var(--navy);">Edit Notifications</h3>
+      <p class="muted" style="margin:6px 0 0;">Toggle what you want to receive.</p>
+
+      <div class="divider"></div>
+
+      <div class="toggle">
+        <div>
+          <strong>RFQ alerts</strong>
+          <div class="muted">Deadlines and updates</div>
+        </div>
+        <div class="switch" id="rfqSwitch" role="switch" tabindex="0" aria-checked="true"></div>
+      </div>
+
+      <div class="toggle">
+        <div>
+          <strong>Compliance reminders</strong>
+          <div class="muted">Pending review / expiry</div>
+        </div>
+        <div class="switch" id="compSwitch" role="switch" tabindex="0" aria-checked="true"></div>
+      </div>
+
+      <div class="toggle">
+        <div>
+          <strong>Delivery updates</strong>
+          <div class="muted">Shipment changes</div>
+        </div>
+        <div class="switch" id="delSwitch" role="switch" tabindex="0" aria-checked="false"></div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit">Cancel</button>
+        <button class="btn secondary" value="save" type="submit" id="saveNotifBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Change Password Modal -->
+  <dialog id="pwDialog" aria-label="Change Password">
+    <form method="dialog" id="pwForm" novalidate>
+      <h3 style="margin:0; color:var(--navy);">Change Password</h3>
+      <p class="muted" style="margin:6px 0 0;">Demo validation only. Wire to backend.</p>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label for="pw1">New</label>
+          <input id="pw1" name="pw1" type="password" autocomplete="new-password" required minlength="8" />
+        </div>
+        <div>
+          <label for="pw2">Confirm password</label>
+          <input id="pw2" name="pw2" type="password" autocomplete="new-password" required minlength="8" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit">Cancel</button>
+        <button class="btn secondary" value="save" type="submit" id="savePwBtn">Update</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <strong id="toastTitle">Saved</strong>
+    <small id="toastMsg">Your changes were saved.</small>
+  </div>
+
+  <script>
+    const $ = (s, r=document) => r.querySelector(s);
+
+    // Year
+    $('#year').textContent = new Date().getFullYear();
+
+    // Close account menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const menu = $('#accountMenu');
+      if(menu && menu.open && !menu.contains(e.target)) menu.open = false;
+    });
+
+    // Mobile sidebar
+    const toggleBtn = $('#sidebarToggle');
+    const backdrop = $('#backdrop');
+    function setSidebar(open){
+      document.body.classList.toggle('sidebar-open', open);
+      if(toggleBtn) toggleBtn.setAttribute('aria-expanded', String(open));
+    }
+    if(toggleBtn) toggleBtn.addEventListener('click', () => setSidebar(!document.body.classList.contains('sidebar-open')));
+    if(backdrop) backdrop.addEventListener('click', () => setSidebar(false));
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape') setSidebar(false); });
+
+    // Toast
+    let toastTimer = null;
+    function showToast(title, msg){
+      $('#toastTitle').textContent = title;
+      $('#toastMsg').textContent = msg;
+      const t = $('#toast');
+      t.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.style.display = 'none', 2600);
+    }
+
+    /* ================================
+       Storage + defaults
+    ================================= */
+    const PROFILE_KEY = 'vp_profile_v2';
+    const PREF_KEY = 'vp_profile_prefs_v2';
+
+    const defaults = {
+      fullName: 'Akansh Jatav',
+      role: 'Vendor Admin',
+      email: 'akansh@example.com',
+      phone: '',
+      company: 'Acme Pharma Supplies',
+      location: 'Trivandrum',
+      vendorId: 'VND-10291',
+      avatarDataUrl: ''
+    };
+    const prefDefaults = { rfq: true, compliance: true, delivery: false };
+
+    function loadJSON(key, fallback){
+      try{
+        const v = localStorage.getItem(key);
+        return v ? JSON.parse(v) : fallback;
+      }catch{
+        return fallback;
+      }
+    }
+    function saveJSON(key, val){
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    function initials(name){
+      const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+      return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || 'VP';
+    }
+
+    function nowLabel(){
+      return new Date().toLocaleString();
+    }
+
+    /* ================================
+       Validation helpers
+    ================================= */
+    const trimOrEmpty = (v) => (v ?? '').trim();
+    const normalizeEmail = (v) => trimOrEmpty(v).toLowerCase();
+    const normalizePhone = (v) => trimOrEmpty(v).replace(/[^\d+]/g, '');
+
+    function setErr(input, msg){
+      if(!input) return;
+      input.setCustomValidity(msg || '');
+      input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    }
+    function clearErr(input){ setErr(input, ''); }
+
+    // Unicode-friendly rules:
+    const NAME_RE = /^[\p{L}][\p{L}\p{M} .'-]{1,59}$/u; // letters + spaces + . ' -
+    const TEXT_RE = /^[\p{L}\p{M}0-9][\p{L}\p{M}0-9 .,'&()/-]{1,79}$/u;
+
+    function isValidPhone(raw){
+      const v = trimOrEmpty(raw);
+      if(!v) return true; // optional
+      const norm = normalizePhone(v);
+      return /^(\+?\d{7,15})$/.test(norm);
+    }
+
+    const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2MB
+    const ALLOWED_IMG_TYPES = new Set(['image/png','image/jpeg','image/jpg','image/webp','image/gif']);
+
+    function validateSearch(){
+      const q = $('#q');
+      clearErr(q);
+      q.value = trimOrEmpty(q.value);
+
+      if(!q.value){
+        setErr(q, 'Type something to search.');
+        return false;
+      }
+      if(q.value.length < 2){
+        setErr(q, 'Search query must be at least 2 characters.');
+        return false;
+      }
+      if(q.value.length > 80){
+        setErr(q, 'Search query too long (max 80).');
+        return false;
+      }
+      return true;
+    }
+
+    function validateAvatar(){
+      const input = $('#avatarFile');
+      if(!input) return true;
+
+      clearErr(input);
+      const f = input.files?.[0];
+      if(!f) return true; // optional
+
+      if(!f.type.startsWith('image/')){
+        setErr(input, 'Please select an image file.');
+        return false;
+      }
+      if(f.type && !ALLOWED_IMG_TYPES.has(f.type)){
+        setErr(input, 'Allowed formats: PNG, JPG/JPEG, WEBP, GIF.');
+        return false;
+      }
+      if(f.size > MAX_AVATAR_BYTES){
+        setErr(input, 'Image too large. Max 2MB.');
+        return false;
+      }
+      return true;
+    }
+
+    function validateProfile(){
+      const form = $('#profileForm');
+      const fullName = $('#fullName');
+      const role = $('#role');
+      const email = $('#email');
+      const phone = $('#phone');
+      const company = $('#company');
+      const location = $('#location');
+      const avatar = $('#avatarFile');
+
+      [fullName, role, email, phone, company, location, avatar].forEach(clearErr);
+
+      fullName.value = trimOrEmpty(fullName.value);
+      role.value = trimOrEmpty(role.value);
+      email.value = normalizeEmail(email.value);
+      phone.value = trimOrEmpty(phone.value);
+      company.value = trimOrEmpty(company.value);
+      location.value = trimOrEmpty(location.value);
+
+      if(!fullName.value) setErr(fullName, 'Full name is required.');
+      else if(!NAME_RE.test(fullName.value)) setErr(fullName, "Use letters/spaces only (.,'- allowed).");
+
+      if(role.value){
+        if(role.value.length < 2 || role.value.length > 60) setErr(role, 'Role must be 2–60 characters.');
+        else if(!TEXT_RE.test(role.value)) setErr(role, 'Role has invalid characters.');
+      }
+
+      if(!email.value) setErr(email, 'Email is required.');
+
+      if(phone.value && !isValidPhone(phone.value)){
+        setErr(phone, 'Phone must be 7–15 digits (optional +).');
+      } else if(phone.value){
+        phone.value = normalizePhone(phone.value);
+      }
+
+      if(company.value){
+        if(company.value.length < 2 || company.value.length > 80) setErr(company, 'Company must be 2–80 characters.');
+        else if(!TEXT_RE.test(company.value)) setErr(company, 'Company has invalid characters.');
+      }
+
+      if(location.value){
+        if(location.value.length < 2 || location.value.length > 80) setErr(location, 'Location must be 2–80 characters.');
+        else if(!TEXT_RE.test(location.value)) setErr(location, 'Location has invalid characters.');
+      }
+
+      const avatarOk = validateAvatar();
+      const ok = form.checkValidity() && avatarOk;
+      if(!ok) form.reportValidity();
+      return ok;
+    }
+
+    function passwordRuleMsg(pw){
+      if(!pw) return 'Password is required.';
+      if(pw.length < 8) return 'Password must be at least 8 characters.';
+      if(/\s/.test(pw)) return 'Password must not contain spaces.';
+      if(!/[a-z]/.test(pw)) return 'Add at least one lowercase letter.';
+      if(!/[A-Z]/.test(pw)) return 'Add at least one uppercase letter.';
+      if(!/\d/.test(pw)) return 'Add at least one number.';
+      if(!/[^\w\s]/.test(pw)) return 'Add at least one special character.';
+      return '';
+    }
+
+    function validatePassword(){
+      const form = $('#pwForm');
+      const pw1 = $('#pw1');
+      const pw2 = $('#pw2');
+      clearErr(pw1); clearErr(pw2);
+
+      const p1 = pw1.value || '';
+      const p2 = pw2.value || '';
+
+      const msg = passwordRuleMsg(p1);
+      if(msg) setErr(pw1, msg);
+
+      if(!p2) setErr(pw2, 'Please confirm the password.');
+      else if(p1 && p2 && p1 !== p2) setErr(pw2, 'Passwords do not match.');
+
+      const ok = form.checkValidity();
+      if(!ok) form.reportValidity();
+      return ok;
+    }
+
+    function validateNotifState(){
+      const ids = ['rfqSwitch','compSwitch','delSwitch'];
+      for(const id of ids){
+        const el = $('#' + id);
+        if(!el) return false;
+        const v = el.getAttribute('aria-checked');
+        if(v !== 'true' && v !== 'false') return false;
+      }
+      return true;
+    }
+
+    /* ================================
+       Render
+    ================================= */
+    function render(){
+      const p = loadJSON(PROFILE_KEY, defaults);
+      const prefs = loadJSON(PREF_KEY, prefDefaults);
+
+      $('#nameTop').textContent = p.fullName || '—';
+      $('#roleTop').textContent = p.role || '—';
+      $('#vendorIdTop').textContent = p.vendorId || '—';
+
+      $('#emailView').textContent = p.email || '—';
+      $('#phoneView').textContent = p.phone || '—';
+      $('#companyView').textContent = p.company || '—';
+      $('#locationView').textContent = p.location || '—';
+
+      $('#avatarText').textContent = initials(p.fullName);
+
+      const img = $('#avatarImg');
+      if(p.avatarDataUrl){
+        img.src = p.avatarDataUrl;
+        img.hidden = false;
+        $('#avatarText').hidden = true;
+      }else{
+        img.hidden = true;
+        $('#avatarText').hidden = false;
+      }
+
+      $('#rfqPrefView').textContent = prefs.rfq ? 'On' : 'Off';
+      $('#compPrefView').textContent = prefs.compliance ? 'On' : 'Off';
+      $('#delPrefView').textContent = prefs.delivery ? 'On' : 'Off';
+
+      $('#updatedView').textContent = loadJSON('vp_profile_updated_v2', 'just now');
+
+      // sync modals
+      $('#fullName').value = p.fullName || '';
+      $('#role').value = p.role || '';
+      $('#email').value = p.email || '';
+      $('#phone').value = p.phone || '';
+      $('#company').value = p.company || '';
+      $('#location').value = p.location || '';
+
+      $('#rfqSwitch').setAttribute('aria-checked', String(!!prefs.rfq));
+      $('#compSwitch').setAttribute('aria-checked', String(!!prefs.compliance));
+      $('#delSwitch').setAttribute('aria-checked', String(!!prefs.delivery));
+    }
+
+    /* ================================
+       Actions
+    ================================= */
+    // Search demo (validated)
+    $('#searchForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if(!validateSearch()){
+        $('#q').reportValidity?.();
+        showToast('Search', 'Fix the search input.');
+        return;
+      }
+      showToast('Search', `Submitted: "${$('#q').value}" (wire to backend)`);
+    });
+
+    // Dialogs
+    const profileDialog = $('#profileDialog');
+    const notifDialog = $('#notifDialog');
+    const pwDialog = $('#pwDialog');
+
+    $('#editProfileBtn').addEventListener('click', () => profileDialog.showModal());
+    $('#editNotifBtn').addEventListener('click', () => notifDialog.showModal());
+    $('#changePwBtn').addEventListener('click', () => pwDialog.showModal());
+
+    // Reset demo
+    $('#resetBtn').addEventListener('click', () => {
+      localStorage.removeItem(PROFILE_KEY);
+      localStorage.removeItem(PREF_KEY);
+      localStorage.removeItem('vp_profile_updated_v2');
+      showToast('Reset', 'Local demo data reset.');
+      render();
+    });
+
+    // Avatar file preview -> saved on Save
+    let pendingAvatarDataUrl = '';
+    $('#avatarFile').addEventListener('change', () => {
+      if(!validateAvatar()){
+        // clear invalid selection
+        $('#avatarFile').value = '';
+        pendingAvatarDataUrl = '';
+        $('#profileForm').reportValidity();
+        showToast('Avatar', 'Invalid image (type/size).');
+        return;
+      }
+      const f = $('#avatarFile').files?.[0];
+      if(!f) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        pendingAvatarDataUrl = reader.result;
+        showToast('Avatar', 'Preview ready. Click Save to apply.');
+      };
+      reader.readAsDataURL(f);
+    });
+
+    // Save profile modal (validated ALL inputs)
+    $('#profileForm').addEventListener('submit', (e) => {
+      const action = e.submitter?.value || 'cancel';
+      if(action !== 'save') return;
+
+      e.preventDefault(); // close manually after validate+save
+
+      if(!validateProfile()){
+        showToast('Profile', 'Fix the highlighted fields.');
+        return;
+      }
+
+      const current = loadJSON(PROFILE_KEY, defaults);
+      const updated = {
+        ...current,
+        fullName: trimOrEmpty($('#fullName').value),
+        role: trimOrEmpty($('#role').value),
+        email: normalizeEmail($('#email').value),
+        phone: trimOrEmpty($('#phone').value),
+        company: trimOrEmpty($('#company').value),
+        location: trimOrEmpty($('#location').value)
+      };
+
+      if(pendingAvatarDataUrl){
+        updated.avatarDataUrl = pendingAvatarDataUrl;
+        pendingAvatarDataUrl = '';
+      }
+
+      saveJSON(PROFILE_KEY, updated);
+      saveJSON('vp_profile_updated_v2', nowLabel());
+
+      profileDialog.close();
+      render();
+      showToast('Saved', 'Profile updated.');
+    });
+
+    // Notification switch toggles
+    function toggleSwitch(el){
+      const cur = el.getAttribute('aria-checked') === 'true';
+      el.setAttribute('aria-checked', String(!cur));
+    }
+    ['rfqSwitch','compSwitch','delSwitch'].forEach(id => {
+      const el = $('#' + id);
+      el.addEventListener('click', () => toggleSwitch(el));
+      el.addEventListener('keydown', (ev) => {
+        if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggleSwitch(el); }
+      });
+    });
+
+    // Save notifications modal (validated state)
+    $('#notifForm').addEventListener('submit', (e) => {
+      const action = e.submitter?.value || 'cancel';
+      if(action !== 'save') return;
+
+      e.preventDefault();
+
+      if(!validateNotifState()){
+        showToast('Notifications', 'Invalid switch state. Refresh and try again.');
+        return;
+      }
+
+      const prefs = {
+        rfq: $('#rfqSwitch').getAttribute('aria-checked') === 'true',
+        compliance: $('#compSwitch').getAttribute('aria-checked') === 'true',
+        delivery: $('#delSwitch').getAttribute('aria-checked') === 'true'
+      };
+
+      saveJSON(PREF_KEY, prefs);
+      saveJSON('vp_profile_updated_v2', nowLabel());
+
+      notifDialog.close();
+      render();
+      showToast('Saved', 'Notification preferences updated.');
+    });
+
+    // Save password modal (validated)
+    $('#pwForm').addEventListener('submit', (e) => {
+      const action = e.submitter?.value || 'cancel';
+      if(action !== 'save') return;
+
+      e.preventDefault();
+
+      if(!validatePassword()){
+        showToast('Password', 'Fix password requirements.');
+        return;
+      }
+
+      // Demo only — wire to backend.
+      saveJSON('vp_profile_updated_v2', nowLabel());
+      pwDialog.close();
+      render();
+      showToast('Updated', 'Password updated (demo).');
+    });
+
+    // Live validation (optional, strict UX)
+    $('#profileForm').addEventListener('input', (e) => {
+      if(e.target.matches('#fullName,#role,#email,#phone,#company,#location')) validateProfile();
+    }, true);
+    $('#pwForm').addEventListener('input', (e) => {
+      if(e.target.matches('#pw1,#pw2')) validatePassword();
+    }, true);
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>

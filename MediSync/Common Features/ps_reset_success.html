@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MediSync – Password Changed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+        
+    /* =========================================
+      MediSync – Password Changed (Pharmacy Theme)
+      Internal CSS
+      ========================================= */
+
+    /* ---------- Theme Variables ---------- */
+    :root {
+      --forest-deep: #102716;
+      --sage-green: #4A644D;
+      --warm-amber: #DE6D20;
+      --near-black: #111111;
+      --medium-gray: #515151;
+      --light-gray: #E5E5E5;
+      --white: #FFFFFF;
+      --very-light-green: #f5fbf7;
+      --logo-blue: #337AB7;
+      --logo-green: #5CB85C;
+
+      --forest-tint: #2A3F2C;
+      --sage-shade: #3B513E;
+      --amber-tint: #F4A64A;
+      --amber-shade: #B85A18;
+      --balanced-gray: #A0A0A0;
+      --off-white: #FAFAF8;
+      --green-wash: #e8f7ee;
+
+      --burgundy: #6B1F1F;
+      --navy-blue: #1F3A4D;
+
+      --text: var(--near-black);
+      --muted-text: var(--medium-gray);
+      --border: var(--light-gray);
+
+      --shadow-sm: 0 1px 2px rgba(31,58,77,0.10);
+      --shadow-md: 0 4px 14px rgba(31,58,77,0.14);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      --max-content: 720px; /* focused width */
+    }
+
+    /* ---------- Base ---------- */
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--off-white), var(--very-light-green));
+      line-height: 1.5;
+    }
+    a { color: var(--logo-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1,h2,h3 { margin: 0 0 var(--space-3); font-weight: 600; }
+    ul { margin: 0; padding: 0; list-style: none; }
+
+    /* Focus visibility */
+    :focus-visible { outline: 3px solid var(--amber-tint); outline-offset: 3px; }
+
+    /* ---------- App Shell ---------- */
+    .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+
+    /* Header (consistent with theme) */
+    .app-header {
+      background:
+        radial-gradient(1200px 300px at 0% 0%, rgba(218, 247, 227, 0.15), transparent 60%),
+        linear-gradient(90deg, var(--navy-blue), var(--forest-tint));
+      color: var(--white);
+      box-shadow: var(--shadow-md);
+    }
+    .brand { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-6) var(--space-8); }
+    .brand__title { font-size: 1.6rem; letter-spacing: .4px; }
+
+    /* ---------- Layout ---------- */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+      padding: var(--space-8);
+      max-width: var(--max-content);
+      margin: 0 auto;
+    }
+    .content { display: grid; gap: var(--space-8); align-content: start; }
+
+    /* ---------- Panel ---------- */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-6);
+      text-align: center;
+    }
+    .panel__title {
+      color: var(--navy-blue);
+      font-size: 1.25rem;
+      margin-bottom: var(--space-2);
+      position: relative;
+      padding-left: 12px;
+      display: inline-block;
+    }
+    .panel__title::before {
+      content: "";
+      position: absolute;
+      width: 6px; height: 22px;
+      background: linear-gradient(180deg, var(--logo-blue), var(--logo-green));
+      border-radius: 4px; left: 0; top: 2px;
+    }
+    .panel__description { color: var(--muted-text); margin: 0 auto var(--space-6); max-width: 560px; }
+
+    /* ---------- Success Media ---------- */
+    .success-media {
+      display: grid;
+      place-items: center;
+      margin: var(--space-6) auto;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, #ebfaf0 0 50%, transparent 50%),
+        conic-gradient(from 0deg, #cfead8, #ebfaf0, #d5f1e2);
+      border: 1px solid #cfead8;
+      box-shadow: var(--shadow-sm);
+      color: var(--logo-green);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* If you add an actual image later */
+    .success-media img {
+      max-width: 120px; height: auto;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+    }
+
+    /* ---------- Actions ---------- */
+    .form-actions {
+      display: flex; justify-content: center; align-items: center; gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-weight: 600; border-radius: 999px; cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, border-color 120ms ease, color 120ms ease;
+      padding: 10px 16px;
+    }
+    .btn--primary {
+      background: linear-gradient(180deg, var(--logo-blue), #2b6ca3);
+      color: var(--white); border-color: #2b6ca3;
+    }
+    .btn--primary:hover {
+      background: linear-gradient(180deg, #3a86c8, var(--logo-blue));
+      box-shadow: var(--shadow-md); transform: translateY(-1px);
+    }
+    .btn--primary:active { transform: translateY(0); }
+
+    /* Style link like a button */
+    .form-actions a {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 10px 16px; border-radius: 999px;
+      color: var(--white); background: linear-gradient(180deg, var(--logo-blue), #2b6ca3);
+      border: 1px solid #2b6ca3;
+      text-decoration: none;
+    }
+    .form-actions a:hover { background: linear-gradient(180deg, #3a86c8, var(--logo-blue)); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .form-actions a:active { transform: translateY(0); }
+
+    /* ---------- Footer ---------- */
+    .page-footer {
+      border-top: 1px solid var(--border);
+      background: var(--off-white);
+      color: var(--muted-text);
+      padding: var(--space-6) var(--space-8);
+      text-align: center;
+    }
+    .page-footer__links a { color: var(--logo-blue); }
+    .page-footer__meta { margin-top: var(--space-3); font-size: .95rem; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 768px) {
+      .layout { padding: var(--space-6); }
+      .panel__description { padding: 0 var(--space-3); }
+      .form-actions a { width: 100%; }
+    }
+
+    /* ---------- Print ---------- */
+    @media print {
+      .app-header, .page-footer { display: none; }
+      .layout { padding: 0; }
+      .panel { box-shadow: none; border-color: #ccc; }
+      .form-actions a { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Password Changed">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <h1 class="brand__title">MediSync</h1>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="layout">
+      <main class="content">
+        <section class="panel password-success">
+          <h2 class="panel__title">Password changed successfully</h2>
+          <p class="panel__description">Your password has been updated. You can now log in with your new credentials.</p>
+
+          <!-- Tick GIF placeholder (add actual asset later) -->
+          <div class="success-media">
+            <!-- Replace src with your tick GIF when ready -->
+            Success
+          </div>
+
+          <div class="form-actions">
+            <a href="login.html">
+                Go to login page
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+    <hr>
+    <!-- Footer -->
+    <footer class="page-footer">
+      <nav class="page-footer__links" aria-label="Legal">
+        <a href="#">Privacy</a> •
+        <a href="#">Terms</a> •
+        <a href="#">Help Center</a>
+      </nav>
+      <p class="page-footer__meta">
+        © 2025 MediSync · Contact:
+        xxxxxxxxxx</a> /
+        mailto:<a href="#">somethingmail@mail.com</a>
+      </p>
+    </footer>
+  </div>
+  
+<script>
+  /**
+   * MediSync – Password Changed Page Script
+   * Adds subtle success animation, CTA enhancements, responsiveness, and accessibility.
+   */
+  (function () {
+    "use strict";
+
+    /* ===========================
+      Utilities
+      =========================== */
+    const qs  = (sel, root = document) => root.querySelector(sel);
+    const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const on  = (el, ev, handler, opts) => el && el.addEventListener(ev, handler, opts);
+
+    /* ===========================
+      DOM references
+      =========================== */
+    const panel        = qs(".panel.password-success");
+    const title        = qs(".panel.password-success .panel__title");
+    const desc         = qs(".panel.password-success .panel__description");
+    const media        = qs(".success-media");
+    const ctaLink      = qs(".form-actions a");
+    const footer       = qs(".page-footer");
+
+    /* ===========================
+      Inline helper styles (optional)
+      =========================== */
+    (function injectInlineStyles() {
+      const style = document.createElement("style");
+      style.textContent = `
+        /* CTA link styled like primary button (non-destructive) */
+        .form-actions a.btn-like {
+          display: inline-flex; align-items: center; justify-content: center;
+          padding: 10px 16px; border-radius: 999px;
+          color: #fff; background: linear-gradient(180deg, #337AB7, #2b6ca3);
+          border: 1px solid #2b6ca3; text-decoration: none;
+          transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+        }
+        .form-actions a.btn-like:hover { background: linear-gradient(180deg, #3a86c8, #337AB7); box-shadow: 0 4px 14px rgba(31,58,77,0.14); transform: translateY(-1px); }
+        .form-actions a.btn-like:active { transform: translateY(0); }
+
+        /* Success media pulse */
+        .success-media.animate {
+          animation: pulse 1200ms ease-out 1, floaty 8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0% { transform: scale(0.92); opacity: 0.4; }
+          50% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes floaty {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+          100% { transform: translateY(0); }
+        }
+
+        /* Status banner (optional, shown if offline) */
+        .status-banner {
+          margin: 12px 0; padding: 10px 12px; border: 1px solid #E5E5E5;
+          border-radius: 8px; background: #f2f7fc; color: #1F3A4D;
+        }
+      `;
+      document.head.appendChild(style);
+    })();
+
+    /* ===========================
+      Accessibility: initial focus & live announcement
+      =========================== */
+    function initAccessibility() {
+      if (title) {
+        title.setAttribute("tabindex", "-1");
+        title.focus();
+      }
+      if (desc) {
+        desc.setAttribute("aria-live", "polite");
+        desc.setAttribute("role", "status");
+      }
+    }
+
+    /* ===========================
+      CTA enhancement
+      =========================== */
+    function enhanceCta() {
+      if (!ctaLink) return;
+      ctaLink.classList.add("btn-like");
+      ctaLink.setAttribute("role", "button");
+      ctaLink.setAttribute("aria-label", "Go to login page");
+    }
+
+    /* ===========================
+      Success media animation
+      =========================== */
+    function animateSuccess() {
+      if (!media) return;
+      media.classList.add("animate");
+      media.setAttribute("aria-hidden", "true"); // decorative
+    }
+
+    /* ===========================
+      Keyboard shortcuts
+      =========================== */
+    function initShortcuts() {
+      on(document, "keydown", (e) => {
+        // Enter or L -> go to login
+        if ((e.key === "Enter" || e.key.toLowerCase() === "l") && ctaLink) {
+          e.preventDefault();
+          ctaLink.click();
+        }
+        // Esc -> history back (fallback to login)
+        if (e.key === "Escape") {
+          if (history.length > 1) history.back();
+          else window.location.href = "login.html";
+        }
+      });
+    }
+
+    /* ===========================
+      Responsive behavior
+      =========================== */
+    const mq = window.matchMedia("(max-width: 768px)");
+    function applyResponsive(mql) {
+      if (footer) {
+        footer.setAttribute("aria-label", mql.matches ? "Footer (compact)" : "Footer");
+      }
+      if (ctaLink) {
+        ctaLink.setAttribute("aria-label", mql.matches ? "Login" : "Go to login page");
+      }
+    }
+
+    /* ===========================
+      Connectivity notice (optional)
+      =========================== */
+    function initConnectivityNotice() {
+      const headerBar = qs(".header-bar") || qs(".app-header .brand");
+      if (!headerBar) return;
+      function updateBanner() {
+        let banner = qs(".status-banner");
+        if (!navigator.onLine) {
+          if (!banner) {
+            banner = document.createElement("div");
+            banner.className = "status-banner";
+            banner.textContent = "You’re offline. Some features may be unavailable.";
+            headerBar.appendChild(banner);
+          }
+        } else {
+          if (banner) banner.remove();
+        }
+      }
+      updateBanner();
+      on(window, "online", updateBanner);
+      on(window, "offline", updateBanner);
+    }
+
+    /* ===========================
+      Init
+      =========================== */
+    on(document, "DOMContentLoaded", () => {
+      initAccessibility();
+      enhanceCta();
+      animateSuccess();
+      initShortcuts();
+      applyResponsive(mq);
+      on(mq, "change", applyResponsive);
+      initConnectivityNotice();
+    });
+  })();
+</script>
+
+</body>
+</html>

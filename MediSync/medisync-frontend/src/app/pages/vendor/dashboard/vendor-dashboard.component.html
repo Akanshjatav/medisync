@@ -1,0 +1,212 @@
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app">
+  <!-- Top bar -->
+  <app-navbar
+    title="Vendor Dashboard"
+    [(sidebarOpen)]="sidebarOpen">
+  </app-navbar>
+
+  <div class="app-body">
+    <!-- Mobile backdrop -->
+    <div class="backdrop" [class.open]="sidebarOpen" (click)="sidebarOpen = false"></div>
+
+    <!-- Sidebar wrapper (so we can apply global .sidebar/.open behavior reliably) -->
+    <div class="sidebar" [class.open]="sidebarOpen">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <!-- Main content -->
+    <main class="main" id="main" aria-label="Content">
+      <!-- Page Head -->
+      <div class="vp-page-head">
+        <div>
+          <h1 class="vp-title">Dashboard</h1>
+          <p class="vp-subtitle">Your vendor profile overview and registration actions.</p>
+        </div>
+
+        <div class="vp-head-actions">
+          <span class="vp-pill">Today: {{ todayLabel }}</span>
+          <button class="btn ghost" type="button" (click)="loadProfile()">Refresh</button>
+        </div>
+      </div>
+
+      <!-- Loading / error -->
+      @if (loadingProfile) {
+        <div class="loading">Loading vendor profile…</div>
+      } @else if (profileError) {
+        <div class="error">{{ profileError }}</div>
+      }
+
+      <!-- Profile summary -->
+      @if (!loadingProfile && profile) {
+        <section class="vp-kpis" aria-label="Vendor KPIs">
+          <article class="vp-kpi">
+            <div class="vp-kpi-label">Status</div>
+            <div class="vp-kpi-value">
+              <span class="vp-pill" [class]="statusPillClass">{{ profile.status }}</span>
+            </div>
+            <div class="vp-kpi-sub">Vendor ID: <strong>{{ profile.vendorId }}</strong></div>
+          </article>
+
+          <article class="vp-kpi">
+            <div class="vp-kpi-label">Business</div>
+            <div class="vp-kpi-value">{{ profile.businessName }}</div>
+            <div class="vp-kpi-sub">User ID: <strong>{{ profile.userId }}</strong></div>
+          </article>
+
+          <article class="vp-kpi">
+            <div class="vp-kpi-label">GST</div>
+            <div class="vp-kpi-value monospace">{{ profile.gstNumber }}</div>
+            <div class="vp-kpi-sub">Keep GST accurate for verification.</div>
+          </article>
+
+          <article class="vp-kpi">
+            <div class="vp-kpi-label">License</div>
+            <div class="vp-kpi-value monospace">{{ profile.licenseNumber }}</div>
+            <div class="vp-kpi-sub">Required for approval.</div>
+          </article>
+
+          <article class="vp-kpi">
+            <div class="vp-kpi-label">Contact</div>
+            <div class="vp-kpi-value">{{ profile.email || '—' }}</div>
+            <div class="vp-kpi-sub">{{ profile.phoneNumber || '—' }}</div>
+          </article>
+        </section>
+
+        <!-- Details card -->
+        <section class="card vp-card">
+          <div class="vp-card-head">
+            <h2>Profile Details</h2>
+            <button class="btn" type="button" (click)="openVendorDialog()">
+              {{ (profile.status || '').toUpperCase().includes('PENDING') ? 'Update Registration' : 'Edit Profile' }}
+            </button>
+          </div>
+
+          <div class="vp-card-body">
+            <div class="vp-kv">
+              <div class="vp-kv-row">
+                <strong>Address</strong>
+                <span>{{ profile.address }}</span>
+              </div>
+              <div class="vp-kv-row">
+                <strong>Email</strong>
+                <span>{{ profile.email || '—' }}</span>
+              </div>
+              <div class="vp-kv-row">
+                <strong>Phone</strong>
+                <span>{{ profile.phoneNumber || '—' }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Quick actions (only what your service supports) -->
+      <section class="card vp-card">
+        <div class="vp-card-head">
+          <h2>Quick Actions</h2>
+          <span class="vp-pill green">Available</span>
+        </div>
+
+        <div class="vp-card-body">
+          <div class="vp-list">
+            <div class="vp-list-item">
+              <div>
+                <h4>Vendor Registration</h4>
+                <p>Submit or update vendor registration details.</p>
+              </div>
+              <div class="vp-actions">
+                <button class="btn sm" type="button" (click)="openVendorDialog()">Open</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="vp-divider"></div>
+          <app-footer></app-footer>
+        </div>
+      </section>
+
+      <!-- Vendor Registration Dialog -->
+      <dialog #vendorDlg class="vp-dialog" (click)="onDialogBackdropClick($event)">
+        <form class="vp-dialog-form" (ngSubmit)="submitVendorRegistration()">
+          <div class="vp-dialog-head">
+            <div>
+              <h3>Vendor Registration</h3>
+              <p class="muted">This submits to your backend: <strong>/api/v1/vendors/register</strong>.</p>
+            </div>
+            <button type="button" class="vp-x" (click)="closeVendorDialog()" aria-label="Close">✕</button>
+          </div>
+
+          <div class="vp-form-grid">
+            <div>
+              <label>Business Name <span class="req">*</span></label>
+              <input type="text" formControlName="businessName" />
+              @if (vendorRegForm.controls.businessName.touched && vendorRegForm.controls.businessName.invalid) {
+                <small class="vp-field-error">Business name is required (min 2 chars).</small>
+              }
+            </div>
+
+            <div>
+              <label>Email</label>
+              <input type="email" formControlName="email" />
+              @if (vendorRegForm.controls.email.touched && vendorRegForm.controls.email.invalid) {
+                <small class="vp-field-error">Enter a valid email address.</small>
+              }
+            </div>
+
+            <div>
+              <label>Phone</label>
+              <input type="tel" formControlName="phoneNumber" placeholder="+91XXXXXXXXXX" />
+            </div>
+
+            <div>
+              <label>Password <span class="req">*</span></label>
+              <input type="password" formControlName="password" autocomplete="new-password" />
+              @if (vendorRegForm.controls.password.touched && vendorRegForm.controls.password.invalid) {
+                <small class="vp-field-error">Password is required (min 8 chars).</small>
+              }
+            </div>
+
+            <div>
+              <label>GST Number <span class="req">*</span></label>
+              <input type="text" formControlName="gstNumber" autocapitalize="characters" />
+              @if (vendorRegForm.controls.gstNumber.touched && vendorRegForm.controls.gstNumber.invalid) {
+                <small class="vp-field-error">Enter a valid GSTIN (15 chars).</small>
+              }
+            </div>
+
+            <div>
+              <label>License Number <span class="req">*</span></label>
+              <input type="text" formControlName="licenseNumber" />
+              @if (vendorRegForm.controls.licenseNumber.touched && vendorRegForm.controls.licenseNumber.invalid) {
+                <small class="vp-field-error">License number is required.</small>
+              }
+            </div>
+
+            <div class="span-2">
+              <label>Address <span class="req">*</span></label>
+              <textarea formControlName="address"></textarea>
+              @if (vendorRegForm.controls.address.touched && vendorRegForm.controls.address.invalid) {
+                <small class="vp-field-error">Address is required (min 4 chars).</small>
+              }
+            </div>
+          </div>
+
+          <div class="vp-row">
+            <button class="btn ghost" type="button" (click)="closeVendorDialog()">Cancel</button>
+            <button class="btn secondary" type="submit" [disabled]="saving">
+              {{ saving ? 'Submitting…' : 'Submit' }}
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Toast -->
+      <div class="toast" [class.is-on]="toast.on" role="status" aria-live="polite">
+        <strong>{{ toast.title }}</strong>
+        <small>{{ toast.msg }}</small>
+      </div>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,2329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediSync – Store Manager Portal</title>
+  <meta name="color-scheme" content="light dark" />
+
+  <style>
+    :root{
+      /* Brand palette (aligned with your previous portal tokens) */
+      --blue: #337AB7;
+      --green: #5CB85C;
+      --navy: #10324A;
+      --black: #111111;
+      --gray: #515151;
+      --light-gray: #E5E5E5;
+      --white: #FFFFFF;
+      --very-light-green: #F5FBF7;
+      --very-light-blue: #EAF3FA;
+
+      --blue-dark: #285A8E;
+      --blue-soft: #6FA8DC;
+      --green-dark: #3E8E5A;
+      --green-light: #8FD19E;
+      --off-white: #FAFAF8;
+
+      --amber: #F0AD4E;
+      --red: #D9534F;
+      --aqua: #5BC0DE;
+
+      --bg: var(--off-white);
+      --surface: var(--white);
+      --surface-2: #fcfcfb;
+      --text: var(--black);
+      --muted: var(--gray);
+      --border: rgba(16, 50, 74, 0.14);
+      --shadow: 0 8px 24px rgba(17,17,17,.08);
+      --shadow-2: 0 10px 30px rgba(16, 50, 74, .10);
+      --ring: 0 0 0 4px rgba(51, 122, 183, .25);
+
+      --radius: 16px;
+      --gap: 16px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --sidebar-w: 290px;
+      --navbar-h: 72px;
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b141b;
+        --surface: #0f1e28;
+        --surface-2: #10222d;
+        --text: #f4f6f8;
+        --muted: #c1c7cd;
+        --border: rgba(229,229,229,.12);
+        --shadow: 0 10px 30px rgba(0,0,0,.45);
+        --shadow-2: 0 10px 30px rgba(0,0,0,.5);
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
+      line-height: 1.4;
+    }
+    a{ color: var(--blue); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .sr-only{
+      position:absolute;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      white-space:nowrap; border:0;
+    }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto; padding:10px 12px;
+      border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+      outline:none; z-index: 9999;
+    }
+
+    /* Layout */
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: var(--navbar-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas:
+        "nav nav"
+        "side main";
+    }
+
+    /* Navbar */
+    .navbar{
+      grid-area: nav;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.7);
+      backdrop-filter: blur(10px);
+    }
+    @media (prefers-color-scheme: dark){
+      .navbar{ background: rgba(15,30,40,.75); }
+    }
+
+    .nav-left, .nav-right{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 220px;
+    }
+    .logo{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: conic-gradient(from 200deg, var(--blue), var(--aqua), var(--green));
+      box-shadow: var(--shadow-2);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:10px;
+      border-radius:10px;
+      background: rgba(255,255,255,.88);
+    }
+    .brand-title{
+      display:grid;
+      gap:2px;
+      min-width:0;
+    }
+    .brand-title strong{
+      color: var(--navy);
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .brand-title small{
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hamburger{
+      display:none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--navy);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+    }
+    .hamburger:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:1;
+      max-width: 640px;
+      min-width: 220px;
+    }
+    .search input[type="search"]{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    .search input[type="search"]:focus{
+      box-shadow: var(--ring);
+      border-color: rgba(51,122,183,.55);
+    }
+
+    .btn{
+      border: 0;
+      cursor: pointer;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: .2px;
+      box-shadow: var(--shadow);
+      transition: transform .08s ease, filter .2s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn:hover{ filter: brightness(1.03); text-decoration:none; }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .btn.secondary{ background: var(--green); }
+    .btn.danger{ background: var(--red); }
+    .btn.ghost{
+      background: transparent;
+      color: var(--blue-dark);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn.ghost:hover{ background: rgba(51,122,183,.08); }
+    .btn.sm{ padding: 8px 10px; border-radius: 12px; font-size: 12px; font-weight: 900; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(92,184,92,.18);
+    }
+
+    details.menu{ position: relative; }
+    details.menu > summary{
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      color: var(--navy);
+      outline: none;
+      white-space: nowrap;
+    }
+    details.menu > summary:focus{ box-shadow: var(--ring), var(--shadow); }
+    details.menu > summary::-webkit-details-marker{ display:none; }
+
+    .dropdown{
+      position:absolute;
+      right: 0;
+      top: 52px;
+      width: 240px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-2);
+      padding: 10px;
+      z-index: 60;
+    }
+    .dropdown a, .dropdown button{
+      display:block;
+      width:100%;
+      text-align:left;
+      padding: 10px 10px;
+      border-radius: 12px;
+      color: var(--text);
+      font-weight: 700;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+    .dropdown a:hover, .dropdown button:hover{
+      background: linear-gradient(90deg, rgba(51,122,183,.12), transparent);
+      text-decoration:none;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      grid-area: side;
+      padding: 16px;
+      border-right: 1px solid var(--border);
+      background: rgba(245, 251, 247, .65);
+      backdrop-filter: blur(8px);
+      overflow:auto;
+    }
+    @media (prefers-color-scheme: dark){
+      .sidebar{ background: rgba(15,30,40,.55); }
+    }
+    .side-card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .side-title{
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 4px 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .nav{
+      display:grid;
+      gap: 8px;
+    }
+    .nav a{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      color: var(--navy);
+      font-weight: 800;
+    }
+    .nav a:hover{
+      border-color: rgba(51,122,183,.25);
+      text-decoration:none;
+    }
+    .nav a[aria-current="page"]{
+      border-color: rgba(51,122,183,.40);
+      box-shadow: 0 0 0 4px rgba(51,122,183,.12);
+    }
+
+    /* Main */
+    main.main{
+      grid-area: main;
+      padding: 16px;
+      overflow:auto;
+    }
+
+    .page{ display:none; }
+    .page.is-active{ display:block; }
+
+    .page-title{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: var(--gap);
+      margin-bottom: 14px;
+    }
+    .page-title h2{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: .2px;
+      color: var(--navy);
+    }
+    .page-title p{
+      margin: 6px 0 0;
+      color: var(--muted);
+      max-width: 75ch;
+    }
+
+    /* Cards / grids */
+    .grid{ display:grid; gap: var(--gap); }
+    .kpis{ display:grid; gap: var(--gap); grid-template-columns: repeat(4, minmax(180px, 1fr)); }
+    @media (max-width: 1180px){ .kpis{ grid-template-columns: repeat(2, minmax(180px, 1fr)); } }
+    @media (max-width: 560px){ .kpis{ grid-template-columns: 1fr; } }
+
+    .card, .panel{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .panel__title{ margin:0 0 10px; color: var(--navy); font-size: 14px; letter-spacing:.2px; }
+    .panel__list{ margin:0; padding-left: 18px; color: var(--muted); }
+    .panel__list li{ margin: 8px 0; }
+
+    .stat-card__label{ display:block; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing:.12em; text-transform:uppercase; }
+    .stat-card__value{ display:block; margin-top:6px; font-size: 28px; font-weight: 900; color: var(--navy); }
+    .stat-card__trend{ display:block; margin-top:8px; font-size: 12px; color: var(--muted); font-weight: 800; }
+    .stat-card__trend--up{ color: var(--green-dark); }
+    .stat-card__trend--down{ color: #825200; }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,50,74,.12);
+      background: rgba(16,50,74,.06);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .tag--warn{ background: rgba(240,173,78,.18); border-color: rgba(240,173,78,.22); color: #825200; }
+    .tag--info{ background: rgba(51,122,183,.14); border-color: rgba(51,122,183,.18); color: var(--blue-dark); }
+    .tag--ok{ background: rgba(92,184,92,.14); border-color: rgba(92,184,92,.18); color: var(--green-dark); }
+
+    /* Table */
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 14px;
+    }
+    .table th, .table td{
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align:left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+    .table th{
+      color: var(--navy);
+      font-weight: 900;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      cursor: pointer;
+      user-select: none;
+    }
+    .table tr:last-child td{ border-bottom: 0; }
+    .table tr[hidden]{ display:none; }
+
+    /* List items */
+    .list{ display:grid; gap: 10px; }
+    .list-item{
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      border-radius: 14px;
+      padding: 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .list-item h4{ margin:0; color: var(--navy); font-size: 14px; }
+    .list-item p{ margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .list-actions{ display:flex; gap: 8px; flex-wrap: wrap; justify-content:flex-end; }
+
+    .divider{ height:1px; background: var(--border); margin: 14px 0; }
+
+    /* Validation UI */
+    .field-error{
+      margin-top: 6px;
+      font-size: 12px;
+      color: #8b1f1b;
+      display:none;
+    }
+    .field-error.is-on{ display:block; }
+    .invalid{
+      border-color: rgba(217,83,79,.65) !important;
+      box-shadow: 0 0 0 4px rgba(217,83,79,.18) !important;
+    }
+
+    /* Dialogs */
+    dialog{
+      width: min(860px, calc(100vw - 24px));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 16px;
+      box-shadow: var(--shadow-2);
+    }
+    dialog::backdrop{ background: rgba(17,17,17,.35); }
+
+    .dialog-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .dialog-close{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 8px 10px;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+    }
+    .dialog-close:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    label{
+      display:block;
+      font-weight: 800;
+      color: var(--navy);
+      font-size: 12px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+    input, select, textarea{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus{
+      box-shadow: var(--ring);
+      border-color: rgba(51,122,183,.55);
+    }
+    textarea{ min-height: 96px; resize: vertical; }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 560px){ .form-grid{ grid-template-columns: 1fr; } }
+
+    .row{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: flex-end;
+    }
+    .row.left{ justify-content: flex-start; }
+
+    /* Search highlight */
+    mark.search-hit{
+      background: rgba(240,173,78,.35);
+      border-radius: 6px;
+      padding: 0 2px;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 200;
+      width: min(380px, calc(100vw - 32px));
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-2);
+      padding: 12px;
+      display:none;
+    }
+    .toast.is-on{ display:block; }
+    .toast strong{ display:block; color: var(--navy); }
+    .toast small{ color: var(--muted); }
+
+    /* Backdrop for mobile sidebar */
+    .backdrop{
+      position: fixed;
+      inset: var(--navbar-h) 0 0 0;
+      background: rgba(17,17,17,.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+      z-index: 70;
+    }
+
+    /* Mobile sidebar drawer */
+    @media (max-width: 980px){
+      .app{
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "nav"
+          "main";
+      }
+      .hamburger{ display:inline-flex; align-items:center; gap:8px; }
+      .sidebar{
+        position: fixed;
+        top: var(--navbar-h);
+        left: 0;
+        width: min(var(--sidebar-w), 88vw);
+        height: calc(100vh - var(--navbar-h));
+        transform: translateX(-110%);
+        transition: transform .18s ease;
+        z-index: 80;
+        box-shadow: var(--shadow-2);
+      }
+      body.sidebar-open .sidebar{ transform: translateX(0); }
+      body.sidebar-open .backdrop{ opacity: 1; pointer-events: auto; }
+      main.main{ padding: 14px; }
+    }
+
+    footer.page-footer{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 4px 0;
+    }
+    .footer-links{ display:flex; gap: 12px; flex-wrap: wrap; }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <div class="app" role="application" aria-label="Store Manager Dashboard">
+
+    <!-- ✅ STORE MANAGER PORTAL NAVBAR -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button
+          class="hamburger"
+          id="sidebarToggle"
+          type="button"
+          aria-label="Toggle sidebar"
+          aria-expanded="false"
+          aria-controls="sidebar">
+          ☰ <span style="font-weight:900;">Menu</span>
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>Store Manager Portal</strong>
+            <small>MediSync · Store Manager</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Global search -->
+      <form class="search global-search" id="globalSearchForm" role="search" aria-label="Search batches, products, shipments, dispatches" novalidate>
+        <label for="globalSearch" class="sr-only">Search</label>
+        <input
+          id="globalSearch"
+          name="q"
+          type="search"
+          placeholder="Search batches, products, shipments, dispatches…"
+          minlength="2"
+          autocomplete="off" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+
+      <div class="nav-right" aria-label="Account and status">
+        <span class="pill" title="System status">
+          <span class="dot" aria-hidden="true"></span> Online
+        </span>
+
+        <details class="menu" id="accountMenu">
+          <summary aria-label="Open account menu">Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <!-- <button type="button" id="demoSessionBtn">Create demo session</button> -->
+            <a href="../Common Features/index.html">
+              <button type="button" id="logoutBtn">Logout</button>
+            </a>
+            
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- Mobile backdrop -->
+    <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+    <!-- ✅ SIDEBAR -->
+    <aside id="sidebar" class="sidebar" aria-label="Primary Navigation">
+      <div class="side-card profile">
+        <div class="side-title">Profile</div>
+        <p><strong id="profileName">Store Manager</strong></p>
+        <p class="muted" style="margin:6px 0 0;">MediSync Inventory</p>
+        <p class="muted" style="margin:6px 0 0;">Session: <strong id="sessionStatus">—</strong></p>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Actions</div>
+        <nav class="nav nav__list" aria-label="Dashboard Options">
+          <a href="#dashboard" data-route="dashboard">Dashboard</a>
+          <!-- <a href="#receiving" data-route="receiving">Stock Receiving</a> -->
+          <a href="#stockEntry" data-route="stockEntry">Stock Entry</a>
+          <a href="#dispatch" data-route="dispatch">Dispatch Status</a>
+          <a href="#products" data-route="products">Browse Products</a>
+          <a href="stock_dispatch.html" >RFQ Creation</a>
+          <a href="bid_details.html" >Bid details</a>
+          <a href="vendor_verification.html" >Vendors</a>
+          <!-- <a href="#search" data-route="search">Search Results</a> -->
+        </nav>
+      </div>  
+
+      <!-- <div class="side-card logout">
+        <button type="button" class="btn secondary" id="sidebarLogoutBtn">Logout</button>
+      </div> -->
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main" id="main-content" tabindex="-1">
+
+      <!-- SESSION GUARD PAGE -->
+      <section class="page" id="sessionGate" aria-label="Session Required">
+        <div class="page-title">
+          <div>
+            <h2>Session required</h2>
+            <p>You’re not logged in as a Store Manager. Create a demo session or go to login.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="divider"></div>
+          <div class="row left">
+            <button class="btn secondary" type="button" id="createDemoBtn">Create demo session</button>
+            <a class="btn ghost" href="login.html">Go to login</a>
+          </div>
+          <p class="muted" style="margin-top:12px;">
+            Demo session is stored in <code>sessionStorage</code> as <code>medisync.sm.session</code>.
+          </p>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="page" id="dashboard" aria-label="Store Manager Dashboard">
+        <div class="page-title">
+          <div>
+            <h2>Store Manager Dashboard</h2>
+            <p>Inventory overview and daily operations</p>
+          </div>
+          <span class="pill">Today: <span id="todayLabel"></span></span>
+        </div>
+
+        <section class="dashboard-grid kpis" aria-label="Dashboard statistics">
+          <article class="card stat-card" aria-label="Stock on hand">
+            <span class="stat-card__label">Stock on hand</span>
+            <span class="stat-card__value" id="kpiStock">—</span>
+            <span class="stat-card__trend stat-card__trend--up" id="kpiStockTrend">—</span>
+          </article>
+
+          <article class="card stat-card" aria-label="Batches expiring soon">
+            <span class="stat-card__label">Expiring batches (30d)</span>
+            <span class="stat-card__value tag tag--warn" id="kpiExpiring">—</span>
+            <span class="stat-card__trend stat-card__trend--down" id="kpiExpiringTrend">Review needed</span>
+          </article>
+
+          <article class="card stat-card" aria-label="Pending quality checks">
+            <span class="stat-card__label">Pending QC</span>
+            <span class="stat-card__value" id="kpiQC">—</span>
+            <span class="stat-card__trend stat-card__trend--up" id="kpiQCTrend">—</span>
+          </article>
+
+          <article class="card stat-card" aria-label="Dispatches today">
+            <span class="stat-card__label">Dispatches today</span>
+            <span class="stat-card__value" id="kpiDispatch">—</span>
+            <span class="stat-card__trend stat-card__trend--up" id="kpiDispatchTrend">On schedule</span>
+          </article>
+        </section>
+
+        <section class="panel recent-activity" aria-labelledby="recent-activity-title">
+          <h3 id="recent-activity-title" class="panel__title">Recent Activity</h3>
+          <ul class="panel__list" id="recentList"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="incoming-title">
+          <h3 id="incoming-title" class="panel__title">Incoming Shipments</h3>
+
+          <div class="card" role="region" aria-label="Incoming shipments table">
+            <table class="table" id="incomingTable" aria-describedby="incoming-title">
+              <thead>
+                <tr>
+                  <th scope="col" data-sort="shipmentId">Shipment ID</th>
+                  <th scope="col" data-sort="supplier">Supplier</th>
+                  <th scope="col" data-sort="eta">ETA</th>
+                  <th scope="col" data-sort="status">Status</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="incomingTbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Quick actions">
+          <h3 class="panel__title">Quick actions</h3>
+          <div class="row left">
+            <button class="btn secondary" type="button" data-open="receiveModal">Receive shipment</button>
+            <button class="btn secondary" type="button" data-open="stockEntryModal">New stock entry</button>
+            <button class="btn" type="button" data-open="dispatchModal">Update dispatch</button>
+            <button class="btn" type="button" data-open="productModal">Add product</button>
+          </div>
+        </section>
+
+        <footer class="page-footer" role="contentinfo">
+          <div>© <span id="year"></span> MediSync</div>
+          <nav class="footer-links" aria-label="Legal">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Help Center</a>
+            <a href="mailto:support@medisync.example">support@medisync.example</a>
+          </nav>
+        </footer>
+      </section>
+
+      <!-- SEARCH RESULTS -->
+      <section class="page" id="search" aria-label="Search Results">
+        <div class="page-title">
+          <div>
+            <h2>Search Results</h2>
+            <p class="muted" id="searchSub">Search across products, batches, shipments, dispatches and activity.</p>
+          </div>
+          <div class="row" style="margin-top:0;">
+            <a class="btn ghost" href="#dashboard">← Back</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row left" style="margin-top:0;">
+            <span class="pill">Query: <strong id="searchQueryLabel">—</strong></span>
+            <span class="pill">Matches: <strong id="searchCountLabel">0</strong></span>
+          </div>
+
+          <div class="divider"></div>
+          <div class="list" id="searchList"></div>
+        </div>
+      </section>
+
+      <!-- STOCK RECEIVING -->
+      <section class="page" id="receiving" aria-label="Stock Receiving">
+        <div class="page-title">
+          <div>
+            <h2>Stock Receiving</h2>
+            <p>Receive incoming shipments and move them into QC/stock.</p>
+          </div>
+          <div class="row" style="margin-top:0;">
+            <button class="btn secondary" type="button" data-open="receiveModal">Receive shipment</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="panel__title">Incoming shipments</h3>
+          <div class="list" id="receivingList"></div>
+        </div>
+      </section>
+
+      <!-- STOCK ENTRY -->
+      <section class="page" id="stockEntry" aria-label="Stock Entry">
+        <div class="page-title">
+          <div>
+            <h2>Stock Entry</h2>
+            <p>Create batch entries (product, batch, dates, quantity, location).</p>
+          </div>
+          <div class="row" style="margin-top:0;">
+            <button class="btn secondary" type="button" data-open="stockEntryModal">New stock entry</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="panel__title">Recent stock entries</h3>
+          <div class="list" id="stockEntryList"></div>
+        </div>
+      </section>
+
+      <!-- DISPATCH STATUS -->
+      <section class="page" id="dispatch" aria-label="Dispatch Status">
+        <div class="page-title">
+          <div>
+            <h2>Dispatch Status</h2>
+            <p>Update dispatches, tracking details, and delivery confirmation.</p>
+          </div>
+          <div class="row" style="margin-top:0;">
+            <button class="btn" type="button" data-open="dispatchModal">Update dispatch</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="panel__title">Dispatches</h3>
+          <div class="list" id="dispatchList"></div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section class="page" id="products" aria-label="Browse Products">
+        <div class="page-title">
+          <div>
+            <h2>Browse Products</h2>
+            <p>View products and batches. Add/update products and batch stock.</p>
+          </div>
+          <div class="row" style="margin-top:0;">
+            <button class="btn secondary" type="button" data-open="productModal">Add product</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="panel__title">Products</h3>
+          <div class="list" id="productList"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =========================
+       DIALOGS (Closable + Validated)
+       ========================= -->
+
+  <!-- Receive Shipment -->
+  <dialog id="receiveModal" aria-label="Receive Shipment">
+    <form method="dialog" id="receiveForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);" id="receiveTitle">Receive Shipment</h3>
+          <p class="muted" style="margin:6px 0 0;">Confirm received quantities, invoice and QC requirement.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label>Shipment ID <span style="color:var(--red);">*</span></label>
+          <input name="shipmentId" required minlength="6" maxlength="20" placeholder="SHP-845" autocapitalize="characters" />
+        </div>
+        <div>
+          <label>Received Date <span style="color:var(--red);">*</span></label>
+          <input name="receivedDate" type="date" required />
+        </div>
+
+        <div>
+          <label>Received Units <span style="color:var(--red);">*</span></label>
+          <input name="receivedUnits" type="number" min="1" step="1" required inputmode="numeric" />
+        </div>
+        <div>
+          <label>QC Required <span style="color:var(--red);">*</span></label>
+          <select name="qcRequired" required>
+            <option value="">Select</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Invoice No. <span style="color:var(--red);">*</span></label>
+          <input name="invoiceNo" required minlength="3" maxlength="30" placeholder="INV-2025-001" />
+        </div>
+        <div>
+          <label>Invoice (PDF/Image) <span style="color:var(--red);">*</span></label>
+          <input name="invoiceFile" type="file" required accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label>Notes</label>
+          <textarea name="notes" maxlength="800" placeholder="Optional receiving notes…"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Receive</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Stock Entry -->
+  <dialog id="stockEntryModal" aria-label="New Stock Entry">
+    <form method="dialog" id="stockEntryForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);" id="stockEntryTitle">New Stock Entry</h3>
+          <p class="muted" style="margin:6px 0 0;">Create a batch entry and add to inventory.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label>Product <span style="color:var(--red);">*</span></label>
+          <select name="productId" required></select>
+        </div>
+        <div>
+          <label>Batch No. <span style="color:var(--red);">*</span></label>
+          <input name="batchNo" required minlength="3" maxlength="20" placeholder="P-554" autocapitalize="characters" />
+        </div>
+
+        <div>
+          <label>Mfg Date <span style="color:var(--red);">*</span></label>
+          <input name="mfgDate" type="date" required />
+        </div>
+        <div>
+          <label>Expiry Date <span style="color:var(--red);">*</span></label>
+          <input name="expDate" type="date" required />
+        </div>
+
+        <div>
+          <label>Quantity <span style="color:var(--red);">*</span></label>
+          <input name="qty" type="number" min="1" step="1" required inputmode="numeric" />
+        </div>
+        <div>
+          <label>Storage Location <span style="color:var(--red);">*</span></label>
+          <input name="location" required minlength="2" maxlength="30" placeholder="RACK-A3" autocapitalize="characters" />
+        </div>
+
+        <div>
+          <label>Supplier <span style="color:var(--red);">*</span></label>
+          <input name="supplier" required minlength="2" maxlength="60" placeholder="Medico Pharma" />
+        </div>
+        <div>
+          <label>Unit Cost (₹)</label>
+          <input name="unitCost" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label>Batch documents (optional)</label>
+          <input name="batchDocs" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+          <div class="muted" style="margin-top:6px;">Max 8MB. Example: CoA / GRN scans.</div>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label>Notes</label>
+          <textarea name="notes" maxlength="800"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Save Entry</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Update Dispatch -->
+  <dialog id="dispatchModal" aria-label="Update Dispatch Status">
+    <form method="dialog" id="dispatchForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);" id="dispatchTitle">Update Dispatch</h3>
+          <p class="muted" style="margin:6px 0 0;">Update status, carrier and tracking details.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label>Dispatch ID <span style="color:var(--red);">*</span></label>
+          <input name="dispatchId" required minlength="6" maxlength="20" placeholder="DSP-772" autocapitalize="characters" />
+        </div>
+        <div>
+          <label>Status <span style="color:var(--red);">*</span></label>
+          <select name="status" required>
+            <option value="">Select</option>
+            <option value="packed">Packed</option>
+            <option value="out_for_delivery">Out for delivery</option>
+            <option value="delivered">Delivered</option>
+            <option value="delayed">Delayed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Carrier</label>
+          <input name="carrier" maxlength="60" placeholder="BlueDart" />
+        </div>
+        <div>
+          <label>Tracking No.</label>
+          <input name="tracking" maxlength="60" placeholder="BD123456789" autocapitalize="characters" />
+        </div>
+
+        <div>
+          <label>Expected Delivery Date</label>
+          <input name="expectedDate" type="date" />
+        </div>
+        <div>
+          <label>Actual Delivery Date</label>
+          <input name="actualDate" type="date" />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label>Notes</label>
+          <textarea name="notes" maxlength="800"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Update</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Add Product -->
+  <dialog id="productModal" aria-label="Add Product">
+    <form method="dialog" id="productForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);" id="productTitle">Add Product</h3>
+          <p class="muted" style="margin:6px 0 0;">Create a product master record.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label>Product Name <span style="color:var(--red);">*</span></label>
+          <input name="name" required minlength="2" maxlength="80" placeholder="Paracetamol 500mg" />
+        </div>
+        <div>
+          <label>SKU <span style="color:var(--red);">*</span></label>
+          <input name="sku" required minlength="3" maxlength="20" placeholder="PCM-500" autocapitalize="characters" />
+        </div>
+
+        <div>
+          <label>Category <span style="color:var(--red);">*</span></label>
+          <select name="category" required>
+            <option value="">Select</option>
+            <option value="tablet">Tablet</option>
+            <option value="capsule">Capsule</option>
+            <option value="syrup">Syrup</option>
+            <option value="device">Device</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Unit (e.g. strip/bottle/pcs) <span style="color:var(--red);">*</span></label>
+          <input name="unit" required minlength="1" maxlength="20" placeholder="strip" />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label>Notes</label>
+          <textarea name="notes" maxlength="500"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Save Product</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <strong id="toastTitle">Saved</strong>
+    <small id="toastMsg">Your changes were saved.</small>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =====================================================
+         Utilities
+         ===================================================== */
+      const qs  = (sel, root = document) => root.querySelector(sel);
+      const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+      const on  = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
+
+      const debounce = (fn, wait = 180) => {
+        let t;
+        return (...args) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...args), wait);
+        };
+      };
+
+      const pad2 = n => String(n).padStart(2,"0");
+      const todayISO = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+      };
+      const fmtDate = (iso) => {
+        if (!iso) return "—";
+        const d = new Date(iso + "T00:00:00");
+        return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
+      };
+      const escapeHtml = (s) => String(s).replace(/[&<>"']/g, ch => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[ch]));
+
+      const toast = (() => {
+        const el = qs("#toast");
+        const t = qs("#toastTitle");
+        const m = qs("#toastMsg");
+        let timer = null;
+        return (title, msg, ms=2400) => {
+          t.textContent = title || "Saved";
+          m.textContent = msg || "";
+          el.classList.add("is-on");
+          clearTimeout(timer);
+          timer = setTimeout(() => el.classList.remove("is-on"), ms);
+        };
+      })();
+
+      const storage = {
+        get(key, fallback){
+          try{
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+          }catch{ return fallback; }
+        },
+        set(key, value){
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+      };
+
+      /* =====================================================
+         Session Guard (Store Manager only)
+         - Complete UX: show gate page instead of redirect loop
+         ===================================================== */
+      // const SESSION_KEY = "medisync.sm.session";
+      // function readSession(){
+      //   try{
+      //     const raw = sessionStorage.getItem(SESSION_KEY);
+      //     if (!raw) return null;
+      //     const sess = JSON.parse(raw);
+      //     if (!sess || sess.role !== "StoreManager") return null;
+      //     return sess;
+      //   }catch{
+      //     return null;
+      //   }
+      // }
+      // function createDemoSession(){
+      //   const sess = { role:"StoreManager", name:"Store Manager", store:"MediSync Inventory", createdAt: Date.now() };
+      //   sessionStorage.setItem(SESSION_KEY, JSON.stringify(sess));
+      //   return sess;
+      // }
+
+      /* =====================================================
+         Demo Data + Persistence (localStorage)
+         ===================================================== */
+      const KEY = "medisync.sm.data.v1";
+      const seed = {
+        products: [
+          { id:"PRD-001", name:"Paracetamol 500mg", sku:"PCM-500", category:"tablet", unit:"strip", notes:"" },
+          { id:"PRD-002", name:"Amoxicillin 250mg", sku:"AMX-250", category:"capsule", unit:"strip", notes:"" },
+          { id:"PRD-003", name:"Syringe 5ml", sku:"SYR-5ML", category:"device", unit:"pcs", notes:"" }
+        ],
+        batches: [
+          { id:"BAT-1001", productId:"PRD-001", batchNo:"P-554", mfgDate:"2025-06-01", expDate:"2026-05-31", qty: 2500, location:"RACK-A3", supplier:"Medico Pharma", unitCost: 0.72, notes:"", createdAt: Date.now()-86400000 },
+          { id:"BAT-1002", productId:"PRD-002", batchNo:"C-211", mfgDate:"2025-05-10", expDate:"2026-04-20", qty: 1200, location:"RACK-B1", supplier:"HealthPlus Labs", unitCost: 1.85, notes:"QC passed", createdAt: Date.now()-2*86400000 }
+        ],
+        shipments: [
+          { id:"SHP-845", supplier:"Medico Pharma", etaText:"Today 16:00", etaRank:0, status:"On Route", expectedDate: todayISO(), unitsPlanned: 500, received:false },
+          { id:"SHP-846", supplier:"HealthPlus Labs", etaText:"Tomorrow", etaRank:1, status:"Scheduled", expectedDate:"", unitsPlanned: 300, received:false },
+          { id:"SHP-847", supplier:"PrimeCare", etaText:"Thu", etaRank:10, status:"Delayed", expectedDate:"", unitsPlanned: 200, received:false }
+        ],
+        receives: [],
+        dispatches: [
+          { id:"DSP-772", status:"packed", carrier:"BlueDart", tracking:"BD998877", expectedDate: "", actualDate:"", notes:"", updatedAt: Date.now() }
+        ],
+        activity: [
+          { id:"ACT-01", text:"Stock Entry: Received 50 units of Paracetamol (Batch P-554) — Today", ts: Date.now() - 2*3600000 },
+          { id:"ACT-02", text:"Quality Check: Batch C-211 approved — Yesterday", ts: Date.now() - 28*3600000 },
+          { id:"ACT-03", text:"Dispatch: Order DSP-772 confirmed and packed — Yesterday", ts: Date.now() - 30*3600000 }
+        ],
+        search: { query:"", results:[] }
+      };
+      let state = storage.get(KEY, seed);
+      const persist = () => storage.set(KEY, state);
+
+      /* =====================================================
+         DOM refs
+         ===================================================== */
+      const body = document.body;
+      const sidebar = qs("#sidebar");
+      const sidebarToggle = qs("#sidebarToggle");
+      const backdrop = qs("#backdrop");
+      const mainContent = qs("#main-content");
+
+      const accountMenu = qs("#accountMenu");
+      const logoutBtn = qs("#logoutBtn");
+      const sidebarLogoutBtn = qs("#sidebarLogoutBtn");
+      const demoSessionBtn = qs("#demoSessionBtn");
+      const createDemoBtn = qs("#createDemoBtn");
+
+      const profileName = qs("#profileName");
+      const sessionStatus = qs("#sessionStatus");
+
+      const globalSearchForm = qs("#globalSearchForm");
+      const globalSearch = qs("#globalSearch");
+
+      const pages = qsa(".page");
+      const navLinks = qsa(".nav a[data-route]");
+
+      /* Dashboard refs */
+      const todayLabel = qs("#todayLabel");
+      const year = qs("#year");
+      const recentList = qs("#recentList");
+      const incomingTbody = qs("#incomingTbody");
+
+      /* Lists */
+      const receivingList = qs("#receivingList");
+      const stockEntryList = qs("#stockEntryList");
+      const dispatchList = qs("#dispatchList");
+      const productList = qs("#productList");
+
+      /* Search results refs */
+      const searchSub = qs("#searchSub");
+      const searchQueryLabel = qs("#searchQueryLabel");
+      const searchCountLabel = qs("#searchCountLabel");
+      const searchList = qs("#searchList");
+
+      /* KPI refs */
+      const kpiStock = qs("#kpiStock");
+      const kpiStockTrend = qs("#kpiStockTrend");
+      const kpiExpiring = qs("#kpiExpiring");
+      const kpiQC = qs("#kpiQC");
+      const kpiQCTtrend = qs("#kpiQCTrend");
+      const kpiDispatch = qs("#kpiDispatch");
+
+      /* Dialog openers */
+      qsa("[data-open]").forEach(btn => {
+        on(btn, "click", (e) => {
+          e.preventDefault();
+          openDialog(btn.getAttribute("data-open"), btn);
+        });
+      });
+
+      /* =====================================================
+         Sidebar drawer
+         ===================================================== */
+      function openSidebar(){
+        body.classList.add("sidebar-open");
+        sidebarToggle && sidebarToggle.setAttribute("aria-expanded","true");
+      }
+      function closeSidebar(force=false){
+        // close on mobile always; on desktop only if forced
+        const mobile = window.matchMedia("(max-width: 980px)").matches;
+        if (!force && !mobile) return;
+        body.classList.remove("sidebar-open");
+        sidebarToggle && sidebarToggle.setAttribute("aria-expanded","false");
+      }
+      on(sidebarToggle,"click",() => body.classList.contains("sidebar-open") ? closeSidebar(true) : openSidebar());
+      on(backdrop,"click",() => closeSidebar(true));
+      on(window,"keydown",(e) => { if (e.key === "Escape") closeSidebar(true); });
+
+      /* =====================================================
+         Account menu close UX
+         ===================================================== */
+      on(document,"click",(e)=>{
+        if (!accountMenu?.open) return;
+        if (!accountMenu.contains(e.target)) accountMenu.open = false;
+      });
+      on(document,"keydown",(e)=>{
+        if (e.key === "Escape" && accountMenu?.open) accountMenu.open = false;
+      });
+
+      /* =====================================================
+         Routing
+         ===================================================== */
+      function setActivePage(id){
+        pages.forEach(p => p.classList.toggle("is-active", p.id === id));
+        navLinks.forEach(a => {
+          const match = a.getAttribute("data-route") === id;
+          a.setAttribute("aria-current", match ? "page" : "false");
+        });
+        closeSidebar(true);
+        // accessibility: move focus to main on route change
+        mainContent && mainContent.focus({ preventScroll: true });
+        renderAll();
+      }
+      function currentRoute(){
+        const h = (location.hash || "#dashboard").slice(1);
+        const allowed = new Set(pages.map(p => p.id));
+        return allowed.has(h) ? h : "dashboard";
+      }
+      on(window,"hashchange", () => setActivePage(currentRoute()));
+
+      /* =====================================================
+         Dialog close behavior (X / Esc / Backdrop / Cancel)
+         + dirty guard
+         ===================================================== */
+      const dialogs = qsa("dialog");
+      let lastActiveEl = null;
+
+      function markClean(dialog){ dialog.dataset.dirty = "false"; }
+      function markDirty(dialog){ dialog.dataset.dirty = "true"; }
+      function isDirty(dialog){ return dialog.dataset.dirty === "true"; }
+
+      function tryCloseDialog(dialog, reason="close"){
+        if (isDirty(dialog)) {
+          const ok = confirm("You have unsaved changes. Discard them?");
+          if (!ok) return false;
+        }
+        dialog.close(reason);
+        return true;
+      }
+
+      function openDialog(id, opener, payload={}){
+        const d = document.getElementById(id);
+        if (!d) return;
+        lastActiveEl = opener || document.activeElement;
+        d.dataset.payload = JSON.stringify(payload || {});
+        syncDialogPrefill(d, payload);
+        markClean(d);
+        d.showModal();
+        const focusable = d.querySelector("input,select,textarea,button");
+        focusable && focusable.focus();
+      }
+
+      qsa("[data-close-dialog]").forEach(btn => {
+        on(btn,"click",() => {
+          const d = btn.closest("dialog");
+          d && tryCloseDialog(d, "x");
+        });
+      });
+
+      dialogs.forEach(d => {
+        on(d, "click", (e) => { if (e.target === d) tryCloseDialog(d, "backdrop"); });
+        on(d, "cancel", (e) => { e.preventDefault(); tryCloseDialog(d, "esc"); });
+        on(d, "close", () => { lastActiveEl?.focus && lastActiveEl.focus(); });
+        on(d, "input", () => markDirty(d), true);
+        on(d, "change", () => markDirty(d), true);
+      });
+
+      /* =====================================================
+         Inline validation: attach error nodes + rules
+         ===================================================== */
+      function attachInlineErrors(form){
+        const controls = qsa("input,select,textarea", form)
+          .filter(el => el.type !== "submit" && el.type !== "button");
+
+        controls.forEach(el => {
+          if (el.dataset.errAttached) return;
+          const id = el.id || `${form.id}-${el.name || Math.random().toString(16).slice(2)}`;
+          if (!el.id) el.id = id;
+
+          const err = document.createElement("div");
+          err.className = "field-error";
+          err.id = `err-${id}`;
+          el.insertAdjacentElement("afterend", err);
+
+          const existing = (el.getAttribute("aria-describedby") || "").trim();
+          el.setAttribute("aria-describedby", existing ? `${existing} ${err.id}` : err.id);
+
+          el.dataset.errAttached = "1";
+          on(el, "input", () => validateControl(el));
+          on(el, "blur", () => validateControl(el));
+        });
+      }
+
+      function clearFieldError(control){
+        const errId = (control.getAttribute("aria-describedby") || "")
+          .split(/\s+/).find(x => x.startsWith("err-"));
+        const err = errId ? document.getElementById(errId) : null;
+        if (err){ err.textContent = ""; err.classList.remove("is-on"); }
+        control.classList.remove("invalid");
+        control.removeAttribute("aria-invalid");
+      }
+
+      function setFieldError(control, msg){
+        const errId = (control.getAttribute("aria-describedby") || "")
+          .split(/\s+/).find(x => x.startsWith("err-"));
+        const err = errId ? document.getElementById(errId) : null;
+        if (err){ err.textContent = msg; err.classList.add("is-on"); }
+        control.classList.add("invalid");
+        control.setAttribute("aria-invalid", "true");
+      }
+
+      function validateControl(control){
+        control.setCustomValidity("");
+        clearFieldError(control);
+
+        const form = control.closest("form");
+        if (!form) return control.checkValidity();
+
+        // normalize (do not trim passwords; we don't have password forms here)
+        if (control.type !== "file" && typeof control.value === "string") {
+          control.value = control.value.trimStart();
+        }
+
+        // Patterns / rules
+        const SHP = /^SHP-\d{3,6}$/i;
+        const DSP = /^DSP-\d{3,6}$/i;
+        const SKU = /^[A-Z0-9][A-Z0-9\-]{2,19}$/i;
+        const BATCH = /^[A-Z0-9][A-Z0-9\-]{2,19}$/i;
+
+        if (form.id === "receiveForm") {
+          if (control.name === "shipmentId") {
+            const v = control.value.trim().toUpperCase();
+            control.value = v;
+            if (v && !SHP.test(v)) control.setCustomValidity("Shipment ID must look like SHP-845.");
+          }
+          if (control.type === "file" && control.files && control.files[0]) {
+            if (control.files[0].size > 8 * 1024 * 1024) control.setCustomValidity("File too large (max 8MB).");
+          }
+          if (control.name === "receivedDate" && control.value) {
+            // allow today or past (receiving late) but not future
+            if (control.value > todayISO()) control.setCustomValidity("Received date cannot be in the future.");
+          }
+        }
+
+        if (form.id === "stockEntryForm") {
+          if (control.name === "batchNo") {
+            const v = control.value.trim().toUpperCase();
+            control.value = v;
+            if (v && !BATCH.test(v)) control.setCustomValidity("Batch no must be alphanumeric like P-554.");
+          }
+          const mfg = form.elements.mfgDate?.value || "";
+          const exp = form.elements.expDate?.value || "";
+          if ((control.name === "mfgDate" || control.name === "expDate") && mfg && exp) {
+            if (exp <= mfg) form.elements.expDate.setCustomValidity("Expiry must be after Mfg date.");
+          }
+          if (control.name === "mfgDate" && control.value) {
+            if (control.value > todayISO()) control.setCustomValidity("Mfg date cannot be in the future.");
+          }
+          if (control.name === "expDate" && control.value) {
+            // allow near future but prevent already expired
+            if (control.value < todayISO()) control.setCustomValidity("Expiry cannot be in the past.");
+          }
+          if (control.type === "file" && control.files && control.files[0]) {
+            if (control.files[0].size > 8 * 1024 * 1024) control.setCustomValidity("File too large (max 8MB).");
+          }
+        }
+
+        if (form.id === "dispatchForm") {
+          if (control.name === "dispatchId") {
+            const v = control.value.trim().toUpperCase();
+            control.value = v;
+            if (v && !DSP.test(v)) control.setCustomValidity("Dispatch ID must look like DSP-772.");
+          }
+          const status = form.elements.status?.value || "";
+          if (control.name === "actualDate" && status === "delivered" && !control.value) {
+            control.setCustomValidity("Actual delivery date is required when Delivered.");
+          }
+          if (control.name === "expectedDate" && status === "delayed" && !control.value) {
+            control.setCustomValidity("Expected date is required when Delayed.");
+          }
+        }
+
+        if (form.id === "productForm") {
+          if (control.name === "sku") {
+            const v = control.value.trim().toUpperCase();
+            control.value = v;
+            if (v && !SKU.test(v)) control.setCustomValidity("SKU must be like PCM-500 (A-Z, 0-9, hyphen).");
+            // unique SKU
+            if (v && state.products.some(p => p.sku.toUpperCase() === v)) control.setCustomValidity("SKU already exists. Use a unique SKU.");
+          }
+        }
+
+        // native validity -> inline message
+        const ok = control.checkValidity();
+        if (!ok) setFieldError(control, control.validationMessage);
+        return ok;
+      }
+
+      function validateForm(form){
+        attachInlineErrors(form);
+        const controls = qsa("input,select,textarea", form)
+          .filter(el => el.type !== "submit" && el.type !== "button");
+
+        let firstInvalid = null;
+        for (const c of controls){
+          if (c.type !== "file" && typeof c.value === "string") c.value = c.value.trim();
+          const ok = validateControl(c);
+          if (!ok && !firstInvalid) firstInvalid = c;
+        }
+        if (firstInvalid){ firstInvalid.focus(); return false; }
+        return true;
+      }
+
+      /* =====================================================
+         Forms: cancel always closes; save validates; flows complete
+         ===================================================== */
+      function hookForm(formId, onSave){
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        attachInlineErrors(form);
+
+        on(form,"submit",(e)=>{
+          const submitter = e.submitter;
+          const val = submitter?.value || "";
+          const dialog = form.closest("dialog");
+
+          // Cancel path is always allowed (with dirty guard)
+          if (val === "cancel" || submitter?.hasAttribute("data-cancel")) {
+            e.preventDefault();
+            dialog && tryCloseDialog(dialog, "cancel");
+            return;
+          }
+
+          e.preventDefault();
+          if (!validateForm(form)) return;
+
+          onSave(form, dialog);
+          dialog && markClean(dialog);
+          dialog?.close("save");
+          form.reset();
+          renderAll();
+        });
+      }
+
+      /* =====================================================
+         Prefill dialog fields
+         ===================================================== */
+      function fillProductSelect(selectEl, selectedId=""){
+        if (!selectEl) return;
+        selectEl.innerHTML = `<option value="">Select</option>` +
+          state.products.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} (${escapeHtml(p.sku)})</option>`).join("");
+        if (selectedId) selectEl.value = selectedId;
+      }
+
+      function syncDialogPrefill(dialog, payload){
+        if (!dialog) return;
+        if (dialog.id === "receiveModal") {
+          const f = qs("#receiveForm");
+          f.elements.receivedDate.value = todayISO();
+          // if opened from a shipment row
+          if (payload?.shipmentId) f.elements.shipmentId.value = payload.shipmentId;
+        }
+        if (dialog.id === "stockEntryModal") {
+          const f = qs("#stockEntryForm");
+          fillProductSelect(f.elements.productId);
+          // helpful defaults
+          f.elements.mfgDate.value = "";
+          f.elements.expDate.value = "";
+        }
+        if (dialog.id === "dispatchModal") {
+          const f = qs("#dispatchForm");
+          // if opened from a dispatch item
+          if (payload?.dispatchId) {
+            const d = state.dispatches.find(x => x.id === payload.dispatchId);
+            if (d){
+              f.elements.dispatchId.value = d.id;
+              f.elements.status.value = d.status || "";
+              f.elements.carrier.value = d.carrier || "";
+              f.elements.tracking.value = d.tracking || "";
+              f.elements.expectedDate.value = d.expectedDate || "";
+              f.elements.actualDate.value = d.actualDate || "";
+              f.elements.notes.value = d.notes || "";
+              return;
+            }
+          }
+        }
+      }
+
+      /* =====================================================
+         Data mutations
+         ===================================================== */
+      hookForm("receiveForm", (form) => {
+        const shipmentId = form.elements.shipmentId.value.trim().toUpperCase();
+        const rec = {
+          id: "RCV-" + Math.floor(Math.random()*9000 + 1000),
+          shipmentId,
+          receivedDate: form.elements.receivedDate.value,
+          receivedUnits: Number(form.elements.receivedUnits.value),
+          qcRequired: form.elements.qcRequired.value,
+          invoiceNo: form.elements.invoiceNo.value.trim(),
+          invoiceFile: form.elements.invoiceFile.files?.[0]?.name || "invoice",
+          notes: (form.elements.notes.value || "").trim(),
+          createdAt: Date.now()
+        };
+        state.receives.unshift(rec);
+
+        // mark shipment as received if it exists
+        const ship = state.shipments.find(s => s.id.toUpperCase() === shipmentId);
+        if (ship) {
+          ship.received = true;
+          ship.status = rec.qcRequired === "yes" ? "QC Pending" : "Received";
+        } else {
+          // add unknown shipment into list
+          state.shipments.unshift({
+            id: shipmentId, supplier:"—", etaText:"—", etaRank:10, status: rec.qcRequired === "yes" ? "QC Pending" : "Received",
+            expectedDate:"", unitsPlanned: rec.receivedUnits, received:true
+          });
+        }
+
+        // add activity
+        state.activity.unshift({ id:"ACT-" + Math.random().toString(16).slice(2,7), text:`Receiving: ${shipmentId} received (${rec.receivedUnits} units) — ${fmtDate(rec.receivedDate)}`, ts: Date.now() });
+        persist();
+        toast("Shipment received", `${shipmentId} recorded successfully.`);
+      });
+
+      hookForm("stockEntryForm", (form) => {
+        const productId = form.elements.productId.value;
+        const batchNo = form.elements.batchNo.value.trim().toUpperCase();
+        // unique batch per product
+        if (state.batches.some(b => b.productId === productId && b.batchNo.toUpperCase() === batchNo)) {
+          // surface inline error on batchNo
+          setFieldError(form.elements.batchNo, "This batch already exists for the selected product.");
+          form.elements.batchNo.focus();
+          return;
+        }
+
+        const batch = {
+          id: "BAT-" + Math.floor(Math.random()*90000 + 10000),
+          productId,
+          batchNo,
+          mfgDate: form.elements.mfgDate.value,
+          expDate: form.elements.expDate.value,
+          qty: Number(form.elements.qty.value),
+          location: form.elements.location.value.trim().toUpperCase(),
+          supplier: form.elements.supplier.value.trim(),
+          unitCost: form.elements.unitCost.value ? Number(form.elements.unitCost.value) : 0,
+          docs: form.elements.batchDocs.files?.[0]?.name || "",
+          notes: (form.elements.notes.value || "").trim(),
+          createdAt: Date.now()
+        };
+        state.batches.unshift(batch);
+        const product = state.products.find(p => p.id === productId);
+        state.activity.unshift({ id:"ACT-" + Math.random().toString(16).slice(2,7), text:`Stock Entry: ${batch.qty} units of ${product?.name || "Product"} (Batch ${batch.batchNo}) — ${fmtDate(todayISO())}`, ts: Date.now() });
+        persist();
+        toast("Stock entry saved", `${batch.batchNo} added to inventory.`);
+      });
+
+      hookForm("dispatchForm", (form) => {
+        const id = form.elements.dispatchId.value.trim().toUpperCase();
+        const payload = {
+          id,
+          status: form.elements.status.value,
+          carrier: (form.elements.carrier.value || "").trim(),
+          tracking: (form.elements.tracking.value || "").trim(),
+          expectedDate: form.elements.expectedDate.value || "",
+          actualDate: form.elements.actualDate.value || "",
+          notes: (form.elements.notes.value || "").trim(),
+          updatedAt: Date.now()
+        };
+
+        const idx = state.dispatches.findIndex(d => d.id.toUpperCase() === id);
+        if (idx >= 0) state.dispatches[idx] = { ...state.dispatches[idx], ...payload };
+        else state.dispatches.unshift(payload);
+
+        state.activity.unshift({ id:"ACT-" + Math.random().toString(16).slice(2,7), text:`Dispatch: ${id} updated to ${payload.status.replaceAll("_"," ")} — ${new Date().toLocaleString()}`, ts: Date.now() });
+        persist();
+        toast("Dispatch updated", `${id} updated successfully.`);
+      });
+
+      hookForm("productForm", (form) => {
+        const product = {
+          id: "PRD-" + Math.floor(Math.random()*900 + 100).toString().padStart(3,"0"),
+          name: form.elements.name.value.trim(),
+          sku: form.elements.sku.value.trim().toUpperCase(),
+          category: form.elements.category.value,
+          unit: form.elements.unit.value.trim(),
+          notes: (form.elements.notes.value || "").trim()
+        };
+        state.products.unshift(product);
+        persist();
+        toast("Product added", `${product.name} (${product.sku}) created.`);
+      });
+
+      /* =====================================================
+         Search: visible results + counts
+         - submit routes to #search
+         - typing filters dashboard lists/tables in-place for quick scan
+         ===================================================== */
+      function storeOriginal(el){
+        if (!el.dataset.original) el.dataset.original = el.textContent;
+      }
+      function clearHighlight(el){
+        const o = el.dataset.original;
+        if (o != null) el.textContent = o;
+      }
+      function highlight(el, q){
+        const text = el.dataset.original || el.textContent;
+        if (!q){ el.textContent = text; return; }
+        const esc = q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+        const re = new RegExp(esc, "gi");
+        el.innerHTML = text.replace(re, m => `<mark class="search-hit">${m}</mark>`);
+      }
+
+      function computeSearchResults(query){
+        const q = (query || "").trim().toLowerCase();
+        if (!q) return [];
+        const results = [];
+
+        const includes = (s) => (s || "").toLowerCase().includes(q);
+
+        // Products
+        state.products.forEach(p => {
+          if (includes(p.id) || includes(p.name) || includes(p.sku) || includes(p.category)) {
+            results.push({ type:"Product", id:p.id, title:`${p.name} (${p.sku})`, route:"#products" });
+          }
+        });
+
+        // Batches
+        state.batches.forEach(b => {
+          const p = state.products.find(x => x.id === b.productId);
+          const name = p ? p.name : "Product";
+          if (includes(b.id) || includes(b.batchNo) || includes(name) || includes(p?.sku) || includes(b.location) || includes(b.supplier)) {
+            results.push({ type:"Batch", id:b.id, title:`${name} • Batch ${b.batchNo} • Qty ${b.qty}`, route:"#stockEntry" });
+          }
+        });
+
+        // Shipments
+        state.shipments.forEach(s => {
+          if (includes(s.id) || includes(s.supplier) || includes(s.status) || includes(s.etaText)) {
+            results.push({ type:"Shipment", id:s.id, title:`${s.supplier} • ${s.status} • ETA ${s.etaText}`, route:"#receiving" });
+          }
+        });
+
+        // Dispatches
+        state.dispatches.forEach(d => {
+          if (includes(d.id) || includes(d.status) || includes(d.carrier) || includes(d.tracking)) {
+            results.push({ type:"Dispatch", id:d.id, title:`${d.status.replaceAll("_"," ")} • ${d.carrier || "—"} • ${d.tracking || "—"}`, route:"#dispatch" });
+          }
+        });
+
+        // Activity
+        state.activity.forEach(a => {
+          if (includes(a.text)) {
+            results.push({ type:"Activity", id:a.id, title:a.text, route:"#dashboard" });
+          }
+        });
+
+        return results.slice(0, 60);
+      }
+
+      function filterDashboardInline(query){
+        const q = (query || "").trim().toLowerCase();
+        // Recent activity highlight + hide non-matching
+        qsa("li", recentList).forEach(li => {
+          storeOriginal(li);
+          const text = (li.dataset.original || "").toLowerCase();
+          const match = q ? text.includes(q) : true;
+          li.hidden = !match;
+          match ? highlight(li, q) : clearHighlight(li);
+        });
+        // Incoming table rows
+        qsa("tr", incomingTbody).forEach(tr => {
+          const cells = qsa("td", tr);
+          const rowText = cells.map(td => {
+            storeOriginal(td);
+            return (td.dataset.original || "").toLowerCase();
+          }).join(" ");
+          const match = q ? rowText.includes(q) : true;
+          tr.hidden = !match;
+          cells.forEach(td => match ? highlight(td, q) : clearHighlight(td));
+        });
+      }
+
+      on(globalSearchForm,"submit",(e)=>{
+        e.preventDefault();
+        const q = (globalSearch.value || "").trim();
+        clearFieldError(globalSearch);
+        if (q.length < 2) {
+          setFieldError(globalSearch, "Type at least 2 characters to search.");
+          globalSearch.focus();
+          return;
+        }
+        state.search.query = q;
+        state.search.results = computeSearchResults(q);
+        persist();
+        toast("Search", `${state.search.results.length} match(es) for “${q}”.`);
+        location.hash = "#search";
+      });
+
+      on(globalSearch,"input", debounce((e)=>{
+        const q = e.target.value || "";
+        sessionStorage.setItem("medisync_last_query", q);
+        filterDashboardInline(q);
+      }, 160));
+
+      function restoreSearchFromSession(){
+        const q = sessionStorage.getItem("medisync_last_query") || "";
+        if (q) {
+          globalSearch.value = q;
+          filterDashboardInline(q);
+        }
+      }
+
+      /* Shortcut: / focuses search, Esc clears search */
+      on(document,"keydown",(e)=>{
+        if (e.key === "/" && !e.ctrlKey && !e.metaKey && document.activeElement !== globalSearch) {
+          e.preventDefault();
+          globalSearch?.focus();
+        }
+        if (e.key === "Escape" && document.activeElement === globalSearch) {
+          globalSearch.value = "";
+          filterDashboardInline("");
+        }
+      });
+
+      /* =====================================================
+         Sorting: Incoming shipments table (click header)
+         ===================================================== */
+      function shipmentIdNum(val){
+        const n = parseInt(String(val).replace(/\D+/g,""),10);
+        return Number.isFinite(n) ? n : 1e9;
+      }
+      function etaRank(val){
+        const s = String(val).toLowerCase();
+        if (s.startsWith("today")) return 0;
+        if (s.startsWith("tomorrow")) return 1;
+        return 10;
+      }
+
+      function sortIncoming(col, dir){
+        const rows = qsa("tr", incomingTbody);
+        rows.sort((a,b)=>{
+          const A = a.dataset[col] || a.children[0]?.textContent || "";
+          const B = b.dataset[col] || b.children[0]?.textContent || "";
+          let vA = A, vB = B;
+
+          if (col === "shipmentId") { vA = shipmentIdNum(A); vB = shipmentIdNum(B); }
+          else if (col === "eta") { vA = etaRank(A); vB = etaRank(B); }
+          else { vA = String(A).toLowerCase(); vB = String(B).toLowerCase(); }
+
+          if (typeof vA === "number") return dir === "asc" ? vA - vB : vB - vA;
+          return dir === "asc" ? vA.localeCompare(vB) : vB.localeCompare(vA);
+        });
+        rows.forEach(r => incomingTbody.appendChild(r));
+      }
+
+      /* =====================================================
+         Render functions
+         ===================================================== */
+      function renderHeader(){
+        const now = new Date();
+        todayLabel.textContent = now.toLocaleDateString(undefined, { weekday:"short", year:"numeric", month:"short", day:"2-digit" });
+        year.textContent = String(now.getFullYear());
+      }
+
+      function renderRecent(){
+        recentList.innerHTML = "";
+        state.activity
+          .slice()
+          .sort((a,b)=> b.ts - a.ts)
+          .slice(0, 12)
+          .forEach(a=>{
+            const li = document.createElement("li");
+            li.textContent = a.text;
+            recentList.appendChild(li);
+          });
+      }
+
+      function renderIncomingShipments(){
+        incomingTbody.innerHTML = "";
+        state.shipments.forEach(s=>{
+          const tr = document.createElement("tr");
+          tr.dataset.shipmentId = s.id;
+          tr.dataset.supplier = s.supplier;
+          tr.dataset.eta = s.etaText;
+          tr.dataset.status = s.status;
+
+          tr.innerHTML = `
+            <td>${escapeHtml(s.id)}</td>
+            <td>${escapeHtml(s.supplier)}</td>
+            <td>${escapeHtml(s.etaText)}</td>
+            <td><span class="tag ${s.status.includes("Delayed") ? "tag--warn" : s.status.includes("QC") ? "tag--info" : "tag--ok"}">${escapeHtml(s.status)}</span></td>
+            <td>
+              <button class="btn sm secondary" type="button" data-receive="${escapeHtml(s.id)}" ${s.received ? "disabled" : ""}>
+                ${s.received ? "Received" : "Receive"}
+              </button>
+            </td>
+          `;
+          incomingTbody.appendChild(tr);
+        });
+
+        qsa("[data-receive]").forEach(btn=>{
+          on(btn,"click",()=>{
+            const shipmentId = btn.getAttribute("data-receive");
+            openDialog("receiveModal", btn, { shipmentId });
+          });
+        });
+
+        // attach sortable headers
+        const heads = qsa("#incomingTable thead th[data-sort]");
+        heads.forEach(th=>{
+          th.title = "Click to sort";
+          on(th,"click",()=>{
+            const col = th.dataset.sort;
+            const dir = th.dataset.dir === "asc" ? "desc" : "asc";
+            heads.forEach(h => h.dataset.dir = "");
+            th.dataset.dir = dir;
+            sortIncoming(col, dir);
+          });
+        });
+      }
+
+      function renderReceivingPage(){
+        receivingList.innerHTML = "";
+        const pending = state.shipments.filter(s => !s.received);
+        if (!pending.length) {
+          receivingList.innerHTML = `<div class="muted">No pending shipments.</div>`;
+          return;
+        }
+        pending.forEach(s=>{
+          const div = document.createElement("div");
+          div.className = "list-item";
+          div.innerHTML = `
+            <div>
+              <h4>${escapeHtml(s.id)} <span class="tag">${escapeHtml(s.status)}</span></h4>
+              <p>Supplier: <strong>${escapeHtml(s.supplier)}</strong> • ETA: <strong>${escapeHtml(s.etaText)}</strong> • Planned units: ${escapeHtml(String(s.unitsPlanned))}</p>
+            </div>
+            <div class="list-actions">
+              <button class="btn sm secondary" type="button" data-receive="${escapeHtml(s.id)}">Receive</button>
+            </div>
+          `;
+          receivingList.appendChild(div);
+        });
+        qsa("#receivingList [data-receive]").forEach(btn=>{
+          on(btn,"click",()=>{
+            openDialog("receiveModal", btn, { shipmentId: btn.getAttribute("data-receive") });
+          });
+        });
+      }
+
+      function renderStockEntries(){
+        stockEntryList.innerHTML = "";
+        const items = state.batches.slice().sort((a,b)=> b.createdAt - a.createdAt).slice(0, 12);
+        if (!items.length) {
+          stockEntryList.innerHTML = `<div class="muted">No stock entries yet.</div>`;
+          return;
+        }
+        items.forEach(b=>{
+          const p = state.products.find(x => x.id === b.productId);
+          const div = document.createElement("div");
+          div.className = "list-item";
+          div.innerHTML = `
+            <div>
+              <h4>${escapeHtml(p?.name || "Product")} <span class="tag tag--info">Batch ${escapeHtml(b.batchNo)}</span></h4>
+              <p>Qty: <strong>${escapeHtml(String(b.qty))}</strong> • Exp: <strong>${escapeHtml(fmtDate(b.expDate))}</strong> • Location: <strong>${escapeHtml(b.location)}</strong></p>
+              <p class="muted">Supplier: ${escapeHtml(b.supplier)} • Cost: ₹ ${escapeHtml(String(b.unitCost || 0))}</p>
+            </div>
+            <div class="list-actions">
+              <button class="btn sm" type="button" data-open="stockEntryModal">New Entry</button>
+            </div>
+          `;
+          stockEntryList.appendChild(div);
+        });
+      }
+
+      function renderDispatches(){
+        dispatchList.innerHTML = "";
+        if (!state.dispatches.length) {
+          dispatchList.innerHTML = `<div class="muted">No dispatches yet.</div>`;
+          return;
+        }
+        state.dispatches
+          .slice().sort((a,b)=> b.updatedAt - a.updatedAt)
+          .forEach(d=>{
+            const div = document.createElement("div");
+            div.className = "list-item";
+            div.innerHTML = `
+              <div>
+                <h4>${escapeHtml(d.id)} <span class="tag">${escapeHtml(d.status.replaceAll("_"," "))}</span></h4>
+                <p>Carrier: <strong>${escapeHtml(d.carrier || "—")}</strong> • Tracking: <strong>${escapeHtml(d.tracking || "—")}</strong></p>
+                <p class="muted">Expected: ${escapeHtml(fmtDate(d.expectedDate))} • Actual: ${escapeHtml(fmtDate(d.actualDate))}</p>
+              </div>
+              <div class="list-actions">
+                <button class="btn sm secondary" type="button" data-edit-dispatch="${escapeHtml(d.id)}">Edit</button>
+              </div>
+            `;
+            dispatchList.appendChild(div);
+          });
+
+        qsa("[data-edit-dispatch]").forEach(btn=>{
+          on(btn,"click",()=>{
+            openDialog("dispatchModal", btn, { dispatchId: btn.getAttribute("data-edit-dispatch") });
+          });
+        });
+      }
+
+      function renderProducts(){
+        productList.innerHTML = "";
+        if (!state.products.length) {
+          productList.innerHTML = `<div class="muted">No products.</div>`;
+          return;
+        }
+        state.products.forEach(p=>{
+          const batchCount = state.batches.filter(b => b.productId === p.id).length;
+          const stock = state.batches.filter(b => b.productId === p.id).reduce((sum,b)=> sum + (b.qty||0), 0);
+          const div = document.createElement("div");
+          div.className = "list-item";
+          div.innerHTML = `
+            <div>
+              <h4>${escapeHtml(p.name)} <span class="tag tag--info">${escapeHtml(p.sku)}</span></h4>
+              <p>Category: <strong>${escapeHtml(p.category)}</strong> • Unit: <strong>${escapeHtml(p.unit)}</strong></p>
+              <p class="muted">Batches: ${escapeHtml(String(batchCount))} • Stock: ${escapeHtml(String(stock))}</p>
+            </div>
+            <div class="list-actions">
+              <button class="btn sm secondary" type="button" data-open="stockEntryModal">Add Batch</button>
+            </div>
+          `;
+          productList.appendChild(div);
+        });
+      }
+
+      function renderSearchResults(){
+        const q = state.search.query || "";
+        const results = state.search.results || [];
+        searchQueryLabel.textContent = q || "—";
+        searchCountLabel.textContent = String(results.length);
+        searchSub.textContent = q ? `Results for “${q}”` : "Submit a search from the top bar.";
+        searchList.innerHTML = "";
+
+        if (!q) {
+          searchList.innerHTML = `<div class="muted">No query yet. Use the search box above.</div>`;
+          return;
+        }
+        if (!results.length) {
+          searchList.innerHTML = `<div class="muted">No results found for “${escapeHtml(q)}”.</div>`;
+          return;
+        }
+
+        results.forEach(r=>{
+          const div = document.createElement("div");
+          div.className = "list-item";
+          div.innerHTML = `
+            <div>
+              <h4>${escapeHtml(r.type)} • ${escapeHtml(r.id)} <span class="tag">${escapeHtml(r.route.replace("#",""))}</span></h4>
+              <p>${escapeHtml(r.title)}</p>
+            </div>
+            <div class="list-actions">
+              <button class="btn sm" type="button" data-open-result="${escapeHtml(r.route)}" data-id="${escapeHtml(r.id)}">Open</button>
+            </div>
+          `;
+          searchList.appendChild(div);
+        });
+
+        qsa("[data-open-result]").forEach(btn=>{
+          on(btn,"click",()=>{
+            const route = btn.getAttribute("data-open-result");
+            const id = btn.getAttribute("data-id");
+            // context open: if shipment -> open receive modal after route
+            if (route === "#receiving") {
+              location.hash = route;
+              setTimeout(()=> openDialog("receiveModal", btn, { shipmentId: id }), 60);
+              return;
+            }
+            if (route === "#dispatch") {
+              location.hash = route;
+              setTimeout(()=> openDialog("dispatchModal", btn, { dispatchId: id }), 60);
+              return;
+            }
+            if (route === "#stockEntry") {
+              location.hash = route;
+              return;
+            }
+            if (route === "#products") {
+              location.hash = route;
+              return;
+            }
+            location.hash = route;
+          });
+        });
+      }
+
+      function computeKPIs(){
+        // total stock
+        const totalStock = state.batches.reduce((sum,b)=> sum + (b.qty||0), 0);
+        kpiStock.textContent = totalStock.toLocaleString();
+        kpiStockTrend.textContent = "+2.1% this week (demo)";
+
+        // expiring batches within 30d
+        const t = new Date(todayISO()+"T00:00:00");
+        const in30 = new Date(t); in30.setDate(in30.getDate()+30);
+        const expCount = state.batches.filter(b=>{
+          const d = new Date((b.expDate||"1970-01-01")+"T00:00:00");
+          return d >= t && d <= in30;
+        }).length;
+        kpiExpiring.textContent = String(expCount);
+
+        // pending QC (received shipments with QC Pending)
+        const qc = state.shipments.filter(s => String(s.status).toLowerCase().includes("qc")).length;
+        kpiQC.textContent = String(qc);
+        if (kpiQCTtrend) kpiQCTtrend.textContent = qc ? "Review pending receipts" : "No pending QC";
+
+        // dispatches today (demo count based on updates)
+        const start = new Date(); start.setHours(0,0,0,0);
+        const dispToday = state.dispatches.filter(d => (d.updatedAt||0) >= start.getTime()).length;
+        kpiDispatch.textContent = String(dispToday || state.dispatches.length);
+      }
+
+      function renderAll(){
+        renderHeader();
+        renderRecent();
+        renderIncomingShipments();
+        renderReceivingPage();
+        renderStockEntries();
+        renderDispatches();
+        renderProducts();
+        renderSearchResults();
+        computeKPIs();
+        persist(); // persist after render to keep search state stable
+      }
+
+      /* =====================================================
+         Logout / Demo session (single source of truth)
+         ===================================================== */
+      function setSessionUI(sess){
+        if (sess){
+          profileName.textContent = sess.name || "Store Manager";
+          sessionStatus.textContent = sess.role || "StoreManager";
+        } else {
+          profileName.textContent = "Store Manager";
+          sessionStatus.textContent = "—";
+        }
+      }
+
+      function smLogout(){
+        sessionStorage.removeItem(SESSION_KEY);
+        toast("Logged out", "Session cleared.");
+        // show gate page and clear UI flow
+        location.hash = "#sessionGate";
+        setActivePage("sessionGate");
+        setSessionUI(null);
+      }
+
+      on(logoutBtn,"click",() => {
+        accountMenu.open = false;
+        if (!confirm("Are you sure you want to log out?")) return;
+        smLogout();
+      });
+      on(sidebarLogoutBtn,"click",() => {
+        if (!confirm("Are you sure you want to log out?")) return;
+        smLogout();
+      });
+
+      on(demoSessionBtn,"click",() => {
+        accountMenu.open = false;
+        const sess = createDemoSession();
+        setSessionUI(sess);
+        toast("Demo session", "Store Manager demo session created.");
+        location.hash = "#dashboard";
+        setActivePage("dashboard");
+      });
+
+      on(createDemoBtn,"click",() => {
+        const sess = createDemoSession();
+        setSessionUI(sess);
+        toast("Demo session", "Store Manager demo session created.");
+        location.hash = "#dashboard";
+        setActivePage("dashboard");
+      });
+
+      /* =====================================================
+         Forms close behavior: cancel must always work
+         ===================================================== */
+      function wireAllForms(){
+        // attach validation nodes
+        qsa("form").forEach(f => attachInlineErrors(f));
+
+        // generic cancel buttons (in case of missing value attr)
+        qsa("form [data-cancel]").forEach(btn => {
+          on(btn,"click",(e)=>{
+            const dialog = btn.closest("dialog");
+            if (!dialog) return;
+            e.preventDefault();
+            tryCloseDialog(dialog, "cancel");
+          });
+        });
+      }
+
+      /* =====================================================
+         Init
+         ===================================================== */
+      function init(){
+        // session check
+        const sess = readSession();
+        setSessionUI(sess);
+
+        // if no session -> show gate
+        if (!sess) {
+          location.hash = "#sessionGate";
+          setActivePage("sessionGate");
+        } else {
+          // route to hash or dashboard
+          setActivePage(currentRoute());
+        }
+
+        // nav links: allow normal hash routing
+        navLinks.forEach(a => {
+          on(a,"click",() => a.setAttribute("aria-current","page"));
+        });
+
+        // restore query for quick inline filter
+        restoreSearchFromSession();
+
+        // form hooks
+        hookForm("receiveForm", (f) => {
+          // handled in hookForm above via inline implementation
+          // (hookForm already registered receiveForm at top)
+        });
+
+        // IMPORTANT: hookForm already attached real handlers above.
+        // We only need to ensure we don't double-hook.
+        // (No action here.)
+
+        wireAllForms();
+
+        // Render at startup
+        renderAll();
+      }
+
+      // Ensure hookForm calls were set (already called above)
+      // but we must not override them; so just init on DOM ready.
+      on(document,"DOMContentLoaded",init);
+
+      /* =====================================================
+         Register module-level hookForm handlers (once)
+         ===================================================== */
+      // We already called hookForm for each form above.
+      // (This comment is intentional: keeps file readable.)
+    })();
+  </script>
+
+  <script>
+    // Bind hookForm registrations AFTER the main IIFE loads? Not needed because it's inside.
+    // (Left empty intentionally.)
+  </script>
+
+</body>
+</html>

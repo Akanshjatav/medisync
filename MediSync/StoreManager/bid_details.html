@@ -1,0 +1,1185 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Manager Portal — Browse & Award Bids</title>
+
+  <style>
+    :root{
+      /* Primary */
+      --blue: #337AB7;
+      --green: #5CB85C;
+      --navy: #10324A;
+      --forest: #1F4E2E;
+      --black: #111111;
+      --gray: #515151;
+      --white: #FFFFFF;
+      --very-light-blue: #EAF3FA;
+      --off-white: #FAFAF8;
+
+      /* UI */
+      --bg: var(--off-white);
+      --surface: var(--white);
+      --surface-2: #fcfcfb;
+      --text: var(--black);
+      --muted: #606776;
+      --border: rgba(16, 50, 74, 0.14);
+      --shadow: 0 8px 24px rgba(17,17,17,.08);
+      --shadow-2: 0 10px 30px rgba(16, 50, 74, .10);
+      --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.08);
+      --ring: 0 0 0 4px rgba(51, 122, 183, .25);
+
+      --radius: 16px;
+      --radius-sm: 12px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --sidebar-w: 290px;
+      --navbar-h: 72px;
+
+      /* Font weights (kept light) */
+      --fw-regular: 400;
+      --fw-medium: 500;
+      --fw-semibold: 600;
+      --fw-bold: 700;
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b141b;
+        --surface: #0f1e28;
+        --surface-2: #10222d;
+        --text: #f4f6f8;
+        --muted: #c1c7cd;
+        --border: rgba(229,229,229,.12);
+        --shadow: 0 10px 30px rgba(0,0,0,.45);
+        --shadow-2: 0 10px 30px rgba(0,0,0,.5);
+      }
+    }
+
+    /* Base */
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
+      line-height: 1.45;
+      font-weight: var(--fw-regular);
+    }
+    a{ color: var(--blue); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .sr-only{
+      position:absolute !important;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto; padding:10px 12px;
+      border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+      outline:none; z-index: 9999;
+    }
+
+    /* App grid */
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: var(--navbar-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas:
+        "nav nav"
+        "side main";
+    }
+
+    /* Navbar */
+    .navbar{
+      grid-area: nav;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.7);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-soft);
+    }
+    @media (prefers-color-scheme: dark){
+      .navbar{ background: rgba(15,30,40,.75); }
+    }
+
+    .nav-left, .nav-right{ display:flex; align-items:center; gap:12px; min-width:0; }
+    .brand{ display:flex; align-items:center; gap:12px; min-width:220px; }
+    .logo{
+      width: 44px; height: 44px; border-radius: 14px;
+      background: conic-gradient(from 200deg, var(--blue), #5BC0DE, var(--green));
+      box-shadow: var(--shadow-2);
+      position: relative; flex: 0 0 auto;
+    }
+    .logo::after{ content:""; position:absolute; inset:10px; border-radius:10px; background: rgba(255,255,255,.88); }
+    .brand-title{ display:grid; gap:2px; min-width:0; }
+    .brand-title strong{
+      color: var(--navy);
+      font-size: 14px;
+      letter-spacing: .2px;
+      font-weight: var(--fw-semibold);
+    }
+    .brand-title small{
+      color: var(--muted);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-weight: var(--fw-regular);
+    }
+
+    .hamburger{
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--navy);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-weight: var(--fw-medium);
+    }
+    .hamburger:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px; border:1px solid var(--border);
+      background: var(--surface); color: var(--muted); font-size:12px; white-space:nowrap;
+      font-weight: var(--fw-medium);
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(92,184,92,.18);
+    }
+
+    details.menu{ position: relative; }
+    details.menu > summary{
+      list-style:none; cursor:pointer; user-select:none; white-space:nowrap;
+      padding:10px 12px; border-radius:14px; border:1px solid var(--border);
+      background: var(--surface); box-shadow: var(--shadow);
+      font-weight: var(--fw-medium); color: var(--navy);
+    }
+    details.menu > summary:focus{ box-shadow: var(--ring), var(--shadow); }
+    details.menu > summary::-webkit-details-marker{ display:none; }
+    .dropdown{
+      position:absolute; right:0; top:52px; width:220px;
+      background: var(--surface); border:1px solid var(--border); border-radius:14px;
+      box-shadow: var(--shadow-2); padding:10px; z-index:60;
+    }
+    .dropdown a{
+      display:block; padding:10px 10px; border-radius:12px; color: var(--text);
+      font-weight: var(--fw-medium);
+    }
+    .dropdown a:hover{
+      background: linear-gradient(90deg, rgba(51,122,183,.12), transparent);
+      text-decoration:none;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      grid-area: side;
+      padding: 16px;
+      border-right: 1px solid var(--border);
+      background: rgba(245, 251, 247, .65);
+      backdrop-filter: blur(8px);
+      overflow: auto;
+      z-index: 40;
+    }
+    @media (prefers-color-scheme: dark){
+      .sidebar{ background: rgba(15,30,40,.55); }
+    }
+    .side-card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow-2);
+      padding: 14px;
+    }
+    .nav{ display: grid; gap: 12px; }
+
+    .nav-item{
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 14px 16px;
+      border-radius: 16px; border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      color: var(--navy); text-decoration: none;
+      box-shadow: 0 1px 0 rgba(16,50,74,.05) inset;
+      white-space: nowrap; cursor: pointer;
+      font-weight: var(--fw-medium);
+    }
+    .nav-item:hover{
+      border-color: rgba(51,122,183,.25);
+      text-decoration: none;
+      transform: translateY(-1px);
+      transition: transform .1s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
+      box-shadow: var(--shadow);
+    }
+    .badge{
+      display:inline-flex; align-items:center; justify-content:center;
+      width: 28px; height: 28px; border-radius: 999px;
+      color: #3a5878; background: #e9f1f9;
+      border: 1px solid rgba(51,122,183,.20);
+      box-shadow: 0 2px 6px rgba(51,122,183,.15);
+      font-weight: var(--fw-medium);
+    }
+
+    /* Main */
+    .main { grid-area: main; }
+    main{
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 24px;
+      display: grid;
+      gap: 20px;
+    }
+
+    /* 3 columns: list | summary | vendor */
+    .grid{
+      display: grid;
+      grid-template-columns: 0.95fr 1.15fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+      .grid .col-span-2{ grid-column: 1 / -1; }
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid rgba(19,25,56,0.06);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+    .card-head{
+      padding: 14px 18px;
+      border-bottom: 1px solid #e9eef6;
+      background: linear-gradient(135deg, rgba(44,119,181,0.08), rgba(103,181,64,0.06));
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .card-head h2{
+      margin: 0;
+      font-size: 18px;
+      color: var(--blue);
+      font-weight: var(--fw-semibold);
+    }
+    .card-body{ padding: 16px 18px; }
+
+    .row{
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px dashed #eef2f7;
+    }
+    .row:last-child{ border-bottom: none; }
+    .label{ color: var(--muted); font-weight: var(--fw-medium); }
+    .value{ font-weight: var(--fw-medium); }
+
+    .stats{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+    @media (max-width: 900px){ .stats{ grid-template-columns: 1fr; } }
+    .stat{
+      background: #fbfcff; border: 1px solid #eef2f7;
+      border-radius: var(--radius-sm); padding: 12px; text-align: center;
+    }
+    .stat-title{ font-size: 12px; color: var(--muted); font-weight: var(--fw-regular); }
+    .stat-value{ font-size: 18px; font-weight: var(--fw-semibold); color: #285A8E; margin-top: 4px; }
+
+    .vendor-wrap{ display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
+    .avatar{
+      width: 64px; height: 64px; border-radius: 50%; overflow: hidden;
+      border: 1px solid rgba(19,25,56,0.08);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.10);
+    }
+    .vendor-name{ font-weight: var(--fw-semibold); color: var(--blue); font-size: 18px; }
+    .vendor-sub{ color: var(--muted); font-size: 13px; font-weight: var(--fw-regular); }
+
+    .timeline{ position: relative; margin-top: 8px; padding-left: 20px; }
+    .timeline::before{
+      content: ""; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px;
+      background: linear-gradient(180deg, var(--blue), var(--green)); border-radius: 2px; opacity: 0.35;
+    }
+    .tl-item{
+      position: relative; padding: 8px 10px 10px 22px; margin-bottom: 8px;
+      background: #fbfcff; border: 1px solid #eef2f7; border-radius: var(--radius-sm);
+    }
+    .tl-item::before{
+      content: ""; position: absolute; left: 4px; top: 14px; width: 10px; height: 10px;
+      border-radius: 50%; background: var(--forest);
+      box-shadow: 0 2px 8px rgba(103,181,64,.35);
+    }
+    .tl-title{ font-weight: var(--fw-medium); }
+    .tl-sub{ color: var(--muted); font-size: 13px; font-weight: var(--fw-regular); }
+
+    /* Browse list */
+    .search{
+      display:flex; align-items:center; gap:10px;
+      background:#fff; border:1px solid #e3e7ee; border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .search input{
+      border:0; outline:none; width:100%;
+      font-size:14px;
+      background: transparent;
+      color: var(--text);
+      font-weight: var(--fw-regular);
+    }
+    .list{
+      display: grid;
+      gap: 10px;
+      max-height: min(62vh, 620px);
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .bid-item{
+      border: 1px solid #eef2f7;
+      background:#fbfcff;
+      border-radius: 14px;
+      padding: 12px 12px;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+      text-align: left;
+      font-weight: var(--fw-regular);
+    }
+    .bid-item:hover{
+      transform: translateY(-1px);
+      border-color: rgba(51,122,183,.25);
+      box-shadow: var(--shadow-soft);
+    }
+    .bid-item:focus{
+      outline: none;
+      box-shadow: var(--ring), var(--shadow-soft);
+      border-color: rgba(51,122,183,.30);
+    }
+    .bid-item.active{
+      border-color: rgba(51,122,183,.45);
+      background: linear-gradient(180deg, rgba(51,122,183,.07), #fbfcff);
+    }
+    .bid-title{
+      color: var(--navy);
+      font-weight: var(--fw-semibold);
+    }
+    .bid-sub{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      display:flex; flex-wrap: wrap; gap: 8px;
+      font-weight: var(--fw-regular);
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 50, 74, 0.12);
+      background:#fff;
+      color: #304a63;
+      font-size: 12px;
+      font-weight: var(--fw-medium);
+    }
+    .empty-hint{
+      color: var(--muted);
+      font-size: 13px;
+      background: #fbfcff;
+      border: 1px dashed #e6edf6;
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: var(--fw-regular);
+    }
+
+    /* Action Bar */
+    .action-bar{
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 12px;
+      padding: 14px 18px;
+      background: #fbfcff;
+      border: 1px solid #eef2f7;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      margin-top: 8px;
+    }
+    .btn{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: var(--fw-medium);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      white-space: nowrap;
+      line-height: 1;
+      flex: 0 0 auto;
+      border: 1px solid rgba(16, 50, 74, 0.18);
+      background: #fff;
+      color: var(--navy);
+      box-shadow: 0 6px 18px rgba(17,17,17,.06);
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .btn-primary{
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      box-shadow: var(--shadow);
+      font-weight: var(--fw-medium);
+    }
+    .btn-primary:hover{ filter: brightness(1.05); }
+    .btn[disabled]{
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    #status{
+      display: none;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: #fffef6;
+      color: #7a641f;
+      border: 1px solid #fff1c2;
+      font-weight: var(--fw-regular);
+    }
+
+    .toast{
+      position: fixed; right: 20px; bottom: 20px; z-index: 2000; display: none;
+      background: #0f122a; color: #fff; padding: 12px 14px; border-radius: 12px;
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.12);
+      max-width: min(420px, calc(100vw - 40px));
+      font-weight: var(--fw-regular);
+    }
+
+    /* Award modal */
+    .backdrop{
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px;
+    }
+    .modal{
+      width: min(520px, 100%); background: #fff; border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; border: 1px solid rgba(19,25,56,0.08);
+    }
+    .modal-head{
+      padding: 14px 16px; background: linear-gradient(135deg, #131938, #1a2043);
+      color: #fff; display: flex; align-items: center; justify-content: space-between;
+      font-weight: var(--fw-medium);
+    }
+    .modal-body{ padding: 16px; display: grid; gap: 10px; font-weight: var(--fw-regular); }
+    .modal-foot{
+      padding: 12px 16px; background: #fbfcff; border-top: 1px solid #eef2f7;
+      display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;
+    }
+    .close-x{
+      background: transparent; border: none; color: #fff;
+      font-size: 22px; cursor: pointer; line-height: 1;
+      font-weight: var(--fw-regular);
+    }
+
+    footer{
+      margin-top: 10px; color: var(--muted); font-size: 12px;
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      padding: 10px 4px 0;
+      font-weight: var(--fw-regular);
+    }
+    .footer-links{ display:flex; gap: 12px; flex-wrap: wrap; }
+
+    /* Mobile drawer */
+    .drawer-backdrop{ display: none; }
+    @media (max-width: 980px){
+      .app{
+        grid-template-columns: 1fr;
+        grid-template-areas: "nav" "main";
+      }
+      .hamburger{ display:inline-flex; align-items:center; gap:8px; }
+
+      .sidebar{
+        position: fixed; top: var(--navbar-h); left: 0;
+        width: min(var(--sidebar-w), 88vw);
+        height: calc(100vh - var(--navbar-h));
+        transform: translateX(-110%);
+        transition: transform .18s ease;
+        z-index: 80; box-shadow: var(--shadow-2); border-right: none;
+      }
+      body.sidebar-open .sidebar{ transform: translateX(0); }
+
+      .drawer-backdrop{
+        display:block; position: fixed; inset: var(--navbar-h) 0 0 0;
+        background: rgba(17,17,17,.35); opacity: 0; pointer-events: none;
+        transition: opacity .18s ease; z-index: 70;
+      }
+      body.sidebar-open .drawer-backdrop{ opacity: 1; pointer-events: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <div class="app">
+    <!-- HEADER -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button"
+                aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          ☰ <span style="font-weight:var(--fw-medium);">Menu</span>
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>Manager Portal</strong>
+            <small>Browse &amp; Award Bids</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-right" aria-label="Account and status">
+        <span class="pill" title="System status">
+          <span class="dot" aria-hidden="true"></span>
+          Online
+        </span>
+
+        <details class="menu" id="accountMenu">
+          <summary aria-label="Open account menu">Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <a href="../vendor_modules/index.html" id="logoutLink">Logout</a>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+      <div class="side-card">
+        <nav class="nav" aria-label="Primary Sidebar">
+          <a class="nav-item" href="sm2_dashboard.html">
+            <span>Dashboard</span><span class="badge">›</span>
+          </a>
+          <!-- <a class="nav-item" href="sm2_dashboard.html#stockEntry">
+            <span>Stock Entry</span><span class="badge">›</span>
+          </a> -->
+          <a class="nav-item" href="sm2_dashboard.html#dispatch">
+            <span>Dispatch Status</span><span class="badge">›</span>
+          </a>
+          <a class="nav-item" href="#browseBids">
+            <span>Browse Bids</span><span class="badge">›</span>
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Backdrop for mobile drawer -->
+    <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+    <!-- MAIN -->
+    <section class="main">
+      <main id="mainContent">
+        <div id="status" aria-live="polite"></div>
+
+        <div class="grid">
+          <!-- LEFT: Bid List -->
+          <section class="card" id="browseBids" aria-labelledby="browse-title">
+            <div class="card-head">
+              <h2 id="browse-title">Browse Bids</h2>
+              <span class="pill" title="Bids count">
+                <span class="dot" aria-hidden="true" style="background:var(--blue); box-shadow:0 0 0 4px rgba(51,122,183,.15)"></span>
+                <span id="bidsCount">0 bids</span>
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="search" role="search">
+                <span aria-hidden="true">🔎</span>
+                <input id="bidSearch" type="search" placeholder="Search by ID, product, vendor…" aria-label="Search bids"/>
+              </div>
+              <div class="list" id="bidsList" aria-label="Bid list"></div>
+            </div>
+          </section>
+
+          <!-- MIDDLE: Summary (empty until selection) -->
+          <section class="card col-span-2" aria-labelledby="summary-title">
+            <div class="card-head">
+              <h2 id="summary-title">Summary</h2>
+              <span class="pill" title="Selected bid">
+                <span class="dot" aria-hidden="true" style="background:#F0AD4E; box-shadow: 0 0 0 4px rgba(240,173,78,.18);"></span>
+                <span id="selectedBidPill">No bid selected</span>
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="empty-hint" id="emptySummary">
+                Select a bid from the list to view details.
+              </div>
+
+              <div id="summaryContent" style="display:none;">
+                <div class="row"><div class="label">Bid ID</div><div class="value" id="bidId"></div></div>
+                <div class="row"><div class="label">Product</div><div class="value" id="productName"></div></div>
+                <div class="row"><div class="label">Amount</div><div class="value" id="bidAmount"></div></div>
+                <div class="row"><div class="label">Quantity</div><div class="value" id="quantity"></div></div>
+                <div class="row"><div class="label">Delivery</div><div class="value" id="deliveryDate"></div></div>
+
+                <div class="stats">
+                  <div class="stat">
+                    <div class="stat-title">Unit Price (est.)</div>
+                    <div class="stat-value" id="unitPrice"></div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-title">Lead Time</div>
+                    <div class="stat-value" id="leadTime"></div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-title">Warranty</div>
+                    <div class="stat-value" id="warranty"></div>
+                  </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                  <div class="label">Fulfillment Timeline</div>
+                  <div class="timeline" aria-label="Timeline" id="timeline"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- RIGHT: Vendor (empty until selection) -->
+          <section class="card col-span-2" aria-labelledby="vendor-title">
+            <div class="card-head">
+              <h2 id="vendor-title">Vendor Details</h2>
+            </div>
+            <div class="card-body">
+              <div class="empty-hint" id="emptyVendor">
+                Vendor details will appear after selecting a bid.
+              </div>
+
+              <div id="vendorContent" style="display:none;">
+                <div class="vendor-wrap">
+                  <img class="avatar" id="vendorAvatar" alt="Vendor logo"/>
+                  <div>
+                    <div class="vendor-name" id="vendorName"></div>
+                    <div class="vendor-sub">Vendor ID: <span id="vendorId"></span></div>
+                    <div class="vendor-sub">Contact: <span id="vendorContact"></span></div>
+                    <div class="vendor-sub">Email: <span id="vendorEmail"></span></div>
+                    <div class="vendor-sub">Address: <span id="vendorAddress"></span></div>
+                  </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                  <div class="label">Notes</div>
+                  <p style="margin:8px 0 0 0;" id="vendorNotes"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Action Bar -->
+        <section class="action-bar" aria-label="Actions">
+          <button class="btn" id="downloadBtn" disabled>Download PDF</button>
+          <button class="btn" id="contactBtn" disabled>Contact Vendor</button>
+          <button class="btn btn-primary" id="awardBtn" disabled>Confirm &amp; Award</button>
+          <span class="sr-only" id="actionStatus" aria-live="polite"></span>
+        </section>
+
+        <!-- Award Modal -->
+        <div class="backdrop" id="awardBackdrop" role="dialog" aria-modal="true" aria-labelledby="awardTitle">
+          <div class="modal">
+            <div class="modal-head">
+              <div id="awardTitle">Confirm Award</div>
+              <button class="close-x" id="awardClose" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+              <p><span class="label">Bid:</span> <span id="awardBidLine">—</span></p>
+              <p><span class="label">Vendor:</span> <span id="awardVendorLine">—</span></p>
+              <p><span class="label">Amount:</span> <span id="awardAmountLine">—</span></p>
+
+              <label for="awardNote" class="label" style="font-size:13px;">Optional note</label>
+              <textarea id="awardNote" rows="3"
+                        style="width:100%;padding:10px;border:1px solid #e3e7ee;border-radius:12px;background:#fafbfe;"></textarea>
+              <div class="sr-only" id="awardValidation" aria-live="polite"></div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn" id="awardCancel" type="button">Cancel</button>
+              <button class="btn btn-primary" id="awardConfirm" type="button">Award Tender</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast">Done</div>
+
+        <!-- Footer -->
+        <footer>
+          <span>© <span id="footer-year"></span> Store Management</span>
+          <div class="footer-links">
+            <a href="#">Help</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+          </div>
+        </footer>
+      </main>
+    </section>
+  </div>
+
+  <!-- Shared JS: Header/Sidebar behaviors + Footer year -->
+  <script>
+    (function(){
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const drawerBackdrop = document.getElementById('drawerBackdrop');
+      const body = document.body;
+
+      function closeDrawer(){
+        body.classList.remove('sidebar-open');
+        sidebarToggle?.setAttribute('aria-expanded','false');
+      }
+
+      sidebarToggle?.addEventListener('click', () => {
+        const open = body.classList.toggle('sidebar-open');
+        sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      drawerBackdrop?.addEventListener('click', closeDrawer);
+
+      // Close drawer after clicking any sidebar link on mobile
+      document.getElementById('sidebar')?.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && window.matchMedia('(max-width: 980px)').matches) closeDrawer();
+      });
+
+      // Account menu close on outside click
+      document.addEventListener('click', (ev) => {
+        const details = document.getElementById('accountMenu');
+        if (!details) return;
+        const inMenu = ev.target.closest('#accountMenu');
+        if (!inMenu) details.open = false;
+      });
+
+      // Footer year
+      const fy = document.getElementById('footer-year');
+      if (fy) fy.textContent = new Date().getFullYear();
+
+      // Logout confirm
+      const logoutLink = document.getElementById('logoutLink');
+      logoutLink?.addEventListener('click', (ev) => {
+        const ok = window.confirm('Are you sure you want to log out?');
+        if (!ok) ev.preventDefault();
+      });
+
+      // ESC closes drawer if open
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && body.classList.contains('sidebar-open')) closeDrawer();
+      });
+    })();
+  </script>
+
+  <!-- Page JS: Bids list + selection + award flow -->
+  <script>
+    // Demo data (swap with API later)
+    const bids = [
+      {
+        id: 1001,
+        product: "Surgical Masks",
+        amount: 75000,
+        quantity: 10000,
+        quantityUnit: "units",
+        deliveryDate: "2026-01-10",
+        unitPrice: 7.50,
+        leadTimeDays: 12,
+        warrantyMonths: 12,
+        vendor: {
+          name: "MedCare Supplies Pvt Ltd",
+          id: "V-789",
+          phone: "+91-9876543210",
+          email: "bids@medcare.example",
+          address: "21 Health Park, Trivandrum",
+          notes: "Price includes taxes and standard shipping."
+        },
+        timeline: [
+          { title: "Bid Submitted", sub: "2025-12-20 by MedCare" },
+          { title: "Review & Due Diligence", sub: "2025-12-21 to 2025-12-28" },
+          { title: "Award & Purchase Order", sub: "Target: 2025-12-30" },
+          { title: "Delivery Window", sub: "On/Before 2026-01-10" }
+        ]
+      },
+      {
+        id: 1002,
+        product: "Nitrile Gloves (Powder-Free)",
+        amount: 112500,
+        quantity: 25000,
+        quantityUnit: "pairs",
+        deliveryDate: "2026-01-18",
+        unitPrice: 4.50,
+        leadTimeDays: 15,
+        warrantyMonths: 6,
+        vendor: {
+          name: "ShieldPro Healthcare",
+          id: "V-402",
+          phone: "+91-9988776655",
+          email: "sales@shieldpro.example",
+          address: "88 Industrial Estate, Kochi",
+          notes: "Includes GST. Delivery can be split into two shipments."
+        },
+        timeline: [
+          { title: "Bid Submitted", sub: "2025-12-22 by ShieldPro" },
+          { title: "Technical Review", sub: "2025-12-23 to 2025-12-27" },
+          { title: "Commercial Evaluation", sub: "2025-12-28 to 2025-12-30" },
+          { title: "Delivery Window", sub: "On/Before 2026-01-18" }
+        ]
+      },
+      {
+        id: 1003,
+        product: "Hand Sanitizer (5L Can)",
+        amount: 54000,
+        quantity: 120,
+        quantityUnit: "cans",
+        deliveryDate: "2026-01-08",
+        unitPrice: 450.00,
+        leadTimeDays: 8,
+        warrantyMonths: 0,
+        vendor: {
+          name: "PureGuard Chemicals",
+          id: "V-155",
+          phone: "+91-9123456780",
+          email: "tenders@pureguard.example",
+          address: "14 Pharma Road, Bengaluru",
+          notes: "WHO formulation. Shelf life: 24 months."
+        },
+        timeline: [
+          { title: "Bid Submitted", sub: "2025-12-19 by PureGuard" },
+          { title: "Compliance Check", sub: "2025-12-20 to 2025-12-22" },
+          { title: "Award & PO", sub: "Target: 2025-12-29" },
+          { title: "Delivery Window", sub: "On/Before 2026-01-08" }
+        ]
+      }
+    ];
+
+    // Formatting helpers
+    const fmtINR = (n) => {
+      try { return new Intl.NumberFormat('en-IN', { style:'currency', currency:'INR' }).format(n); }
+      catch { return "₹" + (Math.round(n*100)/100).toFixed(2); }
+    };
+    const fmtQty = (q, unit) => `${q.toLocaleString('en-IN')} ${unit}`;
+    const fmtDays = (d) => `${d} days`;
+    const fmtMonths = (m) => m ? `${m} months` : "N/A";
+
+    // Avatar SVG
+    function avatarSVG(name) {
+      const colors = ["#2C77B5","#67B540","#131938","#ADADAD"];
+      const color = colors[(name || "").length % colors.length];
+      const initials = (name || "V").split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase();
+      const svg =
+        `<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'>
+          <defs>
+            <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+              <stop offset='0%' stop-color='${color}' />
+              <stop offset='100%' stop-color='#0f1a34' />
+            </linearGradient>
+          </defs>
+          <rect width='100%' height='100%' rx='36' fill='url(#g)' />
+          <text x='50%' y='56%' text-anchor='middle' font-size='26' font-family='Segoe UI, Roboto, Arial' fill='white' opacity='0.92'>${initials}</text>
+        </svg>`;
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    function showToast(message, timeout = 2200) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, timeout);
+    }
+
+    function showStatus(type, message){
+      const status = document.getElementById('status');
+      status.style.display = 'block';
+      status.textContent = message;
+
+      if (type === 'ok'){
+        status.style.background = "#f6fff6";
+        status.style.color = "#1f7a1f";
+        status.style.border = "1px solid #d8ffd8";
+      } else if (type === 'warn'){
+        status.style.background = "#fffef6";
+        status.style.color = "#7a641f";
+        status.style.border = "1px solid #fff1c2";
+      } else {
+        status.style.background = "#fff6f6";
+        status.style.color = "#7a1f1f";
+        status.style.border = "1px solid #ffd8d8";
+      }
+    }
+
+    // DOM refs
+    const bidsListEl = document.getElementById('bidsList');
+    const bidsCountEl = document.getElementById('bidsCount');
+    const bidSearchEl = document.getElementById('bidSearch');
+
+    const selectedBidPill = document.getElementById('selectedBidPill');
+    const emptySummary = document.getElementById('emptySummary');
+    const emptyVendor = document.getElementById('emptyVendor');
+    const summaryContent = document.getElementById('summaryContent');
+    const vendorContent = document.getElementById('vendorContent');
+
+    const downloadBtn = document.getElementById('downloadBtn');
+    const contactBtn = document.getElementById('contactBtn');
+    const awardBtn = document.getElementById('awardBtn');
+
+    // Award modal refs
+    const awardBackdrop = document.getElementById('awardBackdrop');
+    const awardClose = document.getElementById('awardClose');
+    const awardCancel = document.getElementById('awardCancel');
+    const awardConfirm = document.getElementById('awardConfirm');
+
+    // Details refs
+    const bidId = document.getElementById('bidId');
+    const productName = document.getElementById('productName');
+    const bidAmount = document.getElementById('bidAmount');
+    const quantity = document.getElementById('quantity');
+    const deliveryDate = document.getElementById('deliveryDate');
+    const unitPrice = document.getElementById('unitPrice');
+    const leadTime = document.getElementById('leadTime');
+    const warranty = document.getElementById('warranty');
+    const timeline = document.getElementById('timeline');
+
+    const vendorAvatar = document.getElementById('vendorAvatar');
+    const vendorName = document.getElementById('vendorName');
+    const vendorId = document.getElementById('vendorId');
+    const vendorContact = document.getElementById('vendorContact');
+    const vendorEmail = document.getElementById('vendorEmail');
+    const vendorAddress = document.getElementById('vendorAddress');
+    const vendorNotes = document.getElementById('vendorNotes');
+
+    const awardBidLine = document.getElementById('awardBidLine');
+    const awardVendorLine = document.getElementById('awardVendorLine');
+    const awardAmountLine = document.getElementById('awardAmountLine');
+
+    // Start with no selection
+    let currentBid = null;
+
+    function setActionsEnabled(enabled){
+      downloadBtn.disabled = !enabled;
+      contactBtn.disabled = !enabled;
+      awardBtn.disabled = !enabled;
+    }
+
+    function renderTimeline(items){
+      timeline.innerHTML = '';
+      (items || []).forEach(it => {
+        const div = document.createElement('div');
+        div.className = 'tl-item';
+        div.innerHTML = `<div class="tl-title">${it.title}</div><div class="tl-sub">${it.sub}</div>`;
+        timeline.appendChild(div);
+      });
+    }
+
+    function highlightActiveBid(){
+      [...bidsListEl.querySelectorAll('.bid-item')].forEach(el => {
+        const isActive = currentBid && el.dataset.id === String(currentBid.id);
+        el.classList.toggle('active', !!isActive);
+      });
+    }
+
+    function renderBidList(list){
+      bidsListEl.innerHTML = '';
+      bidsCountEl.textContent = `${list.length} bid${list.length === 1 ? '' : 's'}`;
+
+      list.forEach(b => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bid-item';
+        btn.dataset.id = String(b.id);
+        btn.setAttribute('aria-label', `Select bid ${b.id}`);
+        btn.innerHTML = `
+          <div class="bid-title">#${b.id} — ${b.product}</div>
+          <div class="bid-sub">
+            <span class="chip">${fmtINR(b.amount)}</span>
+            <span class="chip">${fmtQty(b.quantity, b.quantityUnit)}</span>
+            <span class="chip">Delivery: ${b.deliveryDate}</span>
+          </div>
+          <div class="bid-sub">
+            <span class="chip">${b.vendor.name}</span>
+          </div>
+        `;
+        btn.addEventListener('click', () => selectBid(b.id));
+        bidsListEl.appendChild(btn);
+      });
+
+      if (!list.length){
+        const div = document.createElement('div');
+        div.className = 'empty-hint';
+        div.textContent = 'No bids match your search.';
+        bidsListEl.appendChild(div);
+      }
+
+      highlightActiveBid();
+    }
+
+    function selectBid(id){
+      const bid = bids.find(x => x.id === id);
+      if (!bid){
+        showStatus('error', 'Selected bid not found.');
+        showToast('Bid not found.');
+        return;
+      }
+      currentBid = bid;
+
+      // show content, hide empty states
+      emptySummary.style.display = 'none';
+      emptyVendor.style.display = 'none';
+      summaryContent.style.display = 'block';
+      vendorContent.style.display = 'block';
+
+      selectedBidPill.textContent = `#${bid.id}`;
+
+      // Fill summary
+      bidId.textContent = bid.id;
+      productName.textContent = bid.product;
+      bidAmount.textContent = fmtINR(bid.amount);
+      quantity.textContent = fmtQty(bid.quantity, bid.quantityUnit);
+      deliveryDate.textContent = bid.deliveryDate;
+      unitPrice.textContent = fmtINR(bid.unitPrice);
+      leadTime.textContent = fmtDays(bid.leadTimeDays);
+      warranty.textContent = fmtMonths(bid.warrantyMonths);
+      renderTimeline(bid.timeline);
+
+      // Fill vendor
+      vendorAvatar.src = avatarSVG(bid.vendor.name);
+      vendorName.textContent = bid.vendor.name;
+      vendorId.textContent = bid.vendor.id;
+      vendorContact.textContent = bid.vendor.phone;
+      vendorEmail.textContent = bid.vendor.email;
+      vendorAddress.textContent = bid.vendor.address;
+      vendorNotes.textContent = bid.vendor.notes;
+
+      // award modal lines
+      awardBidLine.textContent = `#${bid.id} — ${bid.product}`;
+      awardVendorLine.textContent = `${bid.vendor.name} (${bid.vendor.id})`;
+      awardAmountLine.textContent = `${fmtINR(bid.amount)} for ${fmtQty(bid.quantity, bid.quantityUnit)}`;
+
+      setActionsEnabled(true);
+      highlightActiveBid();
+      document.getElementById('status').style.display = 'none';
+      showToast(`Loaded Bid #${bid.id}`);
+    }
+
+    function ensureBidSelected(actionName){
+      if (!currentBid){
+        showStatus('warn', `Select a bid before you ${actionName}.`);
+        showToast('Select a bid first.');
+        return false;
+      }
+      return true;
+    }
+
+    // Award modal flow
+    let lastFocusedEl = null;
+    function openAward(){
+      if (!ensureBidSelected('award')) return;
+      lastFocusedEl = document.activeElement;
+      awardBackdrop.style.display = 'flex';
+      document.getElementById('awardNote').value = '';
+      setTimeout(() => document.getElementById('awardNote').focus(), 0);
+    }
+    function closeAward(){
+      awardBackdrop.style.display = 'none';
+      if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') lastFocusedEl.focus();
+    }
+
+    awardBtn.addEventListener('click', openAward);
+    awardClose.addEventListener('click', closeAward);
+    awardCancel.addEventListener('click', closeAward);
+    awardBackdrop.addEventListener('click', (e) => { if (e.target === awardBackdrop) closeAward(); });
+
+    // prevent double-submit
+    let awarding = false;
+    awardConfirm.addEventListener('click', () => {
+      if (!ensureBidSelected('award')) return;
+      if (awarding) return;
+
+      awarding = true;
+      awardConfirm.disabled = true;
+
+      closeAward();
+      showStatus('warn', 'Processing award...');
+
+      setTimeout(() => {
+        awarding = false;
+        awardConfirm.disabled = false;
+        showStatus('ok', `Tender awarded successfully to ${currentBid.vendor.name}.`);
+        showToast(`Awarded to ${currentBid.vendor.name}.`);
+      }, 1200);
+    });
+
+    // ESC closes modal if open
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && awardBackdrop.style.display === 'flex') closeAward();
+    });
+
+    // Actions
+    downloadBtn.addEventListener('click', () => {
+      if (!ensureBidSelected('download')) return;
+      showToast('Preparing PDF…');
+      setTimeout(() => showToast('PDF downloaded (demo).'), 1200);
+    });
+
+    contactBtn.addEventListener('click', () => {
+      if (!ensureBidSelected('contact the vendor')) return;
+      showToast('Opening email composer…');
+
+      const email = currentBid.vendor.email;
+      const subj = encodeURIComponent(`Regarding Bid #${currentBid.id}`);
+      const body = encodeURIComponent(
+        `Hello ${currentBid.vendor.name},\n\n` +
+        `We would like to discuss Bid #${currentBid.id} (${currentBid.product}).\n\n` +
+        `Thanks.`
+      );
+      window.location.href = `mailto:${email}?subject=${subj}&body=${body}`;
+    });
+
+    // Search
+    bidSearchEl.addEventListener('input', () => {
+      const q = bidSearchEl.value.trim().toLowerCase();
+      if (!q) return renderBidList(bids);
+
+      const filtered = bids.filter(b => {
+        const hay = [String(b.id), b.product, b.vendor.name, b.vendor.id, b.vendor.email]
+          .join(' ')
+          .toLowerCase();
+        return hay.includes(q);
+      });
+      renderBidList(filtered);
+    });
+
+    // Init
+    (function init(){
+      renderBidList(bids);
+      setActionsEnabled(false);
+      selectedBidPill.textContent = 'No bid selected';
+    })();
+  </script>
+</body>
+</html>

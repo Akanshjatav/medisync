@@ -1,0 +1,204 @@
+<div class="main-content">
+  <div class="page-title">
+    <div>
+      <h2>Add New Medicine Batch</h2>
+      <p class="subtext">Select vendor once and add one or more products in this batch.</p>
+    </div>
+<!-- 
+    <div class="right-actions">
+      <a class="btn ghost" routerLink="/dashboard">Dashboard</a>
+    </div> -->
+  </div>
+
+  <!-- Error Banner -->
+  <div class="notice error" *ngIf="showErrorBanner()">
+    <div class="icon">!</div>
+    <div>
+      <strong>Error</strong>
+      <div class="hint">{{ errorMessage() }}</div>
+    </div>
+    <button class="xbtn" type="button" (click)="dismissError()">✕</button>
+  </div>
+
+  <!-- Success Banner -->
+  <div class="notice success" *ngIf="showSuccessBanner()">
+    <div class="icon ok">✓</div>
+    <div>
+      <strong>Success</strong>
+      <div class="hint">{{ successMessage() }}</div>
+    </div>
+    <button class="xbtn" type="button" (click)="dismissSuccess()">✕</button>
+  </div>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="card-head">
+      <h3>Vendor &amp; Products</h3>
+      <span class="hint">All fields are mandatory</span>
+    </div>
+
+    <!-- Vendor -->
+    <div class="grid one-row">
+      <div class="field">
+        <label>Vendor</label>
+        <select
+          formControlName="vendorId"
+          [class.is-invalid]="f.vendorId.touched && f.vendorId.invalid"
+        >
+         <!-- Keep the placeholder -->
+              <option value="">-- Select Vendor --</option>
+
+              <!-- Temporary hardcoded vendors -->
+              <option value="101">Apollo Distributors</option>
+              <option value="102">MedPlus Wholesale</option>
+              <option value="103">HealthCare Supplies Co.</option>
+              <option value="104">GreenLeaf Pharma</option>
+              <option value="105">CityMed Traders</option>
+        </select>
+
+        <small class="err" *ngIf="f.vendorId.touched && f.vendorId.errors?.['required']">
+          Vendor is required
+        </small>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Products -->
+    <div formArrayName="products">
+      <div
+        class="product-block"
+        *ngFor="let pg of products.controls; let i = index; trackBy: trackByIndex"
+        [formGroupName]="i"
+      >
+        <div class="product-head">
+          <strong>Product {{ i + 1 }}</strong>
+
+          <button
+            class="btn danger"
+            type="button"
+            (click)="removeProduct(i)"
+            [disabled]="products.length === 1"
+            title="Remove product"
+          >
+            Remove
+          </button>
+        </div>
+
+        <div class="grid">
+          <!-- Product Name -->
+          <div class="field">
+            <label>Product Name</label>
+            <input
+              type="text"
+              formControlName="productName"
+              placeholder="e.g., Paracetamol 500mg"
+              [class.is-invalid]="control(i,'productName').touched && control(i,'productName').invalid"
+            />
+            <small class="err" *ngIf="control(i,'productName').touched && control(i,'productName').errors?.['required']">
+              Product name is required
+            </small>
+            <small class="err" *ngIf="control(i,'productName').touched && control(i,'productName').errors?.['minlength']">
+              Minimum 2 characters required
+            </small>
+          </div>
+
+          <!-- Category -->
+          <div class="field">
+            <label>Category</label>
+            <input
+              type="text"
+              formControlName="category"
+              placeholder="e.g., Tablet, Syrup"
+              [class.is-invalid]="control(i,'category').touched && control(i,'category').invalid"
+            />
+            <small class="err" *ngIf="control(i,'category').touched && control(i,'category').errors?.['required']">
+              Category is required
+            </small>
+            <small class="err" *ngIf="control(i,'category').touched && control(i,'category').errors?.['minlength']">
+              Minimum 2 characters required
+            </small>
+          </div>
+
+          <!-- Quantity -->
+          <div class="field">
+            <label>Quantity</label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              formControlName="quantityTotal"
+              [class.is-invalid]="control(i,'quantityTotal').touched && control(i,'quantityTotal').invalid"
+            />
+            <small class="err" *ngIf="control(i,'quantityTotal').touched && control(i,'quantityTotal').errors?.['required']">
+              Quantity is required
+            </small>
+            <small class="err" *ngIf="control(i,'quantityTotal').touched && control(i,'quantityTotal').errors?.['min']">
+              Quantity must be greater than 0
+            </small>
+            <small class="err" *ngIf="control(i,'quantityTotal').touched && control(i,'quantityTotal').errors?.['pattern']">
+              Quantity must be a whole number
+            </small>
+          </div>
+
+          <!-- Price -->
+          <div class="field">
+            <label>Price</label>
+            <input
+              type="number"
+              min="0.01"
+              step="0.01"
+              formControlName="price"
+              placeholder="e.g., 12.50"
+              [class.is-invalid]="control(i,'price').touched && control(i,'price').invalid"
+            />
+            <small class="err" *ngIf="control(i,'price').touched && control(i,'price').errors?.['required']">
+              Price is required
+            </small>
+            <small class="err" *ngIf="control(i,'price').touched && control(i,'price').errors?.['min']">
+              Price must be greater than 0
+            </small>
+          </div>
+
+          <!-- Expiry Date -->
+          <div class="field">
+            <label>Expiry Date</label>
+            <input
+              type="date"
+              [attr.min]="todayStr"
+              formControlName="expiryDate"
+              [class.is-invalid]="control(i,'expiryDate').touched && control(i,'expiryDate').invalid"
+            />
+            <small class="err" *ngIf="control(i,'expiryDate').touched && control(i,'expiryDate').errors?.['required']">
+              Expiry date is required
+            </small>
+            <small class="err" *ngIf="control(i,'expiryDate').touched && control(i,'expiryDate').errors?.['pastDate']">
+              Expiry date cannot be in the past
+            </small>
+            <small class="err" *ngIf="control(i,'expiryDate').touched && control(i,'expiryDate').errors?.['invalidDate']">
+              Invalid date selected
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn plus" type="button" (click)="addProduct()">
+        + Add Product
+      </button>
+
+      <button class="btn ghost" type="button" (click)="onReset()">
+        Reset Form
+      </button>
+
+      <button
+        class="btn secondary"
+        type="submit"
+        [disabled]="loading() || form.invalid"
+      >
+        {{ loading() ? 'Saving...' : 'Save Batch' }}
+      </button>
+    </div>
+  </form>
+</div>

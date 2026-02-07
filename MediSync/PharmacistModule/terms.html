@@ -1,0 +1,203 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Terms of Service</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root{
+      --bg:#fff; --text:#0b1220; --muted:#5b6b7b; --border:#dde2e8; --primary:#2563eb;
+      --card:#f8fafc; --shadow:0 6px 20px rgba(3,23,55,0.08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --bg:#0f1e28; --text:#ecf2f8; --muted:#98a6b3; --border:#1f2f3b; --card:#152633; --shadow:none; }
+    }
+    *{ box-sizing:border-box }
+    html, body{ height:100% }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font:14px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+    a{ color:var(--primary); text-decoration:none } a:hover{ text-decoration:underline }
+
+    /* Layout: footer pinned with flex column */
+    .main{ min-height:100vh; display:flex; flex-direction:column }
+    .container{ width:min(1000px, 92vw); margin:0 auto; padding:16px; flex:1 }
+
+    /* Minimal navbar */
+    .navbar{
+      position:sticky; top:0; z-index:10;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 16px; border-bottom:1px solid var(--border);
+      background: rgba(255,255,255,.7); backdrop-filter: blur(8px);
+    }
+    @media (prefers-color-scheme: dark){ .navbar{ background: rgba(15,30,40,.75) } }
+    .brand{ display:flex; align-items:center; gap:10px }
+    .logo{ width:32px; height:32px; border-radius:10px; background: conic-gradient(from 200deg, #2563eb, #22d3ee, #10b981); box-shadow:var(--shadow) }
+
+    /* Card */
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow);
+      margin:14px 0; overflow:hidden;
+    }
+    .card header{ padding:14px 16px; border-bottom:1px solid var(--border); font-weight:600 }
+    .card .content{ padding:16px }
+    .section-title{ font-size:18px; margin:12px 0 6px }
+    .muted{ color:var(--muted) }
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid var(--border) }
+    .notice{
+      padding:10px 12px; border-left:4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary), transparent 92%); border-radius:10px; margin:12px 0; font-size:13px;
+    }
+    
+    .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #2563eb; /* Primary blue */
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn:hover {
+    background: #2b3c6d; /* Darker blue on hover */
+    transform: translateY(-2px);
+    }
+
+    .btn:active {
+    background: #4a72e1;
+    transform: translateY(0);
+    }
+
+    footer{
+      margin-top:auto; color:var(--muted); font-size:12px;
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      padding:12px 16px; border-top:1px solid var(--border);
+    }
+    .footer-links{ display:flex; gap:12px; flex-wrap:wrap }
+  </style>
+</head>
+<body>
+  <main class="main">
+    <nav class="navbar" aria-label="Primary">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div style="font-weight:700">MediSync</div>
+          <div class="muted" style="font-size:12px">Terms of Service</div>
+        </div>
+      </div>
+      <div>
+       <a href="privacy.html">Privacy</a>
+      </div>
+    </nav>
+
+   
+<section class="container">
+  <div class="notice">
+    <strong>Heads up:</strong> These Terms outline product use. Please have legal counsel review and tailor governing law, venue, and commercial terms.
+  </div>
+
+  <article class="card" role="article" aria-labelledby="tos-title">
+    <header>
+      <span id="tos-title">Terms of Service</span>
+      <span class="badge" title="Last updated">Updated: 31 Dec 2025</span>
+    </header>
+
+    <div class="content">
+      <h3 class="section-title">1) Acceptance of Terms</h3>
+      <p>
+        By accessing or using MediSync, you agree to these Terms and our
+        <a href="privacy.html">Privacy</a></a>.
+      </p>
+
+      <h3 class="section-title">2) Eligibility & Accounts</h3>
+      <p>
+        Only authorized personnel of participating healthcare providers may use the Service. You are responsible for keeping credentials confidential and for all activity under your account.
+      </p>
+
+      <h3 class="section-title">3) Permitted Use</h3>
+      <p>
+        Use the Service solely for lawful dispensing, billing, and record‑keeping. You must comply with applicable healthcare and data protection laws. Manual overrides must be documented (reason, user, timestamp).
+      </p>
+
+      <h3 class="section-title">4) Prohibited Conduct</h3>
+      <ul>
+        <li>Unauthorized access or circumvention of technical controls.</li>
+        <li>Sharing patient data without a lawful basis or consent.</li>
+        <li>Introducing malware or interfering with the Service.</li>
+        <li>Reverse engineering or creating derivative works of the Service except as permitted by law.</li>
+      </ul>
+
+      <h3 class="section-title">5) Payments & Billing</h3>
+      <p>
+        You are responsible for accuracy of invoices generated via MediSync and compliance with tax/GST requirements applicable to your organization.
+      </p>
+
+      <h3 class="section-title">6) Intellectual Property</h3>
+      <p>
+        MediSync and related marks are our intellectual property. We grant you a limited, non‑exclusive, revocable license to use the Service during an active subscription or engagement.
+      </p>
+
+      <h3 class="section-title">7) Warranty Disclaimer</h3>
+      <p>
+        The Service is provided on an <strong>“AS IS” and “AS AVAILABLE”</strong> basis, without warranties of any kind, whether express or implied, including merchantability, fitness for a particular purpose, and non‑infringement.
+        </p>
+
+      <h3 class="section-title">8) Limitation of Liability</h3>
+      <p>
+        To the maximum extent permitted by law, we shall not be liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or business, even if advised of the possibility. Our aggregate liability for all claims related to the Service shall not exceed the fees paid to us for the Service in the 12 months preceding the claim.
+      </p>
+
+      <h3 class="section-title">9) Indemnity</h3>
+      <p>
+        You agree to indemnify and hold us harmless from claims arising out of your unlawful use, breach of these Terms, or violation of rights of a third party.
+      </p>
+
+      <h3 class="section-title">10) Termination</h3>
+      <p>
+        We may suspend or terminate access immediately for security reasons or material breach. Upon termination, you must cease use and follow our instructions on data export/deletion subject to legal retention obligations.
+      </p>
+
+      <h3 class="section-title">11) Governing Law & Venue</h3>
+      <p>
+        These Terms are governed by the laws of India. Exclusive jurisdiction and venue lie with competent courts at Thiruvananthapuram, Kerala (customize if needed).
+      </p>
+
+      <h3 class="section-title">12) Changes to Terms</h3>
+      <p>
+        We may update these Terms periodically. Continued use signifies acceptance; we will notify of material changes.
+      </p>
+
+      
+        <div class="btn-group" aria-label="Actions">
+        <button class="btn" onclick="window.print()">
+            Print / Save PDF
+        </button>
+        </div>
+
+    </div>
+  </article>
+</section>
+
+
+    <footer>
+      <span>© ILP 2025 MediSync</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </footer>
+  </main>
+</body>
+</html>

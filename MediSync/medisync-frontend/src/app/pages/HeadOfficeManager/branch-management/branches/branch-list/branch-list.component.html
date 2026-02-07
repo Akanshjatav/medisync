@@ -1,0 +1,92 @@
+<div class="container page-head">
+  <div class="breadcrumbs">HEAD OFFICE / BRANCH MANAGEMENT</div>
+  <div class="head-row">
+    <div class="branch">
+      🏢 Manage Branches
+    </div>
+    <div class="tools">
+      <a class="btn primary" routerLink="/head-office/register-branch">
+        + Add Branch
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading()" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading branches...</p>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error()" class="container">
+  <div class="error-box">
+    <div class="error-icon">!</div>
+    <div class="error-content">
+      <div class="error-title">Error Loading Branches</div>
+      <div class="error-desc">{{ error() }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Branches Content -->
+<div *ngIf="!loading() && !error()" class="dispensing-grid">
+  <!-- Branch Table -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <div class="card-header">
+      <span>📋 Branch List</span>
+      <span class="batch-count-badge">{{ groupedByCity().length }} cities</span>
+    </div>
+
+    <div class="card-body">
+      <div class="table-wrapper">
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>City</th>
+              <th>Store Name</th>
+              <th>Store ID</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let group of groupedByCity()">
+              <ng-container *ngFor="let branch of group[1]; let first = first">
+                <tr>
+                  <td>
+                    <span *ngIf="first" class="medicine-cell">
+                      <span class="medicine-icon">🏢</span>
+                      <span class="medicine-name">{{ group[0] }}</span>
+                    </span>
+                  </td>
+                  <td>
+                    <strong>{{ branch.storename }}</strong>
+                  </td>
+                  <td>
+                    <span class="batch-text">{{ branch.store_id }}</span>
+                  </td>
+                  <td>
+                    <a
+  class="btn secondary sm"
+  [routerLink]="['/head-office/branches', branch.store_id]"
+>
+  View Details
+</a>
+
+<a
+  class="btn secondary sm"
+  [routerLink]="['/head-office/branches', branch.store_id, 'manage']"
+  style="margin-left: 12px;"
+>
+  Update Branch
+</a>
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

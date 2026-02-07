@@ -1,0 +1,26 @@
+<aside class="sidebar" role="navigation" aria-label="Main Navigation">
+  <nav class="sidebar-nav">
+    <div class="side-card">
+
+      <ul class="nav-list" *ngIf="navItems.length > 0; else emptyMenu">
+        <li *ngFor="let item of navItems; trackBy: trackByRoute" class="nav-item">
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link"
+            [attr.aria-label]="item.label"
+          >
+            {{ item.label }}
+            <span class="badge"></span>
+          </a>
+        </li>
+      </ul>
+
+      <ng-template #emptyMenu>
+        <div class="sidebar-empty">No menu items yet…</div>
+      </ng-template>
+
+    </div>
+  </nav>
+</aside>

@@ -1,0 +1,319 @@
+/* =========================================================
+   RFQ List Page - Aligned with Medisync Design System
+========================================================= */
+
+/* ---------- Theme tokens (consistent with other pages) ---------- */
+:host {
+  --navy: #10324A;
+  --primary: #2F6FDB;
+  --primary-2: #1A73E8;
+  --success: #22C55E;
+  --danger: #E63946;
+  --warning: #F59E0B;
+
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --bg: #f3f7fb;
+
+  --border: rgba(16, 50, 74, 0.14);
+  --border-2: #e5e7eb;
+
+  --muted: #64748b;
+  --text: #0f172a;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 12px 30px rgba(17, 24, 39, 0.10);
+  --shadow-2: 0 18px 50px rgba(17, 17, 17, 0.25);
+
+  --focus: 0 0 0 4px rgba(47, 111, 219, 0.20);
+}
+
+/* ---------- Page layout ---------- */
+.page {
+  max-width: 1400px !important;
+  width: 100%;
+  margin: 0 auto;
+  padding: 18px 20px 30px;
+  color: var(--text);
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 6px 0 14px;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  color: var(--navy);
+  font-size: 28px;
+}
+
+/* ---------- Cards / Filters ---------- */
+.card.filters {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.filters-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.filters-grid input,
+.filters-grid select {
+  width: 100%;
+  height: 40px;
+  padding: 9px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.22);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .1s ease;
+}
+
+.filters-grid input:focus,
+.filters-grid select:focus {
+  border-color: rgba(47, 111, 219, 0.55);
+  box-shadow: var(--focus);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  border: 0;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.15px;
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease, opacity .2s ease;
+  user-select: none;
+  outline: none;
+}
+
+.btn:hover {
+  transform: scale(1.02);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:focus-visible {
+  box-shadow: var(--focus);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-2);
+  box-shadow: 0 4px 12px rgba(47, 111, 219, 0.35);
+}
+
+/* ---------- Status messages ---------- */
+.error {
+  background: rgba(230, 57, 70, 0.12);
+  color: #b91c1c;
+  border: 1px solid rgba(230, 57, 70, 0.25);
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* ---------- RFQ Table/List ---------- */
+.rfq-table {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rfq-tbody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rfq-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.rfq-row:hover {
+  border-color: rgba(47, 111, 219, 0.25);
+  box-shadow: 0 16px 40px rgba(17, 24, 39, 0.14);
+  transform: translateY(-2px);
+}
+
+.rfq-row:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--focus);
+}
+
+/* RFQ Details */
+.rfq-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rfq-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: 0.2px;
+}
+
+.rfq-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px 24px;
+}
+
+.rfq-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rfq-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.rfq-meta-item strong {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Status Chips */
+.status-chip {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid transparent;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.status-chip.is-under-review {
+  background: rgba(240, 173, 78, 0.18);
+  color: #825200;
+  border-color: rgba(240, 173, 78, 0.22);
+}
+
+.status-chip.is-submitted {
+  background: rgba(51, 122, 183, 0.14);
+  color: #1e40af;
+  border-color: rgba(51, 122, 183, 0.18);
+}
+
+.status-chip.is-awarded {
+  background: rgba(34, 197, 94, 0.14);
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.18);
+}
+
+.status-chip.is-open {
+  background: rgba(47, 111, 219, 0.14);
+  color: var(--primary);
+  border-color: rgba(47, 111, 219, 0.18);
+}
+
+.status-chip.is-cancelled {
+  background: rgba(230, 57, 70, 0.14);
+  color: #b91c1c;
+  border-color: rgba(230, 57, 70, 0.18);
+}
+
+/* Actions */
+.rfq-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- Responsive design ---------- */
+@media (max-width: 900px) {
+  .rfq-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .rfq-actions {
+    justify-content: flex-start;
+  }
+
+  .rfq-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 12px 16px 24px;
+  }
+
+  .page-header h2 {
+    font-size: 24px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rfq-title {
+    font-size: 16px;
+  }
+}
+
+  .rfq-actions{
+    justify-content:flex-start;
+  }
+

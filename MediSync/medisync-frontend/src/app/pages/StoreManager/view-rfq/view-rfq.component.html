@@ -1,0 +1,316 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <h2>RFQs</h2>
+    </div>
+    <!-- Removed the Create RFQ button from here -->
+  </header>
+
+  <div class="card filters">
+    <!-- Top bar inside filters: Create button aligned to the right -->
+    <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px;">
+      <button class="btn btn-primary" (click)="onCreateRfq()">Create RFQ</button>
+    </div>
+
+    <!-- Filters form (unchanged) -->
+    <form [formGroup]="filtersForm" class="filters-grid">
+      <input type="text" placeholder="Search..." formControlName="q" />
+      <select formControlName="status">
+        <option value="">All statuses</option>
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+      <input type="date" formControlName="fromDate" placeholder="From date" />
+      <input type="date" formControlName="toDate" placeholder="To date" />
+      <input type="text" formControlName="medicine" placeholder="Medicine (item) name" />
+    </form>
+  </div>
+
+  <div *ngIf="errorMsg() as err" class="error">
+    {{ err }}
+  </div>
+
+  <div *ngIf="loading()" class="loading">Loading RFQs...</div>
+
+  <div *ngIf="!loading() && filteredRfqs().length === 0" class="empty">
+    No RFQs found with current filters.
+  </div>
+
+  <!-- ===========================
+       LIST: Only RFQ + Status + Delete
+       Using existing rfq-table styles; we span columns inline so no CSS change needed
+       =========================== -->
+  <div class="rfq-table" *ngIf="!loading() && filteredRfqs().length > 0">
+    <!-- No header row since we only show RFQ and Action -->
+    <div class="rfq-tbody">
+      <div class="rfq-row" *ngFor="let row of filteredRfqs(); trackBy: trackById">
+        <!-- RFQ + minimal inline status spans the first 5 grid columns -->
+        <div
+          class="col-id rfq-clickable"
+          style="grid-column: 1 / span 5;"
+          tabindex="0"
+          role="button"
+          (click)="openDetails(row?.rfq?.rfqId)"
+          (keydown)="onRowKeydown($event, row?.rfq?.rfqId)"
+          aria-label="Open RFQ details"
+        >
+          <span class="rfq-name">RFQ {{ row?.rfq?.rfqId ?? '—' }}</span>
+          <span
+            class="status-chip"
+            [class.is-open]="row?.rfq?.statusAward === 'OPEN'"
+            [class.is-awarded]="row?.rfq?.statusAward === 'ACCEPTED'"
+            [class.is-cancelled]="row?.rfq?.statusAward === 'CANCELLED'"
+            *ngIf="row?.rfq?.statusAward"
+          >
+            {{ row?.rfq?.statusAward }}
+          </span>
+        </div>
+
+        <!-- Actions stay in the last grid column (col 6 in your CSS) -->
+        <div class="col-actions">
+         <button
+  class="btn btn-danger"
+  [disabled]="!row?.rfq?.rfqId"
+  (click)="openDeleteConfirm(row.rfq!.rfqId!)"
+  title="Delete RFQ"
+  aria-label="Delete RFQ"
+>
+  Delete
+</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       MODAL: RFQ details + EDIT (unchanged)
+       =========================== -->
+  <div
+    class="modal-backdrop"
+    *ngIf="detailOpen()"
+    (click)="closeDetails()"
+    aria-hidden="true"
+  >
+    <div class="modal-card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          RFQ {{ detail()?.rfq?.rfqId || selectedId() }}
+          <span
+            class="badge"
+            [class.badge-open]="detail()?.rfq?.statusAward === 'OPEN'"
+            [class.badge-awarded]="detail()?.rfq?.statusAward === 'AWARDED'"
+            [class.badge-cancelled]="detail()?.rfq?.statusAward === 'CANCELLED'"
+            *ngIf="detail() && !editMode()"
+          >
+            {{ detail()?.rfq?.statusAward }}
+          </span>
+        </h3>
+        <button class="icon-btn" (click)="closeDetails()" aria-label="Close details">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="detailLoading()" class="loading">Loading details…</div>
+        <div *ngIf="detailError()" class="error">{{ detailError() }}</div>
+
+        <ng-container *ngIf="!detailLoading() && detail() as d">
+          <!-- READ MODE -->
+          <ng-container *ngIf="!editMode(); else editBlock">
+            <div class="detail-grid">
+              <div><strong>Submission:</strong> {{ d.rfq.submissionDeadline }}</div>
+              <div><strong>Expected:</strong> {{ d.rfq.expectedDeliveryDate }}</div>
+              <div><strong>Status:</strong> {{ d.rfq.statusAward }}</div>
+              <div><strong>Created by:</strong> {{ d.rfq.createdBy }}</div>
+            </div>
+
+            <h4 class="items-heading">Items</h4>
+            <div class="items-table" *ngIf="(d.items || []).length > 0; else noItems">
+              <div class="items-row items-head">
+                <div>Item ID</div>
+                <div>Quantity</div>
+                <div>Name</div>
+              </div>
+              <div class="items-row" *ngFor="let it of d.items">
+                <div>{{ it.rfqItemId }}</div>
+                <div>{{ it.quantityNeeded }}</div>
+                <div>{{ it.rfqItemName || '—' }}</div>
+              </div>
+            </div>
+            <ng-template #noItems>
+              <div class="empty">No items for this RFQ.</div>
+            </ng-template>
+          </ng-container>
+
+          <!-- EDIT MODE -->
+          <ng-template #editBlock>
+            <form [formGroup]="editForm" class="edit-form" (ngSubmit)="$event.preventDefault()">
+              <div [formGroup]="rfqEditGroup" class="detail-grid">
+                <div>
+                  <label class="lbl">RFQ ID</label>
+                  <input class="in" formControlName="rfqId" />
+                </div>
+                <div>
+                  <label class="lbl">Created By</label>
+                  <input class="in" formControlName="createdBy" />
+                </div>
+                <div>
+                  <label class="lbl">Status <span class="req">*</span></label>
+                  <select class="in" formControlName="statusAward">
+                    <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="lbl">Submission <span class="req">*</span></label>
+                  <input class="in" type="date" [attr.min]="todayStr" formControlName="submissionDeadline" />
+                </div>
+                <div>
+                  <label class="lbl">Expected <span class="req">*</span></label>
+                  <input class="in" type="date" [attr.min]="todayStr" formControlName="expectedDeliveryDate" />
+                </div>
+              </div>
+
+              <h4 class="items-heading">Items</h4>
+              <div formArrayName="items" class="items-edit">
+                <div class="items-edit-row items-head">
+                  <div>Name <span class="req">*</span></div>
+                  <div>Quantity <span class="req">*</span></div>
+                  <div></div>
+                </div>
+
+                <div
+                  class="items-edit-row"
+                  *ngFor="let grp of editItems.controls; let i = index; trackBy: trackByIndex"
+                  [formGroup]="grp"
+                >
+                  <div>
+                    <input class="in" type="text" formControlName="rfqItemName" placeholder="Paracetamol 500mg" />
+                    <div class="hint" *ngIf="grp.get('rfqItemName')?.touched && grp.get('rfqItemName')?.invalid">
+                      Name is required (min 2 characters).
+                    </div>
+                  </div>
+                  <div>
+                    <input class="in" type="number" min="1" formControlName="quantityNeeded" placeholder="100" />
+                    <div class="hint" *ngIf="grp.get('quantityNeeded')?.touched && grp.get('quantityNeeded')?.invalid">
+                      Quantity must be at least 1.
+                    </div>
+                  </div>
+                  <div class="act">
+                    <button type="button" class="mini danger" (click)="removeItemEdit(i)">Remove</button>
+                  </div>
+                </div>
+
+                <div class="items-add">
+                  <button type="button" class="mini" (click)="addItemEdit()">+ Add item</button>
+                </div>
+              </div>
+            </form>
+          </ng-template>
+        </ng-container>
+      </div>
+
+      <div class="modal-footer">
+        <ng-container *ngIf="!editMode(); else editBtns">
+          <button class="btn btn-ghost" (click)="closeDetails()">Close</button>
+          <button class="btn btn-primary" (click)="startEdit()" [disabled]="!selectedId()">Update</button>
+        </ng-container>
+
+        <ng-template #editBtns>
+          <button class="btn btn-ghost" (click)="cancelEdit()">Cancel</button>
+          <button class="btn btn-primary" (click)="saveEdit()" [disabled]="detailLoading()">Save changes</button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete / Success popups (unchanged) -->
+  <div
+    *ngIf="deleteConfirmOpen()"
+    style="position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeDeleteConfirm()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 28px 20px 18px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="Confirm delete" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #ef4444; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(239,68,68,.45), 0 0 0 6px rgba(239,68,68,.15);" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24">
+          <path d="M12 8v4m0 4h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"
+                fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 22px 0 6px; font-size: 1.25rem; color:#10324A;">Delete RFQ #{{ deleteTargetId() }}?</h3>
+      <p style="margin:0 0 16px; color:#515151;">Are you sure you want to delete this RFQ? This action cannot be undone.</p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button type="button" (click)="closeDeleteConfirm()" class="btn btn-ghost">Cancel</button>
+        <button type="button" (click)="confirmDelete()" [disabled]="deleteLoading()" class="btn btn-danger">
+          {{ deleteLoading() ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showDeleteSuccess()"
+    style="position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeDeleteSuccess()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 32px 20px 20px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="RFQ deleted successfully" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #34C759; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(52,199,89,.45), 0 0 0 6px rgba(52,199,89,.15);" aria-hidden="true">
+        <svg width="38" height="38" viewBox="0 0 24 24">
+          <path d="M20 6L9 17l-5-5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 28px 0 6px; font-size: 1.35rem; color:#10324A; letter-spacing:.2px;">Deleted</h3>
+      <p style="margin:0 0 18px; color:#515151;">RFQ deleted successfully.</p>
+      <div style="display:flex; justify-content:center;">
+        <button type="button" (click)="closeDeleteSuccess()"
+                style="border:0; cursor:pointer; padding:12px 18px; border-radius: 12px; background:#34C759;
+                       color:#fff; font-weight:800; letter-spacing:.2px; min-width: 120px; box-shadow: 0 8px 20px rgba(52,199,89,.35);">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showUpdateSuccess()"
+    style="position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;"
+    aria-hidden="true" (click)="closeUpdateSuccess()"
+  >
+    <div style="position:absolute; inset:0; background: rgba(17,17,17,.38); backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; width: min(520px, 92vw); background: #ffffff; border-radius: 16px;
+                border: 1px solid rgba(16, 50, 74, 0.14); box-shadow: 0 18px 50px rgba(17,17,17,.25);
+                padding: 32px 20px 20px; text-align: center;"
+         role="dialog" aria-modal="true" aria-label="RFQ updated successfully" (click)="$event.stopPropagation()">
+      <div style="position:absolute; left:50%; top:0; transform: translate(-50%, -50%); width: 78px; height:78px;
+                  border-radius: 999px; background: #34C759; display:grid; place-items:center;
+                  box-shadow: 0 6px 18px rgba(52,199,89,.45), 0 0 0 6px rgba(52,199,89,.15);" aria-hidden="true">
+        <svg width="38" height="38" viewBox="0 0 24 24">
+          <path d="M20 6L9 17l-5-5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="margin: 28px 0 6px; font-size: 1.35rem; color:#10324A; letter-spacing:.2px;">Success</h3>
+      <p style="margin:0 0 18px; color:#515151;">RFQ updated successfully.</p>
+      <div style="display:flex; justify-content:center;">
+        <button type="button" (click)="closeUpdateSuccess()"
+                style="border:0; cursor:pointer; padding:12px 18px; border-radius: 12px; background:#34C759;
+                       color:#fff; font-weight:800; letter-spacing:.2px; min-width: 120px; box-shadow: 0 8px 20px rgba(52,199,89,.35);">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

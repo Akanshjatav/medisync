@@ -1,0 +1,141 @@
+<header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button"
+                aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          ☰ <span style="font-weight:900;">Menu</span>
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>MediSync</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-right" aria-label="Account and status">
+        <span class="pill" title="System status">
+          <span class="dot" aria-hidden="true"></span>
+          Online
+        </span>
+
+        <a class="btn ghost" href="../Common Features/login.html">Logout</a>
+      </div>
+    </header>
+<div class="card">
+  <div class="page-title">
+    <div>
+      <h2>{{ title }}</h2>
+      <div class="hint">{{ hint }}</div>
+    </div>
+
+    <div class="actions">
+      <span class="pill">
+        <span class="dot"></span>
+        Total Qty: <strong>{{ totalQuantity }}</strong>
+      </span>
+
+      <span class="pill">
+        Total: <strong>{{ currencySymbol }}{{ totalAmount | number:'1.2-2' }}</strong>
+      </span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <!-- Branch -->
+    <div>
+      <label class="label">Branch</label>
+      <select class="select" [formControl]="form.controls.branchId">
+        <option value="" disabled>Select a branch</option>
+        <option *ngFor="let b of branches" [value]="b.id">
+          {{ b.name }} <span *ngIf="b.location"> - {{ b.location }}</span>
+        </option>
+      </select>
+
+      <!-- ✅ red validation below field -->
+      <div class="field-error" *ngIf="showError(form.controls.branchId)">
+        Branch is required.
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div style="grid-column: span 3;">
+      <label class="label">Notes (optional)</label>
+      <input class="input" placeholder="Add any notes for the request..." [formControl]="form.controls.notes" />
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn ghost" (click)="addLine()">+ Add Item</button>
+      <button type="button" class="btn secondary" [disabled]="submitting" (click)="submit()">
+        {{ submitting ? 'Submitting...' : 'Submit Request' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="min-width: 260px;">Product</th>
+            <th style="min-width: 140px;">Price</th>
+            <th style="min-width: 140px;">Quantity</th>
+            <th style="min-width: 160px;">Line Total</th>
+            <th style="min-width: 120px;">Action</th>
+          </tr>
+        </thead>
+
+        <tbody [formGroup]="form">
+          <ng-container formArrayName="lines">
+            <tr *ngFor="let line of lines.controls; let i = index; trackBy: trackByIndex"
+                [formGroupName]="i">
+
+              <!-- Product -->
+              <td>
+                <select class="select" formControlName="productId">
+                  <option value="" disabled>Select product</option>
+                  <option *ngFor="let p of products" [value]="p.id">{{ p.name }}</option>
+                </select>
+
+                <!-- ✅ red validation below field -->
+                <div class="field-error" *ngIf="showError(line.get('productId'))">
+                  Product is required.
+                </div>
+              </td>
+
+              <!-- Price (disabled, no validation needed visually) -->
+              <td>
+                <input class="input" formControlName="price"/>
+              </td>
+
+              <!-- Quantity -->
+              <td>
+                <input class="input" type="number" min="1" formControlName="quantity" />
+
+                <!-- ✅ red validation below field -->
+                <div class="field-error" *ngIf="showError(line.get('quantity'))">
+                  <ng-container *ngIf="line.get('quantity')?.errors?.['required']">Quantity is required.</ng-container>
+                  <ng-container *ngIf="line.get('quantity')?.errors?.['min']">Quantity must be at least 1.</ng-container>
+                </div>
+              </td>
+
+              <td>
+                <strong>{{ currencySymbol }}{{ getLineTotal(i) | number:'1.2-2' }}</strong>
+              </td>
+
+              <td>
+                <button type="button" class="btn sm ghost" (click)="removeLine(i)" [disabled]="lines.length === 1">
+                  Remove
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="message" class="message" [ngClass]="message.type">
+      {{ message.text }}
+    </div>
+  </div>
+</div>

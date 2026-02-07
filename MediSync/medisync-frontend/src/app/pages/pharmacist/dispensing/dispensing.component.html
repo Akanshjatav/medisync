@@ -1,0 +1,196 @@
+<div class="container page-head">
+  <div class="breadcrumbs">Pharmacist / Billing</div>
+  <div class="head-row">
+    <div class="branch">
+      📍 Branch: <strong>{{ branch }}</strong>
+    </div>
+    <div class="tools">
+      <span
+        *ngIf="canOverride"
+        class="info-badge override-badge"
+        title="Manual override is allowed for this user"
+      >
+        ⚠️ Manual Override
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading inventory for dispensing...</p>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading" class="dispensing-grid">
+  <!-- Left: Medicine Selection & Batches -->
+  <div class="card">
+    <div class="card-header">
+      <span>💊 Select Medicine & Batch</span>
+      <span class="batch-count-badge">{{ medicines.length }} medicines</span>
+    </div>
+
+    <div class="card-body">
+      <!-- Search Input -->
+      <div class="search-wrapper">
+        <input
+          class="input"
+          id="medSearch"
+          type="search"
+          placeholder="🔍 Search medicine to dispense..."
+          [(ngModel)]="medSearch"
+          (input)="onSearchChange()"
+        />
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="showNoBatchError" class="error-box">
+        <div class="error-icon">⚠️</div>
+        <div class="error-content">
+          <div class="error-title">No Batches Available</div>
+          <div class="error-desc">{{ errorText }}</div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successText" class="success-box">
+        <div class="success-icon">✓</div>
+        <div class="success-text">{{ successText }}</div>
+      </div>
+
+      <!-- Medicine List -->
+      <div *ngIf="!showNoBatchError" class="medicine-list">
+        <!-- Empty State -->
+        <div *ngIf="medicines.length === 0" class="empty-state-inline">
+          <div class="empty-icon-sm">🔍</div>
+          <div class="empty-text-sm">No medicines found matching your search</div>
+        </div>
+
+        <!-- Medicines with Batches -->
+        <div *ngFor="let m of medicines; trackBy: trackByMedicine" class="medicine-group">
+          <div class="medicine-header">
+            <span class="medicine-title">{{ m }}</span>
+            <span class="batch-qty-badge">{{ (batchesByMedicine.get(m)?.length ?? 0) }} batches</span>
+          </div>
+
+          <!-- No stock for this medicine -->
+          <div *ngIf="(batchesByMedicine.get(m)?.length ?? 0) === 0" class="no-stock-alert">
+            ⚠️ No stock available
+          </div>
+
+          <!-- Batch Cards -->
+          <div class="batch-cards">
+            <div
+              *ngFor="let b of (batchesByMedicine.get(m) ?? []); let idx = index; trackBy: trackByBatch"
+              class="batch-card"
+              [class.batch-fefo]="isEarliest(idx)"
+            >
+              <div class="batch-header">
+                <span class="batch-label">Batch</span>
+                <span class="batch-value">{{ b.batch }}</span>
+              </div>
+              
+              <div class="batch-details">
+                <div class="batch-detail-row">
+                  <span class="detail-label">Expiry:</span>
+                  <span class="detail-value">{{ b.expiry }}</span>
+                </div>
+                <div class="batch-detail-row">
+                  <span class="detail-label">Available:</span>
+                  <span class="detail-value qty-value">{{ b.qty }} units</span>
+                </div>
+              </div>
+
+              <div class="batch-actions">
+                <span *ngIf="isEarliest(idx)" class="fefo-tag">
+                  ⏰ FEFO - Dispense First
+                </span>
+                <button 
+                  class="btn secondary batch-select-btn" 
+                  type="button" 
+                  (click)="selectBatch(m, b, idx)"
+                >
+                  Select Batch
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Billing Cart -->
+  <div class="card">
+    <div class="card-header">
+      <span>🛒 Billing Cart</span>
+      <span class="cart-count-badge">{{ cart.length }} items</span>
+    </div>
+
+    <div class="card-body">
+      <!-- Empty Cart State -->
+      <div *ngIf="cart.length === 0" class="empty-cart-state">
+        <div class="empty-cart-icon">🛒</div>
+        <div class="empty-cart-title">Cart is Empty</div>
+        <div class="empty-cart-desc">Select a medicine and batch to begin dispensing</div>
+      </div>
+
+      <!-- Cart Items -->
+      <div *ngIf="cart.length > 0" class="cart-items">
+        <div *ngFor="let c of cart; trackBy: trackByCart" class="cart-item">
+          <div class="cart-item-header">
+            <span class="cart-medicine-name">{{ c.medicine }}</span>
+          </div>
+          <div class="cart-item-details">
+            <div class="cart-detail">
+              <span class="cart-label">Batch:</span>
+              <span class="cart-value">{{ c.batch }}</span>
+            </div>
+            <div class="cart-detail">
+              <span class="cart-label">Expiry:</span>
+              <span class="cart-value">{{ c.expiry }}</span>
+            </div>
+            <div class="cart-detail">
+              <span class="cart-label">Quantity:</span>
+              <span class="cart-value qty-highlight">{{ c.qty }} units</span>
+            </div>
+          </div>
+          <div class="cart-item-footer">
+            <span class="expiry-tag">{{ getExpiryTag(c.expiry) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Actions -->
+      <div class="cart-actions-panel">
+        <div class="qty-input-group">
+          <label for="qtyInput" class="qty-label">Quantity to Add:</label>
+          <input
+            class="input qty-input"
+            id="qtyInput"
+            type="number"
+            min="1"
+            placeholder="Enter quantity"
+            [(ngModel)]="qtyInput"
+          />
+        </div>
+
+        <div class="cart-buttons">
+          <button class="btn btn-add-cart" id="addToCart" type="button" (click)="addToCart()">
+            ➕ Add to Cart
+          </button>
+          <button class="btn ghost btn-clear-cart" id="clearCart" type="button" (click)="clearCart()">
+            🗑️ Clear Cart
+          </button>
+        </div>
+
+        <div class="cart-confirm">
+          <button class="btn btn-confirm" id="confirmBill" type="button" (click)="confirmBill()">
+            ✓ Confirm & Dispense
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

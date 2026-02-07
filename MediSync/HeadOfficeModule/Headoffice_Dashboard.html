@@ -1,0 +1,1301 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediSync</title>
+  <meta name="color-scheme" content="light dark" />
+
+  <style>
+    :root{
+      /* Primary */
+      --blue: #337AB7;
+      --green: #5CB85C;
+      --navy: #10324A;
+      --forest: #1F4E2E;
+      --black: #111111;
+      --gray: #515151;
+      --light-gray: #E5E5E5;
+      --white: #FFFFFF;
+      --very-light-green: #F5FBF7;
+      --very-light-blue: #EAF3FA;
+
+      /* Expanded */
+      --blue-dark: #285A8E;
+      --blue-soft: #6FA8DC;
+      --green-dark: #3E8E5A;
+      --green-light: #8FD19E;
+      --gray-balanced: #A0A0A0;
+      --off-white: #FAFAF8;
+      --green-wash: #E8F7EE;
+      --blue-wash: #D6EAF8;
+
+      /* Accents */
+      --amber: #F0AD4E;
+      --red: #D9534F;
+      --purple: #8E44AD;
+      --yellow: #FFCE54;
+      --aqua: #5BC0DE;
+
+      /* UI */
+      --bg: var(--off-white);
+      --surface: var(--white);
+      --surface-2: #fcfcfb;
+      --text: var(--black);
+      --muted: var(--gray);
+      --border: rgba(16, 50, 74, 0.14);
+      --shadow: 0 8px 24px rgba(17,17,17,.08);
+      --shadow-2: 0 10px 30px rgba(16, 50, 74, .10);
+      --ring: 0 0 0 4px rgba(51, 122, 183, .25);
+
+      --radius: 16px;
+      --radius-sm: 12px;
+      --gap: 16px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      --sidebar-w: 290px;
+      --navbar-h: 72px;
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b141b;
+        --surface: #0f1e28;
+        --surface-2: #10222d;
+        --text: #f4f6f8;
+        --muted: #c1c7cd;
+        --border: rgba(229,229,229,.12);
+        --shadow: 0 10px 30px rgba(0,0,0,.45);
+        --shadow-2: 0 10px 30px rgba(0,0,0,.5);
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
+      line-height: 1.4;
+    }
+    a{ color: var(--blue); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto; padding:10px 12px;
+      border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+      outline:none; z-index: 9999;
+    }
+
+    .app{
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: var(--navbar-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas:
+        "nav nav"
+        "side main";
+    }
+
+    .navbar{
+      grid-area: nav;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.7);
+      backdrop-filter: blur(10px);
+    }
+    @media (prefers-color-scheme: dark){
+      .navbar{ background: rgba(15,30,40,.75); }
+    }
+
+    .nav-left, .nav-right{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+    .logo{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: conic-gradient(from 200deg, var(--blue), var(--aqua), var(--green));
+      box-shadow: var(--shadow-2);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .logo::after{
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.88);
+    }
+    .brand-title{ display: grid; gap: 2px; min-width: 0; }
+    .brand-title strong{ color: var(--navy); font-size: 14px; letter-spacing: .2px; }
+    .brand-title small{
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hamburger{
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--navy);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+    }
+    .hamburger:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .search{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 640px;
+      min-width: 220px;
+    }
+    .search input[type="search"]{
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    .search input[type="search"]:focus{
+      box-shadow: var(--ring);
+      border-color: rgba(51,122,183,.55);
+    }
+
+    .btn{
+      border: 0;
+      cursor: pointer;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: .2px;
+      box-shadow: var(--shadow);
+      transition: transform .08s ease, filter .2s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn:hover{ filter: brightness(1.03); text-decoration: none; }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline: none; box-shadow: var(--ring), var(--shadow); }
+
+    .btn.secondary{ background: var(--green); }
+    .btn.danger{ background: var(--red); }
+    .btn.ghost{
+      background: transparent;
+      color: var(--blue-dark);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn.ghost:hover{ background: rgba(51,122,183,.08); }
+    .btn.sm{ padding: 8px 10px; border-radius: 12px; font-size: 12px; font-weight: 900; }
+
+    .pill{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(92,184,92,.18);
+    }
+
+    details.menu{ position: relative; }
+    details.menu > summary{
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      color: var(--navy);
+      outline: none;
+      white-space: nowrap;
+    }
+    details.menu > summary:focus{ box-shadow: var(--ring), var(--shadow); }
+    details.menu > summary::-webkit-details-marker{ display:none; }
+
+    .dropdown{
+      position: absolute;
+      right: 0;
+      top: 52px;
+      width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-2);
+      padding: 10px;
+      z-index: 60;
+    }
+    .dropdown a, .dropdown button{
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 10px;
+      border-radius: 12px;
+      color: var(--text);
+      font-weight: 700;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+    .dropdown a:hover, .dropdown button:hover{
+      background: linear-gradient(90deg, rgba(51,122,183,.12), transparent);
+      text-decoration: none;
+    }
+
+    .sidebar{
+      grid-area: side;
+      padding: 16px;
+      border-right: 1px solid var(--border);
+      background: rgba(245, 251, 247, .65);
+      backdrop-filter: blur(8px);
+      overflow: auto;
+    }
+    @media (prefers-color-scheme: dark){
+      .sidebar{ background: rgba(15,30,40,.55); }
+    }
+
+    .side-card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .side-title{
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 4px 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .nav{
+      display: grid;
+      gap: 8px;
+    }
+    .nav a{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      color: var(--navy);
+      font-weight: 800;
+    }
+    .nav a:hover{
+      border-color: rgba(51,122,183,.25);
+      text-decoration: none;
+    }
+    .nav a[aria-current="page"]{
+      border-color: rgba(51,122,183,.40);
+      box-shadow: 0 0 0 4px rgba(51,122,183,.12);
+    }
+
+    .badge{
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(51,122,183,.12);
+      color: var(--blue-dark);
+      border: 1px solid rgba(51,122,183,.18);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .badge.green{ background: rgba(92,184,92,.14); color: var(--green-dark); border-color: rgba(92,184,92,.18); }
+    .badge.amber{ background: rgba(240,173,78,.18); color: #825200; border-color: rgba(240,173,78,.22); }
+    .badge.red{ background: rgba(217,83,79,.18); color: #8b1f1b; border-color: rgba(217,83,79,.22); }
+
+    .main{ grid-area: main; padding: 16px; overflow: auto; }
+
+    .muted{ color: var(--muted); }
+    .page{ display: none; }
+    .page.is-active{ display: block; }
+
+    .page-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: var(--gap);
+      margin-bottom: 14px;
+    }
+    .page-head h1{ margin:0; color: var(--navy); letter-spacing:.2px; }
+    .page-head p{ margin:6px 0 0; color: var(--muted); max-width: 75ch; }
+
+    .kpis{
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(5, minmax(180px, 1fr));
+      margin-bottom: 16px;
+    }
+    @media (max-width: 1180px){ .kpis{ grid-template-columns: repeat(2, minmax(180px, 1fr)); } }
+    @media (max-width: 560px){ .kpis{ grid-template-columns: 1fr; } }
+
+    .kpi, .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .kpi h4{ margin:0 0 10px; color: var(--navy); font-size:14px; }
+    .value{ font-size: 26px; font-weight: 900; margin: 2px 0; }
+    .sub{ margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+
+    .head{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .head h2, .head h3{ margin:0; color: var(--navy); }
+    .body{ color: var(--text); }
+
+    .mini-progress{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(16,50,74,.08);
+      overflow: hidden;
+      margin-top: 10px;
+      border: 1px solid rgba(16,50,74,.08);
+    }
+    .mini-progress > span{
+      display:block;
+      height: 100%;
+      width: var(--w, 50%);
+      background: linear-gradient(90deg, var(--blue), var(--aqua));
+    }
+
+    .notice{
+      display:flex;
+      align-items:start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(217,83,79,.10), transparent);
+      margin-top: 10px;
+    }
+    .notice.warn{ background: linear-gradient(180deg, rgba(240,173,78,.14), transparent); }
+    .notice .icon{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      display:grid;
+      place-items:center;
+      font-weight: 900;
+      color:#fff;
+      flex: 0 0 auto;
+    }
+    .notice.warn .icon{ background: var(--amber); }
+    .notice.danger .icon{ background: var(--red); }
+    .notice h4{ margin:0; font-size:14px; color: var(--navy); }
+    .notice p{ margin:6px 0 0; color: var(--muted); font-size: 12px; }
+    .notice .actions{ margin-left:auto; display:flex; gap:8px; }
+
+    .xbtn{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--muted);
+    }
+    .xbtn:focus{ outline:none; box-shadow: var(--ring); }
+
+    .actions-grid{
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+    }
+    @media (max-width: 560px){ .actions-grid{ grid-template-columns: 1fr; } }
+
+    .action{
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .action h4{ margin:0 0 8px; color: var(--navy); font-size:14px; }
+    .action p{ margin:0 0 12px; color: var(--muted); font-size:12px; }
+    .qa-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(51,122,183,.22);
+      background: rgba(51,122,183,.08);
+    }
+    .qa-link.secondary{
+      color: var(--green-dark);
+      border-color: rgba(92,184,92,.22);
+      background: rgba(92,184,92,.10);
+    }
+    .qa-link:hover{ text-decoration:none; filter: brightness(1.02); }
+
+    .charts{
+      margin-top: 16px;
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 980px){ .charts{ grid-template-columns: 1fr; } }
+
+    canvas{
+      width: 100%;
+      height: 240px;
+      background: linear-gradient(180deg, rgba(214,234,248,.45), transparent);
+      border-radius: 14px;
+      border: 1px solid rgba(16,50,74,.10);
+      display:block;
+    }
+
+    footer{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 4px 0;
+    }
+
+    .list{ display:grid; gap: 10px; }
+    .list-item{
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      border-radius: 14px;
+      padding: 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .list-item h4{ margin:0; color: var(--navy); font-size:14px; }
+    .list-item p{ margin:6px 0 0; color: var(--muted); font-size:12px; }
+    .list-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+
+    .divider{ height:1px; background: var(--border); margin: 14px 0; }
+    .kv{ display:grid; gap: 10px; }
+    .kv-row{
+      display:flex; justify-content: space-between; gap: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: var(--surface);
+    }
+
+    .profile-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: var(--gap);
+      flex-wrap: wrap;
+    }
+    .who{ display:flex; gap: 12px; align-items:center; }
+    .avatar{
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(51,122,183,.16), rgba(92,184,92,.10));
+      border: 1px solid var(--border);
+      display:grid; place-items:center;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .avatar img{ width: 100%; height: 100%; object-fit: cover; display:block; }
+    .avatar span{ font-weight: 900; color: var(--navy); }
+
+    .toggle{
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items:center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: var(--surface);
+      margin-top: 12px;
+    }
+    .row{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* Dialogs + Validation UI */
+    dialog{
+      width: min(760px, calc(100vw - 24px));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 16px;
+      box-shadow: var(--shadow-2);
+    }
+    dialog::backdrop{ background: rgba(17,17,17,.35); }
+    .dialog-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .dialog-close{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 8px 10px;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+    }
+    .dialog-close:focus{ outline:none; box-shadow: var(--ring), var(--shadow); }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 560px){ .form-grid{ grid-template-columns: 1fr; } }
+
+    label{
+      display:block;
+      font-weight: 800;
+      color: var(--navy);
+      font-size: 12px;
+      margin: 0 0 6px;
+      letter-spacing: .2px;
+    }
+    input, select, textarea{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus{
+      box-shadow: var(--ring);
+      border-color: rgba(51,122,183,.55);
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+    .req{ color: var(--red); font-weight: 900; }
+    .field-error{
+      margin-top: 6px;
+      font-size: 12px;
+      color: #8b1f1b;
+      display:none;
+    }
+    .field-error.is-on{ display:block; }
+    .invalid{
+      border-color: rgba(217,83,79,.65) !important;
+      box-shadow: 0 0 0 4px rgba(217,83,79,.18) !important;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 200;
+      width: min(360px, calc(100vw - 32px));
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-2);
+      padding: 12px 12px;
+      display:none;
+    }
+    .toast.is-on{ display:block; }
+    .toast strong{ display:block; color: var(--navy); }
+    .toast small{ color: var(--muted); }
+
+    /* Backdrop + sidebar drawer (mobile) */
+    @media (max-width: 980px){
+      .app{
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "nav"
+          "main";
+      }
+      .hamburger{ display:inline-flex; align-items:center; gap:8px; }
+      .sidebar{
+        position: fixed;
+        top: var(--navbar-h);
+        left: 0;
+        width: min(var(--sidebar-w), 88vw);
+        height: calc(100vh - var(--navbar-h));
+        transform: translateX(-110%);
+        transition: transform .18s ease;
+        z-index: 80;
+        box-shadow: var(--shadow-2);
+      }
+      body.sidebar-open .sidebar{ transform: translateX(0); }
+
+      .backdrop{
+        position: fixed;
+        inset: var(--navbar-h) 0 0 0;
+        background: rgba(17,17,17,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .18s ease;
+        z-index: 70;
+      }
+      body.sidebar-open .backdrop{
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .main{ padding: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior: auto !important; transition: none !important; }
+    }
+    .menu {
+      width: 100%;
+      font-family: var(--font);
+    }
+
+    /* Make the details container invisible (no card/shadow) */
+    .menu-group {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Summary styled exactly like .nav a */
+    .menu-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px; /* same as .nav a */
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      color: var(--navy);
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+    .menu-label:hover {
+      border-color: rgba(51,122,183,.25);
+      text-decoration: none;
+    }
+
+    /* Focus ring same as your summary/buttons */
+    .menu-group > summary:focus {
+      outline: none;
+      box-shadow: var(--ring);
+    }
+    .menu-group > summary::-webkit-details-marker { display: none; }
+
+    .menu-group[open] .chevron {
+      transform: rotate(180deg);
+      background: rgba(51,122,183,.16);
+    }
+
+    /* Submenu is just a small indented list (no card) */
+    .submenu {
+      list-style: none;
+      margin: 8px 0 0 0;   /* space under summary */
+      padding: 0;
+    }
+
+    /* Each submenu link styled like .nav a, slightly indented */
+    .submenu li { margin: 6px 0; }
+
+    .submenu a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      color: var(--navy);
+      font-weight: 800;
+      text-decoration: none;
+      margin-left: 12px; /* visual indent under Stock Management */
+    }
+    .submenu a:hover {
+      border-color: rgba(51,122,183,.25);
+      text-decoration: none;
+    }
+
+    /* Optional small accent dot before text */
+    .submenu-text::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--blue-wash);
+      border: 1px solid rgba(51,122,183,.18);
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    /* Reuse your existing badge look for right side */
+    .submenu a .badge {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(51,122,183,.12);
+      color: var(--blue-dark);
+      border: 1px solid rgba(51,122,183,.18);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    /* Dark mode alignment */
+    @media (prefers-color-scheme: dark) {
+      .menu-label {
+        color: var(--text);
+      }
+      .submenu a {
+        color: var(--text);
+      }
+    }
+
+    /* ==== Minimal KPIs + Bar Chart (Dashboard-only) ==== */
+
+    /* KPIs layout: exactly 4 tiles, responsive */
+    .kpis {
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      margin-bottom: 16px;
+    }
+    @media (max-width: 980px){ .kpis{ grid-template-columns: repeat(2, minmax(180px,1fr)); } }
+    @media (max-width: 560px){ .kpis{ grid-template-columns: 1fr; } }
+
+    /* KPI tile */
+    .kpi{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .kpi h4{ margin:0 0 10px; color: var(--navy); font-size:14px; }
+    .kpi .value{ font-size: 26px; font-weight: 900; margin: 2px 0; color: var(--navy); }
+    .kpi .sub{ margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+
+    /* Card head for chart */
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .head{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .head h3{ margin:0; color: var(--navy); }
+
+    /* CSS-only bar chart */
+    .bar-wrap{
+      background: linear-gradient(180deg, rgba(214,234,248,.45), transparent);
+      border: 1px solid rgba(16,50,74,.10);
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+    .bar-grid{
+      display:grid; gap:16px; align-items:end;
+      grid-template-columns: repeat(4, minmax(80px,1fr)); /* 4 branches */
+      min-height: 200px;
+    }
+    .bar-item{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .bar{
+      width:100%;
+      height: var(--h, 120px); /* set per bar inline via --h */
+      border-radius:12px 12px 6px 6px;
+      background: linear-gradient(180deg, var(--blue), var(--blue-soft));
+      border: 1px solid rgba(16,50,74,.12);
+      box-shadow: 0 4px 12px rgba(16,50,74,.10);
+    }
+    .bar-label{ font-size:12px; color: rgba(16,50,74,.85); }
+    .bar-value{ font-size:12px; color: var(--muted); }
+
+    /* ===== Dashboard side-by-side layout ===== */
+
+    .dashboard-grid{
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;   /* left wider than right */
+      gap: var(--gap);
+      align-items: start;
+    }
+
+    /* KPI grid: force 2 columns with equal tiles */
+    .kpis--2col{
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+
+    /* Ensure the Branch Performance card doesn't expand beyond column */
+    .dashboard-grid > .card{
+      width: 100%;
+    }
+
+    /* Bar chart container: keep it compact and consistent */
+    .bar-wrap{
+      background: linear-gradient(180deg, rgba(214,234,248,.45), transparent);
+      border: 1px solid rgba(16,50,74,.10);
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+
+    /* Bar grid inside card: stays within the card width */
+    .bar-grid{
+      display: grid;
+      gap: 16px;
+      align-items: end;
+      grid-template-columns: repeat(4, minmax(60px, 1fr));
+      min-height: 200px;
+    }
+
+    /* Bars */
+    .bar-item{ display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .bar{
+      width: 100%;
+      height: var(--h, 120px);
+      border-radius: 12px 12px 6px 6px;
+      background: linear-gradient(180deg, var(--blue), var(--blue-soft));
+      border: 1px solid rgba(16,50,74,.12);
+      box-shadow: 0 4px 12px rgba(16,50,74,.10);
+    }
+    .bar-label{ font-size: 12px; color: rgba(16,50,74,.85); }
+    .bar-value{ font-size: 12px; color: var(--muted); }
+
+    /* ===== Responsive: stack to single column on narrow screens ===== */
+    @media (max-width: 980px){
+      .dashboard-grid{
+        grid-template-columns: 1fr;
+      }
+      .kpis--2col{
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+      }
+    }
+    @media (max-width: 560px){
+      .kpis--2col{
+        grid-template-columns: 1fr; /* stack KPIs */
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  
+
+  <div class="app">
+    <!-- NAVBAR -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button"
+                aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          ☰ Menu
+        </button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>MediSync</strong>
+            <!-- Removed Home link; keep decorative small text if you want -->
+           
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <span class="pill"><span class="dot" aria-hidden="true"></span> Online</span>
+        <details class="menu" id="accountMenu">
+          <summary>Account</summary>
+          
+  <nav class="dropdown" aria-label="Account options">
+            <a href="../Common Features/login.html" id="logoutLink">Logout</a>
+          </nav>
+
+        </details>
+      </div>
+    </header>
+
+    <!-- BACKDROP (mobile) -->
+    <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+      <div class="side-card">
+       
+        <nav class="nav" aria-label="Primary">
+          <!-- Dashboard is the one true route -->
+        <a href="#dashboard">
+            Dashboard <span class="badge" aria-hidden="true">Home</span>
+          </a>
+        <a href= "UserManagement.html">User Management<span class="badge">›</span></a>
+          <a href="branchreg.html">
+            Branch Registration<span class="badge">›</span>
+          </a>
+
+          <!-- Menus -->
+          <nav class="menu">
+            <details class="menu-group">
+              <summary class="menu-label">
+                <span>Vendor Procurement</span>
+                <span class="badge">›</span>
+              </summary>
+              <ul class="submenu">
+                <li>
+                  <a href="viewbids.html">
+                    <span class="submenu-text">View Bids</span>
+                    <span class="badge">›</span>
+                  </a>
+                </li>
+                <li>
+                 <a href=" blacklist.html">
+                    <span class="submenu-text">Vendor Blacklist</span>
+                    <span class="badge">›</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="../StoreManager/delivery-status.html">
+                    <span class="submenu-text">Order Status</span>
+                    <span class="badge">›</span>
+                  </a>
+                </li>
+              </ul>
+            </details>
+
+            <nav class="menu">
+              <details class="menu-group">
+                <summary class="menu-label">
+                  <span>Stock Management</span>
+                  <span class="badge">›</span>
+                </summary>
+                <ul class="submenu">
+                  <li>
+                    <a href="Inventory_view.html">
+                      <span class="submenu-text">Inventory View</span>
+                      <span class="badge">›</span>
+                    </a>
+                  </li>
+                  <li>
+                   <a href="notification.html">
+                      <span class="submenu-text">Notification</span>
+                      <span class="badge">›</span>
+                    </a>
+                  </li>
+                  <li>
+                     <a href="stockreport.html">
+                      <span class="submenu-text">Stock Report</span>
+                      <span class="badge">›</span>
+                    </a>
+                  </li>
+                </ul>
+              </details>
+            </nav>
+          </nav>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="main" aria-label="Content">
+
+      <!-- SEARCH RESULTS -->
+      <section class="page" id="search" aria-label="Search Results">
+        <div class="page-head">
+          <div>
+            <h1>Search Results</h1>
+            <p class="muted" id="searchSub">Type in the search box to find RFQs, quotations, deliveries, and tickets.</p>
+          </div>
+          #dashboard← Back</a>
+        </div>
+
+        <div class="card">
+          <div class="head">
+            <h2>Results</h2>
+            <span class="badge" id="searchCount">0</span>
+          </div>
+          <div class="body">
+            <div class="list" id="searchList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD (now the main page) -->
+      <section class="page is-active" id="dashboard" aria-label="Dashboard">
+        <div class="page-head">
+          <div>
+            <h1>Head Office Manager Dashboard</h1>
+            <p>Key metrics and branch performance.</p>
+          </div>
+          <span class="pill">Today: <span id="todayLabel"></span></span>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>MediSync</h2><span class="badge">In-house</span></div>
+          <div class="body">
+            <!-- If you had any Home-specific body content, it can be placed here -->
+          </div>
+        </div>
+
+        <!-- Side-by-side: KPIs + Branch Performance -->
+        <div class="dashboard-grid">
+          <!-- KPIs -->
+          <div class="kpis kpis--2col" aria-label="Key metrics">
+            <article class="kpi">
+              <h4>Total Users</h4>
+              <div class="value">254</div>
+              <div class="sub">Head office + branches</div>
+            </article>
+
+            <article class="kpi">
+              <h4>Active Branches</h4>
+              <div class="value">12</div>
+              <div class="sub">Currently operating</div>
+            </article>
+
+            <article class="kpi">
+              <h4>Vendors Registered</h4>
+              <div class="value">8</div>
+              <div class="sub">Onboarded vendors</div>
+            </article>
+
+            <article class="kpi">
+              <h4>Low Stock Alerts</h4>
+              <div class="value" style="color:var(--amber);">3</div>
+              <div class="sub">Reorder recommended</div>
+            </article>
+          </div>
+
+          <!-- Branch Performance -->
+          <section class="card" aria-label="Branch Performance">
+            <div class="head">
+              <h3>Branch Performance</h3>
+            </div>
+
+            <div class="bar-wrap">
+              <div class="bar-grid">
+                <div class="bar-item">
+                  <div class="bar" style="--h: 120px;"></div>
+                  <div class="bar-label">Branch A</div>
+                  <div class="bar-value">60</div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar" style="--h: 150px;"></div>
+                  <div class="bar-label">Branch B</div>
+                  <div class="bar-value">75</div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar" style="--h: 170px;"></div>
+                  <div class="bar-label">Branch C</div>
+                  <div class="bar-value">85</div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar" style="--h: 140px;"></div>
+                  <div class="bar-label">Branch D</div>
+                  <div class="bar-value">70</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+  ;(() => {
+    "use strict";
+
+    /* --- Tiny helpers --- */
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+    /* --- Date helpers --- */
+    const pad2 = n => String(n).padStart(2, "0");
+    const todayLabelText = () => {
+      const d = new Date();
+      return d.toLocaleDateString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+      });
+    };
+
+    /* =========================
+       Routing (hash-based)
+       ========================= */
+    const pages = $$(".page");
+    const navLinks = $$(".nav a[data-route]");
+
+    function setActivePage(id) {
+      pages.forEach(p => p.classList.toggle("is-active", p.id === id));
+      navLinks.forEach(a => {
+        const match = a.getAttribute("data-route") === id;
+        a.setAttribute("aria-current", match ? "page" : "false");
+      });
+      // Close sidebar on route change (mobile UX)
+      closeSidebar(true);
+    }
+
+    function currentRoute() {
+      // Default to dashboard
+      const h = (location.hash || "#dashboard").slice(1);
+      const allowed = new Set(pages.map(p => p.id));
+      return allowed.has(h) ? h : "dashboard";
+    }
+
+    window.addEventListener("hashchange", () => setActivePage(currentRoute()));
+
+    /* =========================
+       Sidebar drawer (mobile)
+       ========================= */
+    const sidebarToggle = $("#sidebarToggle");
+    const backdrop = $("#backdrop");
+
+    const isMobile = () => window.matchMedia("(max-width: 980px)").matches;
+
+    function openSidebar() {
+      document.body.classList.add("sidebar-open");
+      sidebarToggle?.setAttribute("aria-expanded", "true");
+    }
+    function closeSidebar(force = false) {
+      if (!force && !isMobile()) return;
+      document.body.classList.remove("sidebar-open");
+      sidebarToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    sidebarToggle?.addEventListener("click", () => {
+      const open = document.body.classList.contains("sidebar-open");
+      open ? closeSidebar(true) : openSidebar();
+    });
+    backdrop?.addEventListener("click", () => closeSidebar(true));
+
+    /* =========================
+       Account menu: close on outside/Esc
+       ========================= */
+    const accountMenu = $("#accountMenu");
+
+    document.addEventListener("click", (e) => {
+      if (!accountMenu?.open) return;
+      if (!accountMenu.contains(e.target)) accountMenu.open = false;
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && accountMenu?.open) {
+        accountMenu.open = false;
+      }
+    });
+
+    // Close menu when a dropdown item is clicked
+    $$(".dropdown a, .dropdown button").forEach(el => {
+      el.addEventListener("click", () => { if (accountMenu) accountMenu.open = false; });
+    });
+
+    /* =========================
+       Init
+       ========================= */
+    function initHeaderDates() {
+      const t = $("#todayLabel");
+      if (t) t.textContent = todayLabelText();
+    }
+
+    // Initial route + header date
+    setActivePage(currentRoute());
+    initHeaderDates();
+
+  })();
+   (function(){
+      const logoutLink = document.getElementById('logoutLink');  // the <a id="logoutLink">
+      const accountMenu = document.getElementById('accountMenu'); // <details> (optional)
+
+      if(!logoutLink) return;
+
+      logoutLink.addEventListener('click', (e) => {
+        e.preventDefault(); // stop instant navigation
+
+        const ok = confirm('Are you sure you want to logout?');
+        if(ok){
+          // close the dropdown (nice UX)
+          if(accountMenu) accountMenu.removeAttribute('open');
+
+          // redirect to login page (from href)
+          window.location.href = logoutLink.getAttribute('href') || '../Common Features/login.html';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

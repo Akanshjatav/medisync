@@ -1,0 +1,3231 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vendor Portal — Simplified (Single File)</title>
+
+  <style>
+    :root{
+      --blue:#337AB7; --green:#5CB85C; --navy:#10324A;
+      --amber:#F0AD4E; --red:#D9534F; --aqua:#5BC0DE;
+      --bg:#FAFAF8; --surface:#FFFFFF; --surface2:#FCFCFB;
+      --text:#111111; --muted:#515151;
+      --border: rgba(16,50,74,.18);
+      --ring: 0 0 0 3px rgba(51,122,183,.25);
+      --radius: 12px; --gap: 14px;
+      --sidebar-w: 280px; --navbar-h: 64px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0b141b; --surface:#0f1e28; --surface2:#10222d;
+        --text:#f4f6f8; --muted:#c1c7cd;
+        --border: rgba(229,229,229,.14);
+      }
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.4;
+    }
+    a{ color:var(--blue); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+    .muted{ color:var(--muted); }
+
+    .skip-link{
+      position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left:12px; top:12px; width:auto; height:auto; padding:10px 12px;
+      border:1px solid var(--border); border-radius:var(--radius);
+      background:var(--surface); outline:none; z-index:9999;
+    }
+
+    /* Layout */
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-rows: var(--navbar-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-areas: "nav nav" "side main";
+    }
+
+    header.navbar{
+      grid-area:nav;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      padding:10px 14px;
+      border-bottom:1px solid var(--border);
+      background:var(--surface);
+      position:sticky; top:0; z-index:50;
+    }
+
+    .nav-left,.nav-right{ display:flex; align-items:center; gap:12px; min-width:0; }
+    .brand{ display:flex; align-items:center; gap:10px; min-width:200px; }
+    .logo{ width:28px; height:28px; border-radius:8px; background:var(--blue); }
+    .brand-title{ display:grid; gap:2px; min-width:0; }
+    .brand-title strong{ color:var(--navy); font-size:14px; }
+    .brand-title small{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .hamburger{
+      display:none;
+      border:1px solid var(--border);
+      background:var(--surface);
+      color:var(--text);
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:750;
+    }
+    .hamburger:focus{ outline:none; box-shadow:var(--ring); }
+
+    form.search{
+      display:flex; align-items:center; gap:10px;
+      flex:1; max-width:620px; min-width:220px;
+    }
+    form.search input[type="search"]{
+      width:100%;
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--surface);
+      color:var(--text);
+      outline:none;
+    }
+    form.search input[type="search"]:focus{ box-shadow:var(--ring); border-color:rgba(51,122,183,.55); }
+
+    details.menu{ position:relative; }
+    details.menu > summary{
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--surface);
+      font-weight:750;
+      outline:none;
+      white-space:nowrap;
+    }
+    details.menu > summary:focus{ box-shadow:var(--ring); }
+    details.menu > summary::-webkit-details-marker{ display:none; }
+
+    .dropdown{
+      position:absolute; right:0; top:44px; width:220px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px;
+      z-index:100;
+    }
+    .dropdown a, .dropdown button{
+      display:block; width:100%;
+      text-align:left;
+      padding:9px 10px;
+      border-radius:8px;
+      color:var(--text);
+      font-weight:650;
+      background:transparent;
+      border:0;
+      cursor:pointer;
+      font:inherit;
+    }
+    .dropdown a:hover, .dropdown button:hover{ background:rgba(51,122,183,.08); text-decoration:none; }
+    .dropdown button{ color:var(--red); }
+
+    aside.sidebar{
+      grid-area:side;
+      border-right:1px solid var(--border);
+      background:var(--surface);
+      padding:12px;
+      overflow:auto;
+    }
+    .side-card{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:12px;
+      margin-bottom:12px;
+      background:var(--surface);
+    }
+    .side-title{ font-weight:850; margin-bottom:10px; color:var(--navy); }
+    nav.nav{ display:grid; gap:6px; }
+    nav.nav a{
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid transparent;
+      color:var(--text);
+      font-weight:750;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    nav.nav a[aria-current="page"]{ border-color:rgba(51,122,183,.45); background:rgba(51,122,183,.08); }
+    nav.nav a:hover{ background:rgba(16,50,74,.06); text-decoration:none; }
+
+    main.main{
+      grid-area:main;
+      padding:14px;
+      overflow:auto;
+    }
+
+    .page{ display:none; }
+    .page.is-active{ display:block; }
+
+    .page-head{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; margin-bottom:12px;
+    }
+    .page-head h1{ margin:0; font-size:20px; color:var(--navy); }
+    .page-head p{ margin:6px 0 0; color:var(--muted); }
+
+    .badge{
+      font-size:12px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      background:transparent;
+      white-space:nowrap;
+    }
+    .badge.amber{ color:#7a4b00; border-color:rgba(240,173,78,.5); }
+    .badge.red{ color:var(--red); border-color:rgba(217,83,79,.5); }
+    .badge.green{ color:var(--green); border-color:rgba(92,184,92,.5); }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:var(--surface);
+      margin-bottom:12px;
+    }
+    .card .head{
+      padding:12px;
+      border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .card .head h2, .card .head h3{ margin:0; font-size:14px; color:var(--navy); }
+    .card .body{ padding:12px; }
+
+    .btn{
+      appearance:none;
+      border:1px solid transparent;
+      border-radius:10px;
+      padding:9px 10px;
+      font-weight:800;
+      cursor:pointer;
+      background:var(--blue);
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+    }
+    .btn:hover{ filter:brightness(1.02); text-decoration:none; }
+    .btn:focus{ outline:none; box-shadow:var(--ring); }
+    .btn.secondary{ background:var(--green); }
+    .btn.danger{ background:var(--red); }
+    .btn.ghost{
+      background:transparent;
+      color:var(--text);
+      border-color:var(--border);
+    }
+    .btn.sm{ padding:7px 9px; border-radius:9px; font-size:12px; font-weight:900; }
+
+    .divider{ height:1px; background:var(--border); margin:12px 0; }
+
+    .list{ display:grid; gap:10px; }
+    .list-item{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      background:var(--surface2);
+    }
+    .list-item h4{ margin:0 0 6px; font-size:13px; color:var(--navy); }
+    .list-item p{ margin:4px 0; color:var(--muted); }
+    .list-actions{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+
+    .kv{ display:grid; gap:8px; }
+    .kv-row{
+      display:flex; justify-content:space-between; gap:12px;
+      padding:6px 0; border-bottom:1px dashed rgba(16,50,74,.18);
+    }
+    .kv-row:last-child{ border-bottom:0; }
+    .kv-row strong{ color:var(--navy); }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      gap:12px;
+      margin-bottom:12px;
+    }
+    @media (max-width: 1100px){
+      .kpis{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+    }
+    .kpi{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:10px;
+      background:var(--surface2);
+    }
+    .kpi h4{ margin:0 0 8px; color:var(--navy); font-size:13px; }
+    .kpi .value{ font-size:18px; font-weight:900; }
+    .kpi .sub{ color:var(--muted); font-size:12px; margin-top:4px; }
+
+    .notice{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      background:var(--surface2);
+    }
+    .notice.warn{ border-color: rgba(240,173,78,.5); }
+    .notice.danger{ border-color: rgba(217,83,79,.5); }
+    .notice h4{ margin:0 0 6px; color:var(--navy); font-size:13px; }
+    .notice p{ margin:0; color:var(--muted); }
+    .xbtn{
+      border:1px solid var(--border);
+      background:transparent;
+      border-radius:8px;
+      width:32px; height:32px;
+      cursor:pointer;
+      font-weight:900;
+      color:var(--muted);
+    }
+    .xbtn:focus{ outline:none; box-shadow:var(--ring); }
+
+    /* Dialogs */
+    dialog{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:0;
+      width:min(820px, calc(100vw - 24px));
+      background:var(--surface);
+      color:var(--text);
+    }
+    dialog::backdrop{ background: rgba(0,0,0,.35); }
+    .dialog-head{
+      display:flex; justify-content:space-between; align-items:flex-start;
+      gap:10px;
+      padding:12px;
+      border-bottom:1px solid var(--border);
+    }
+    .dialog-close{
+      border:1px solid var(--border);
+      background:transparent;
+      border-radius:10px;
+      width:36px; height:36px;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .dialog-close:focus{ outline:none; box-shadow:var(--ring); }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      padding:12px;
+    }
+    @media (max-width: 760px){
+      .form-grid{ grid-template-columns: 1fr; }
+    }
+    label{ display:block; font-weight:850; margin-bottom:6px; color:var(--navy); }
+    input, select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--surface);
+      color:var(--text);
+      outline:none;
+      font:inherit;
+    }
+    input:focus, select:focus, textarea:focus{ box-shadow:var(--ring); border-color: rgba(51,122,183,.55); }
+    textarea{ min-height:90px; resize:vertical; }
+    .req{ color:var(--red); }
+
+    .row{
+      display:flex; justify-content:flex-end; gap:10px;
+      padding:12px;
+      border-top:1px solid var(--border);
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    /* Inline validation */
+    .field-error{
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 6px;
+      display:none;
+    }
+    .field-error.is-on{ display:block; }
+    .invalid{
+      border-color: rgba(217,83,79,.7) !important;
+      box-shadow: 0 0 0 3px rgba(217,83,79,.14) !important;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      right:12px;
+      bottom:12px;
+      border:1px solid var(--border);
+      background:var(--surface);
+      border-radius:12px;
+      padding:10px 12px;
+      min-width: 240px;
+      display:none;
+      z-index: 999;
+    }
+    .toast.is-on{ display:block; }
+    .toast strong{ display:block; margin-bottom:4px; color:var(--navy); }
+    .toast small{ color:var(--muted); }
+
+    /* Mobile sidebar */
+    .backdrop{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.35);
+      z-index: 40;
+    }
+    @media (max-width: 980px){
+      .app{
+        grid-template-columns: 1fr;
+        grid-template-areas: "nav" "main";
+      }
+      aside.sidebar{
+        position:fixed;
+        top:var(--navbar-h);
+        left:0;
+        width:min(var(--sidebar-w), calc(100vw - 50px));
+        height: calc(100vh - var(--navbar-h));
+        transform: translateX(-105%);
+        z-index: 60;
+      }
+      body.sidebar-open aside.sidebar{ transform: translateX(0); }
+      .hamburger{ display:inline-flex; }
+      body.sidebar-open .backdrop{ display:block; }
+    }
+
+    footer{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px;
+      color:var(--muted);
+      border-top:1px solid var(--border);
+      margin-top:12px;
+      font-size:12px;
+      flex-wrap:wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app">
+    <!-- NAVBAR -->
+    <header class="navbar" role="banner" aria-label="Navbar">
+      <div class="nav-left">
+        <button class="hamburger" id="sidebarToggle" type="button"
+                aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">☰ Menu</button>
+
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>Vendor Portal</strong>
+            <small><a href="#Home">← Home</a></small>
+          </div>
+        </div>
+      </div>
+
+      <form class="search" id="searchForm" role="search" aria-label="Search" novalidate>
+        <input id="q" name="q" type="search" placeholder="Search RFQs, deliveries, tickets…" minlength="2" autocomplete="off" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+
+      <div class="nav-right">
+        <details class="menu" id="accountMenu">
+          <summary>Account</summary>
+          <nav class="dropdown" aria-label="Account options">
+            <a href="#dashboard">Dashboard</a>
+            <a href="#profile">Profile</a>
+            <a href="../Common Features/index.html" id="logoutBtn">Logout</button>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <!-- BACKDROP (mobile) -->
+    <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+      <div class="side-card">
+        <div class="side-title">Navigation</div>
+        <nav class="nav" aria-label="Primary">
+          <a href="#dashboard" data-route="dashboard">Dashboard <span class="badge">Home</span></a>
+          <a href="#compliance" data-route="compliance">Compliance</a>
+          <a href="#rfqs" data-route="rfqs">Active RFQs <span class="badge amber" id="rfqCountBadge">0</span></a>
+          <a href="#quotations" data-route="quotations">Quotations <span class="badge" id="quoteCountBadge">0</span></a>
+          <a href="#deliveries" data-route="deliveries">Deliveries <span class="badge" id="delCountBadge">0</span></a>
+          <a href="#support" data-route="support">Support <span class="badge red" id="ticketCountBadge">0</span></a>
+          <a href="#search" data-route="search">Search <span class="badge" id="searchBadge">0</span></a>
+          <a href="#profile" data-route="profile">Profile</a>
+        </nav>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">Quick</div>
+        <p class="muted"><a href="#compliance">Open Compliance</a></p>
+        <p class="muted"><a href="#support">Open Support</a></p>
+        <p class="muted"><a href="#profile">Open Profile</a></p>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="main" aria-label="Content">
+
+      <!-- Home -->
+      <section class="page" id="Home" aria-label="Home">
+        <div class="page-head">
+          <div>
+            <h1>Home</h1>
+            <p>Single-file portal demo. Use sidebar to navigate modules.</p>
+          </div>
+          <span class="badge green">Online</span>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>MediSync</h2><span class="badge">Demo</span></div>
+          <div class="body">
+            <p class="muted" style="margin:0;">Dashboard + lists + detail pages + modal create/update flows. Everything stored locally.</p>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn" href="#dashboard">Go to Dashboard</a>
+              <a class="btn ghost" href="#rfqs">View RFQs</a>
+              <a class="btn ghost" href="#profile">Profile</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEARCH -->
+      <section class="page" id="search" aria-label="Search Results">
+        <div class="page-head">
+          <div>
+            <h1>Search Results</h1>
+            <p class="muted" id="searchSub">Type in the search box to find RFQs, quotations, deliveries, and tickets.</p>
+          </div>
+          <a class="btn ghost" href="#dashboard">← Back</a>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Results</h2><span class="badge" id="searchCount">0</span></div>
+          <div class="body"><div class="list" id="searchList"></div></div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="page" id="dashboard" aria-label="Dashboard">
+        <div class="page-head">
+          <div>
+            <h1>Dashboard</h1>
+            <p>KPIs, notices, quick actions, and charts.</p>
+          </div>
+          <span class="badge">Today: <span id="todayLabel"></span></span>
+        </div>
+
+        <div class="kpis" aria-label="Key metrics">
+          <article class="kpi">
+            <h4>Compliance</h4>
+            <div class="value" id="kpiCompliance">Compliant</div>
+            <div class="sub" id="kpiComplianceSub">Documents uploaded</div>
+            <a class="btn ghost sm" href="#compliance">Open Compliance →</a>
+          </article>
+          <article class="kpi">
+            <h4>Active RFQs</h4>
+            <div class="value" id="kpiRfqs">0</div>
+            <div class="sub" id="kpiRfqsSub">0 closing soon</div>
+            <a class="btn ghost sm" href="#rfqs">View RFQs →</a>
+          </article>
+          <article class="kpi">
+            <h4>Quotations</h4>
+            <div class="value" id="kpiQuotes">0</div>
+            <div class="sub" id="kpiQuotesSub">Approved: 0</div>
+            <a class="btn ghost sm" href="#quotations">View Quotations →</a>
+          </article>
+          <article class="kpi">
+            <h4>Deliveries</h4>
+            <div class="value" id="kpiDeliveries">0</div>
+            <div class="sub" id="kpiDeliveriesSub">In transit: 0</div>
+            <a class="btn ghost sm" href="#deliveries">View Deliveries →</a>
+          </article>
+          <article class="kpi">
+            <h4>Support</h4>
+            <div class="value" id="kpiTickets">0</div>
+            <div class="sub" id="kpiTicketsSub">Awaiting response: 0</div>
+            <a class="btn ghost sm" href="#support">Open Support →</a>
+          </article>
+        </div>
+
+        <div class="card" aria-label="Notifications">
+          <div class="head"><h3>Notices</h3><span class="badge">Live</span></div>
+          <div class="body">
+            <div class="notice warn" data-notice="rfq">
+              <div>
+                <h4>RFQ deadline approaching</h4>
+                <p>RFQ <strong>#RFQ-1842</strong> closes tomorrow.</p>
+              </div>
+              <button class="xbtn" type="button" data-dismiss aria-label="Dismiss">✕</button>
+            </div>
+
+            <div class="notice danger" data-notice="compliance">
+              <div>
+                <h4>Compliance review pending</h4>
+                <p>Upload missing certificates to avoid onboarding delays.</p>
+              </div>
+              <button class="xbtn" type="button" data-dismiss aria-label="Dismiss">✕</button>
+            </div>
+
+            <div id="noticeEmpty" class="muted" hidden>No notices right now 🎉</div>
+          </div>
+        </div>
+
+        <div class="card" aria-label="Quick actions">
+          <div class="head"><h3>Quick Actions</h3><span class="badge green">Popups</span></div>
+          <div class="body">
+            <div class="list">
+              <div class="list-item">
+                <div>
+                  <h4>Vendor Registration</h4>
+                  <p>Onboarding details + required documents.</p>
+                </div>
+                <div class="list-actions">
+                  <button class="btn sm" type="button" data-open="vendorRegModal">Start</button>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <div>
+                  <h4>Upload Compliance</h4>
+                  <p>GST, PAN, License, ISO, Other.</p>
+                </div>
+                <div class="list-actions">
+                  <button class="btn sm" type="button" data-open="complianceModal">Upload</button>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <div>
+                  <h4>Submit Quotation</h4>
+                  <p>Create a quotation against an RFQ.</p>
+                </div>
+                <div class="list-actions">
+                  <button class="btn sm" type="button" data-open="quotationModal">Submit</button>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <div>
+                  <h4>Update Delivery</h4>
+                  <p>Shipment status + tracking.</p>
+                </div>
+                <div class="list-actions">
+                  <button class="btn secondary sm" type="button" data-open="deliveryModal">Update</button>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <div>
+                  <h4>Create Ticket</h4>
+                  <p>RFQ / Quotation / Delivery / Compliance.</p>
+                </div>
+                <div class="list-actions">
+                  <button class="btn sm" type="button" data-open="issueModal">Create</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="list">
+              <div class="list-item"><div style="flex:1;">
+                <h4>RFQs by Status</h4>
+                <canvas id="chartRfqStatus" width="900" height="240"></canvas>
+              </div></div>
+              <div class="list-item"><div style="flex:1;">
+                <h4>Quotations: Submitted vs Approved</h4>
+                <canvas id="chartQuotes" width="900" height="240"></canvas>
+              </div></div>
+              <div class="list-item"><div style="flex:1;">
+                <h4>Delivery Performance</h4>
+                <canvas id="chartDelivery" width="900" height="240"></canvas>
+              </div></div>
+            </div>
+
+            <footer>
+              <div>© <span id="year"></span> Vendor Portal</div>
+              <div><a href="#Home">Home</a> • <a href="#profile">Profile</a></div>
+            </footer>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMPLIANCE -->
+      <section class="page" id="compliance" aria-label="Compliance">
+        <div class="page-head">
+          <div>
+            <h1>Compliance</h1>
+            <p>View uploaded docs. Upload new docs via modal.</p>
+          </div>
+          <button class="btn" type="button" data-open="complianceModal">Upload Document</button>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Documents</h2><span class="badge" id="complianceDocCount">0</span></div>
+          <div class="body"><div class="list" id="complianceList"></div></div>
+        </div>
+      </section>
+
+      <!-- RFQS -->
+      <section class="page" id="rfqs" aria-label="RFQs">
+        <div class="page-head">
+          <div>
+            <h1>Active RFQs</h1>
+            <p>Browse RFQs. Open details and submit bids or quotations.</p>
+          </div>
+          <span class="badge">Total: <span id="rfqCountTop">0</span></span>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>RFQ List</h2><span class="badge amber">Active</span></div>
+          <div class="body"><div class="list" id="rfqList"></div></div>
+        </div>
+      </section>
+
+      <!-- RFQ DETAIL -->
+      <section class="page" id="rfqDetail" aria-label="RFQ Detail">
+        <div class="page-head">
+          <div>
+            <h1 id="rfqDetailTitle">RFQ Detail</h1>
+            <p id="rfqDetailSub">View RFQ info, bids, and quotations.</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn ghost" href="#rfqs">← Back</a>
+            <!-- <button class="btn" type="button" id="bidOpenBtn">Place / Edit Bid</button> -->
+            <button class="btn" type="button" id="quoteFromRfqBtn">Submit Quotation</button>
+            <button class="btn danger" type="button" id="bidDeleteBtn">Delete Bid</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Summary</h2><span class="badge" id="rfqStatusBadge">Active</span></div>
+          <div class="body" id="rfqDetailBody"></div>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Your Bid</h2><span class="badge" id="rfqBidBadge">None</span></div>
+          <div class="body" id="rfqBidPanel"></div>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Related Quotations</h2><span class="badge" id="rfqQuoteBadge">0</span></div>
+          <div class="body"><div class="list" id="rfqQuoteList"></div></div>
+        </div>
+      </section>
+
+      <!-- QUOTATIONS -->
+      <section class="page" id="quotations" aria-label="Quotations">
+        <div class="page-head">
+          <div>
+            <h1>Quotations</h1>
+            <p>View submitted quotations. Submit new via modal.</p>
+          </div>
+          <button class="btn" type="button" data-open="quotationModal">Submit Quotation</button>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Recent Quotations</h2><span class="badge" id="quoteCountTop">0</span></div>
+          <div class="body"><div class="list" id="quoteList"></div></div>
+        </div>
+      </section>
+
+      <!-- QUOTATION DETAIL -->
+      <section class="page" id="quotationDetail" aria-label="Quotation Detail">
+        <div class="page-head">
+          <div>
+            <h1 id="quoteDetailTitle">Quotation</h1>
+            <p class="muted" id="quoteDetailSub"></p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn ghost" href="#quotations">← Back</a>
+            <button class="btn secondary" type="button" id="editQuoteBtn">Edit</button>
+            <button class="btn danger" type="button" id="deleteQuoteBtn">Delete</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Details</h2><span class="badge">Local</span></div>
+          <div class="body" id="quoteDetailBody"></div>
+        </div>
+      </section>
+
+      <!-- DELIVERIES -->
+      <section class="page" id="deliveries" aria-label="Deliveries">
+        <div class="page-head">
+          <div>
+            <h1>Deliveries</h1>
+            <p>Track shipments and update statuses via modal.</p>
+          </div>
+          <button class="btn secondary" type="button" data-open="deliveryModal">Update Delivery</button>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Latest Updates</h2><span class="badge" id="delCountTop">0</span></div>
+          <div class="body"><div class="list" id="deliveryList"></div></div>
+        </div>
+      </section>
+
+      <!-- DELIVERY DETAIL -->
+      <section class="page" id="deliveryDetail" aria-label="Delivery Detail">
+        <div class="page-head">
+          <div>
+            <h1 id="deliveryDetailTitle">Shipment</h1>
+            <p class="muted" id="deliveryDetailSub"></p>
+          </div>
+          <a class="btn ghost" href="#deliveries">← Back</a>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Details</h2><span class="badge">Local</span></div>
+          <div class="body" id="deliveryDetailBody"></div>
+        </div>
+      </section>
+
+      <!-- SUPPORT -->
+      <section class="page" id="support" aria-label="Support">
+        <div class="page-head">
+          <div>
+            <h1>Support</h1>
+            <p>Create tickets and track responses.</p>
+          </div>
+          <button class="btn" type="button" data-open="issueModal">Create Ticket</button>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Tickets</h2><span class="badge red" id="ticketCountTop">0</span></div>
+          <div class="body"><div class="list" id="ticketList"></div></div>
+        </div>
+      </section>
+
+      <!-- TICKET DETAIL -->
+      <section class="page" id="ticketDetail" aria-label="Ticket Detail">
+        <div class="page-head">
+          <div>
+            <h1 id="ticketDetailTitle">Ticket</h1>
+            <p class="muted" id="ticketDetailSub"></p>
+          </div>
+          <a class="btn ghost" href="#support">← Back</a>
+        </div>
+
+        <div class="card">
+          <div class="head"><h2>Details</h2><span class="badge red">Local</span></div>
+          <div class="body" id="ticketDetailBody"></div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="page" id="profile" aria-label="Profile">
+        <div class="card">
+          <div class="head"><h2>Profile</h2><span class="badge">You</span></div>
+          <div class="body">
+            <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div aria-label="Avatar" style="width:44px;height:44px;border:1px solid var(--border);border-radius:999px;display:grid;place-items:center;">
+                  <img id="avatarImg" alt="Avatar" hidden style="width:44px;height:44px;border-radius:999px;object-fit:cover;" />
+                  <span id="avatarText" aria-hidden="true" style="font-weight:900;color:var(--navy);">AJ</span>
+                </div>
+                <div>
+                  <div style="font-weight:900; color:var(--navy); font-size:16px;" id="nameTop">Akansh Jatav</div>
+                  <div class="muted" id="roleTop">Vendor Admin</div>
+                  <div class="muted">Vendor ID: <strong id="vendorIdTop">VND-10291</strong></div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn secondary" type="button" id="editProfileBtn">Edit Profile</button>
+                <button class="btn ghost" type="button" id="changePwBtn">Change Password</button>
+                <button class="btn ghost" type="button" id="editNotifBtn">Edit Notifications</button>
+                <button class="btn ghost" type="button" id="resetProfileBtn">Reset Demo Data</button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="kv" aria-label="Key values">
+              <div class="kv-row"><strong>Email</strong> <span id="emailView">akansh@example.com</span></div>
+              <div class="kv-row"><strong>Phone</strong> <span id="phoneView">—</span></div>
+              <div class="kv-row"><strong>Company</strong> <span id="companyView">Acme Pharma Supplies</span></div>
+              <div class="kv-row"><strong>Location</strong> <span id="locationView">Trivandrum</span></div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="muted">Last updated: <strong id="updatedView">just now</strong></div>
+          </div>
+        </div>
+
+        <footer>
+          <div>© <span id="yearProfile"></span> Vendor Portal</div>
+          <div><a href="#Home">Home</a> • <a href="#dashboard">Dashboard</a></div>
+        </footer>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =========================
+       DIALOGS
+       ========================= -->
+
+  <!-- Vendor Registration -->
+  <dialog id="vendorRegModal" aria-label="Vendor Registration">
+    <form method="dialog" id="vendorRegForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Vendor Registration</h3>
+          <p class="muted" style="margin:6px 0 0;">Full onboarding in a popup. Files required (demo).</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div><label>Business Name <span class="req">*</span></label>
+          <input name="businessName" required minlength="2" maxlength="120" autocomplete="organization" />
+        </div>
+        <div><label>GST Number <span class="req">*</span></label>
+          <input name="gstNumber" required minlength="15" maxlength="15" placeholder="22AAAAA0000A1Z5" autocapitalize="characters" />
+        </div>
+
+        <div>
+          <label>Business Type <span class="req">*</span></label>
+          <select name="businessType" required>
+            <option value="">Select</option>
+            <option>Manufacturer</option><option>Distributor</option><option>Wholesaler</option>
+            <option>Retailer</option><option>Service Provider</option><option>Other</option>
+          </select>
+        </div>
+
+        <div><label>Year of Establishment <span class="req">*</span></label>
+          <input type="number" name="yearOfEstablishment" min="1800" max="2099" required inputmode="numeric" />
+        </div>
+
+        <div><label>Primary Email <span class="req">*</span></label>
+          <input type="email" name="primaryEmail" required autocomplete="email" />
+        </div>
+        <div><label>Primary Phone <span class="req">*</span></label>
+          <input type="tel" name="primaryPhone" required inputmode="tel" placeholder="+91XXXXXXXXXX" autocomplete="tel" />
+        </div>
+
+        <div><label>Alternate Phone</label>
+          <input type="tel" name="alternatePhone" inputmode="tel" placeholder="+91XXXXXXXXXX" />
+        </div>
+
+        <div><label>Address Line 1 <span class="req">*</span></label>
+          <input name="address1" required minlength="4" maxlength="140" autocomplete="address-line1" />
+        </div>
+        <div><label>Address Line 2</label>
+          <input name="address2" maxlength="140" autocomplete="address-line2" />
+        </div>
+        <div><label>City <span class="req">*</span></label>
+          <input name="city" required minlength="2" maxlength="60" autocomplete="address-level2" />
+        </div>
+        <div><label>State/UT <span class="req">*</span></label>
+          <input name="state" required minlength="2" maxlength="60" autocomplete="address-level1" />
+        </div>
+        <div><label>PIN Code <span class="req">*</span></label>
+          <input name="pin" required minlength="6" maxlength="6" inputmode="numeric" placeholder="695001" autocomplete="postal-code" />
+        </div>
+
+        <div><label>GST Certificate <span class="req">*</span></label>
+          <input type="file" name="docGst" required accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+        <div><label>PAN <span class="req">*</span></label>
+          <input type="file" name="docPan" required accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+        <div style="grid-column:1/-1;"><label>Business License <span class="req">*</span></label>
+          <input type="file" name="docLicense" required accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <label style="display:flex; gap:10px; align-items:center; margin:0; font-weight:800;">
+          <input type="checkbox" name="confirmAccurate" required />
+          I confirm that the details provided are accurate. <span class="req">*</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Submit</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Compliance Upload -->
+  <dialog id="complianceModal" aria-label="Upload Compliance Documents">
+    <form method="dialog" id="complianceForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Upload Compliance Documents</h3>
+          <p class="muted" style="margin:6px 0 0;">Document type + file (demo).</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>Document Type <span class="req">*</span></label>
+          <select name="docType" required>
+            <option value="">Select</option>
+            <option value="gst">GST</option>
+            <option value="pan">PAN</option>
+            <option value="license">License</option>
+            <option value="iso">ISO Certificate</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div><label>Document Number</label>
+          <input name="docNumber" maxlength="40" placeholder="Optional (required for GST/PAN)" />
+        </div>
+
+        <div><label>Expiry Date</label>
+          <input type="date" name="expiryDate" />
+        </div>
+
+        <div><label>File <span class="req">*</span></label>
+          <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+
+        <div style="grid-column:1/-1;"><label>Notes</label>
+          <textarea name="notes" maxlength="800" placeholder="Optional (required if Doc Type = Other)"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Upload</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Quotation -->
+  <dialog id="quotationModal" aria-label="Submit Quotation">
+    <form method="dialog" id="quotationForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);" id="quoteModalTitle">Submit Quotation</h3>
+          <p class="muted" style="margin:6px 0 0;" id="quoteModalSub">RFQ + amount + validity + delivery.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div><label>RFQ ID <span class="req">*</span></label>
+          <input name="rfqId" required placeholder="RFQ-1842" minlength="6" maxlength="20" autocapitalize="characters" />
+        </div>
+        <div><label>Total Amount <span class="req">*</span></label>
+          <input name="amount" type="number" step="0.01" min="0.01" required inputmode="decimal" />
+        </div>
+        <div><label>Valid Until <span class="req">*</span></label>
+          <input name="validUntil" type="date" required />
+        </div>
+        <div><label>Delivery Date <span class="req">*</span></label>
+          <input name="deliveryDate" type="date" required />
+        </div>
+        <div style="grid-column:1/-1;"><label>Attachment (optional)</label>
+          <input name="attachment" type="file" accept=".pdf,.jpg,.jpeg,.png,.xlsx" />
+        </div>
+        <div style="grid-column:1/-1;"><label>Notes</label>
+          <textarea name="notes" maxlength="1200"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit" id="quoteSubmitBtn">Submit</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Delivery -->
+  <dialog id="deliveryModal" aria-label="Update Delivery Status">
+    <form method="dialog" id="deliveryForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Update Delivery Status</h3>
+          <p class="muted" style="margin:6px 0 0;">Shipment status + tracking details.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div><label>Shipment ID <span class="req">*</span></label>
+          <input name="shipmentId" required placeholder="SHIP-5521" minlength="7" maxlength="20" autocapitalize="characters" />
+        </div>
+        <div>
+          <label>Status <span class="req">*</span></label>
+          <select name="status" required>
+            <option value="">Select</option>
+            <option value="packed">Packed</option>
+            <option value="in_transit">In Transit</option>
+            <option value="delivered">Delivered</option>
+            <option value="delayed">Delayed</option>
+          </select>
+        </div>
+        <div><label>Expected Delivery Date</label>
+          <input name="expectedDate" type="date" />
+        </div>
+        <div><label>Actual Delivery Date</label>
+          <input name="actualDate" type="date" />
+        </div>
+        <div><label>Carrier</label>
+          <input name="carrier" maxlength="60" />
+        </div>
+        <div><label>Tracking Number</label>
+          <input name="tracking" maxlength="60" />
+        </div>
+        <div style="grid-column:1/-1;"><label>Notes</label>
+          <textarea name="notes" maxlength="800"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Update</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Issue / Ticket -->
+  <dialog id="issueModal" aria-label="Inform Issue">
+    <form method="dialog" id="issueForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Inform Issue</h3>
+          <p class="muted" style="margin:6px 0 0;">Type + priority + details.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>Issue Type <span class="req">*</span></label>
+          <select name="issueType" required>
+            <option value="">Select</option>
+            <option value="rfq">RFQ</option>
+            <option value="quotation">Quotation</option>
+            <option value="delivery">Delivery</option>
+            <option value="compliance">Compliance</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Priority <span class="req">*</span></label>
+          <select name="priority" required>
+            <option value="">Select</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+        <div><label>Reference ID</label>
+          <input name="refId" placeholder="RFQ-1842 / SHIP-5521" maxlength="30" autocapitalize="characters" />
+        </div>
+        <div><label>Subject <span class="req">*</span></label>
+          <input name="subject" required minlength="5" maxlength="120" />
+        </div>
+        <div style="grid-column:1/-1;"><label>Details <span class="req">*</span></label>
+          <textarea name="details" required minlength="10" maxlength="2000"></textarea>
+        </div>
+        <div style="grid-column:1/-1;"><label>Attachment (optional)</label>
+          <input name="attachment" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+        <div>
+          <label>Preferred Contact</label>
+          <select name="contactPref">
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Submit</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Bid -->
+  <dialog id="bidModal" aria-label="Place or Edit Bid">
+    <form method="dialog" id="bidForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Place / Edit Bid</h3>
+          <p class="muted" style="margin:6px 0 0;">Bid is tied to the selected RFQ.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div><label>Price per Unit <span class="req">*</span></label>
+          <input name="pricePerUnit" type="number" step="0.01" min="0.01" required inputmode="decimal" />
+        </div>
+        <div><label>Delivery Date <span class="req">*</span></label>
+          <input name="deliveryDate" type="date" required />
+        </div>
+        <div style="grid-column:1/-1;"><label>Additional Notes</label>
+          <textarea name="notes" maxlength="800"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Save Bid</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Profile Edit -->
+  <dialog id="profileDialog" aria-label="Edit Profile">
+    <form method="dialog" id="profileForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Edit Profile</h3>
+          <p class="muted" style="margin:6px 0 0;">Saved locally (demo).</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div><label for="fullName">Full name <span class="req">*</span></label>
+          <input id="fullName" name="fullName" type="text" required minlength="2" maxlength="80" autocomplete="name" />
+        </div>
+        <div><label for="role">Role</label>
+          <input id="role" name="role" type="text" maxlength="60" />
+        </div>
+        <div><label for="email">Email <span class="req">*</span></label>
+          <input id="email" name="email" type="email" required autocomplete="email" />
+        </div>
+        <div><label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" inputmode="tel" maxlength="18" autocomplete="tel" />
+        </div>
+        <div><label for="company">Company</label>
+          <input id="company" name="company" type="text" maxlength="80" autocomplete="organization" />
+        </div>
+        <div><label for="location">Location</label>
+          <input id="location" name="location" type="text" maxlength="80" autocomplete="address-level2" />
+        </div>
+        <div style="grid-column:1/-1;">
+          <label for="avatarFile">Profile photo</label>
+          <input id="avatarFile" name="avatarFile" type="file" accept="image/*" />
+          <div class="muted">Max 2MB.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Notifications -->
+  <dialog id="notifDialog" aria-label="Edit Notifications">
+    <form method="dialog" id="notifForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Edit Notifications</h3>
+          <p class="muted" style="margin:6px 0 0;">Toggle what you want to receive.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid" style="grid-template-columns:1fr;">
+        <label style="display:flex; justify-content:space-between; align-items:center;">
+          <span><strong>RFQ alerts</strong><span class="muted" style="display:block;">Deadlines and updates</span></span>
+          <input type="checkbox" id="rfqToggle" />
+        </label>
+
+        <label style="display:flex; justify-content:space-between; align-items:center;">
+          <span><strong>Compliance reminders</strong><span class="muted" style="display:block;">Pending review / expiry</span></span>
+          <input type="checkbox" id="compToggle" />
+        </label>
+
+        <label style="display:flex; justify-content:space-between; align-items:center;">
+          <span><strong>Delivery updates</strong><span class="muted" style="display:block;">Shipment changes</span></span>
+          <input type="checkbox" id="delToggle" />
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Change Password -->
+  <!-- <dialog id="pwDialog" aria-label="Change Password">
+    <form method="dialog" id="pwForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h3 style="margin:0; color:var(--navy);">Change Password</h3>
+          <p class="muted" style="margin:6px 0 0;">Demo validation only.</p>
+        </div>
+        <button type="button" class="dialog-close" data-close-dialog aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div><label for="pw1">New password <span class="req">*</span></label>
+          <input id="pw1" name="pw1" type="password" required minlength="8" maxlength="64" autocomplete="new-password" />
+        </div>
+        <div><label for="pw2">Confirm password <span class="req">*</span></label>
+          <input id="pw2" name="pw2" type="password" required minlength="8" maxlength="64" autocomplete="new-password" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>Cancel</button>
+        <button class="btn secondary" value="save" type="submit">Update</button>
+      </div>
+    </form>
+  </dialog> -->
+
+<!-- Change Password Dialog -->
+<dialog id="pwDialog" aria-label="Change Password">
+  <form method="dialog" id="pwForm" novalidate>
+    <!-- Header -->
+    <div class="dialog-head">
+      <div>
+        <h3 style="margin:0; color:var(--navy);">Change Password</h3>
+        <p class="muted" style="margin:6px 0 0;">
+          Strong password rules + server submit (recommended).
+        </p>
+      </div>
+      <button
+        type="button"
+        class="dialog-close"
+        data-close-dialog
+        aria-label="Close"
+        title="Close"
+      >✕</button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:14px;">
+      <div class="form-grid">
+
+        <!-- Current Password (full width) -->
+        <div class="field span-2">
+          <label for="pw0">Current password <span class="req">*</span></label>
+
+          <div class="pw-row">
+            <input
+              id="pw0"
+              name="pw0"
+              type="password"
+              required
+              autocomplete="current-password"
+              maxlength="64"
+              aria-describedby="pw0Help pw0Err"
+            />
+            <button
+              type="button"
+              class="btn ghost tiny"
+              data-toggle="pw0"
+              aria-label="Show/hide current password"
+            >Show</button>
+          </div>
+
+          <small id="pw0Help" class="muted">Enter your existing password.</small>
+          <small id="pw0Err" class="err" aria-live="polite"></small>
+        </div>
+
+        <!-- New Password -->
+        <div class="field">
+          <label for="pw1">New password <span class="req">*</span></label>
+
+          <div class="pw-row">
+            <input
+              id="pw1"
+              name="pw1"
+              type="password"
+              required
+              minlength="12"
+              maxlength="64"
+              autocomplete="new-password"
+              aria-describedby="pw1Help pw1Err"
+            />
+            <button
+              type="button"
+              class="btn ghost tiny"
+              data-toggle="pw1"
+              aria-label="Show/hide new password"
+            >Show</button>
+          </div>
+
+          <!-- Strength meter -->
+          <div class="meter" aria-hidden="true">
+            <div class="meter-bar" id="pwMeterBar" style="width:0%"></div>
+          </div>
+
+          <small id="pw1Help" class="muted">
+            Use 12+ characters and a mix of upper/lowercase, numbers, and symbols.
+          </small>
+          <small id="pw1Err" class="err" aria-live="polite"></small>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="field">
+          <label for="pw2">Confirm password <span class="req">*</span></label>
+
+          <div class="pw-row">
+            <input
+              id="pw2"
+              name="pw2"
+              type="password"
+              required
+              minlength="12"
+              maxlength="64"
+              autocomplete="new-password"
+              aria-describedby="pw2Help pw2Err"
+            />
+            <button
+              type="button"
+              class="btn ghost tiny"
+              data-toggle="pw2"
+              aria-label="Show/hide confirm password"
+            >Show</button>
+          </div>
+
+          <small id="pw2Help" class="muted">Re-type the new password.</small>
+          <small id="pw2Err" class="err" aria-live="polite"></small>
+        </div>
+
+      </div>
+
+      <!-- Footer buttons -->
+      <div class="row">
+        <button class="btn ghost" value="cancel" type="submit" data-cancel>
+          Cancel
+        </button>
+        <button class="btn secondary" value="save" type="submit" id="pwSaveBtn">
+          Update
+        </button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <strong id="toastTitle">Saved</strong>
+    <small id="toastMsg">Your changes were saved.</small>
+  </div>
+
+<script>
+(() => {
+  // ---- Safe DOM query helper (does NOT use jQuery) ----
+  const qs = (sel, root = document) => root.querySelector(sel);
+
+  // ---- Dialog open/close with fallback ----
+  function openDialog(dialogId, openerEl) {
+    const dlg = document.getElementById(dialogId);
+    if (!dlg) return console.error("Dialog not found:", dialogId);
+
+    dlg.__opener = openerEl || document.activeElement;
+
+    // Open
+    if (typeof dlg.showModal === "function") dlg.showModal();
+    else dlg.setAttribute("open", ""); // fallback
+
+    // Focus first control
+    const first = dlg.querySelector("input, button, select, textarea, [tabindex]:not([tabindex='-1'])");
+    first?.focus?.();
+
+    // Close (X button)
+    dlg.querySelectorAll("[data-close-dialog]").forEach(btn => {
+      if (btn.__bound) return;
+      btn.__bound = true;
+      btn.addEventListener("click", () => closeDialog(dlg, "cancel"));
+    });
+
+    // Restore focus
+    if (!dlg.__boundClose) {
+      dlg.__boundClose = true;
+      dlg.addEventListener("close", () => dlg.__opener?.focus?.());
+    }
+  }
+
+  function closeDialog(dlg, returnValue = "cancel") {
+    if (!dlg) return;
+    if (typeof dlg.close === "function") dlg.close(returnValue);
+    else dlg.removeAttribute("open"); // fallback
+  }
+
+  // ---- Password hook (Save/Cancel detection WITH fallback) ----
+  function hookChangePassword(formId, onSuccess) {
+    const form = document.getElementById(formId);
+    if (!form) return console.error("Form not found:", formId);
+
+    const dlg = form.closest("dialog");
+    const pw0 = qs("#pw0", form); // may be null if you didn't add current password
+    const pw1 = qs("#pw1", form);
+    const pw2 = qs("#pw2", form);
+
+    const err0 = qs("#pw0Err", form);
+    const err1 = qs("#pw1Err", form);
+    const err2 = qs("#pw2Err", form);
+
+    const meterBar = qs("#pwMeterBar", form);
+    const saveBtn = qs("#pwSaveBtn", form);
+
+    // Detect which submit button was clicked (works even if e.submitter missing)
+    let lastAction = null;
+    form.querySelectorAll('button[type="submit"]').forEach(b => {
+      b.addEventListener("click", () => lastAction = b.value);
+    });
+
+    // Show/hide toggles
+    form.querySelectorAll("[data-toggle]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-toggle");
+        const input = document.getElementById(id);
+        if (!input) return;
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.textContent = show ? "Hide" : "Show";
+      });
+    });
+
+    const setErr = (el, msg) => { if (el) el.textContent = msg || ""; };
+
+    const clearValidity = () => {
+      [pw0, pw1, pw2].forEach(el => el && el.setCustomValidity(""));
+      setErr(err0, "");
+      setErr(err1, "");
+      setErr(err2, "");
+    };
+
+    const minLen = 12;
+    const common = ["password", "123456", "qwerty", "admin", "letmein", "welcome"];
+
+    const strengthScore = (p) => {
+      if (!p) return 0;
+      let s = 0;
+      s += Math.min(35, (p.length / minLen) * 35);
+      const cats = [
+        /[a-z]/.test(p),
+        /[A-Z]/.test(p),
+        /[0-9]/.test(p),
+        /[^A-Za-z0-9]/.test(p),
+      ].filter(Boolean).length;
+      s += cats * 12;
+      if (/^(.)\1{7,}$/.test(p)) s -= 25;
+      if (common.some(w => p.toLowerCase().includes(w))) s -= 20;
+      return Math.max(0, Math.min(100, Math.round(s)));
+    };
+
+    const updateMeter = () => {
+      if (!meterBar || !pw1) return;
+      const score = strengthScore(pw1.value);
+      meterBar.style.width = score + "%";
+      meterBar.style.background = score >= 80 ? "#22c55e" : score >= 55 ? "#f59e0b" : "#ef4444";
+    };
+
+    const validate = () => {
+      clearValidity();
+
+      // Native required/minlength check first (by checkValidity)
+      // Add custom checks:
+      if (pw1?.value) {
+        if (pw1.value.length < minLen) {
+          const msg = `Use at least ${minLen} characters.`;
+          pw1.setCustomValidity(msg);
+          setErr(err1, msg);
+        } else {
+          const cats = [
+            /[a-z]/.test(pw1.value),
+            /[A-Z]/.test(pw1.value),
+            /[0-9]/.test(pw1.value),
+            /[^A-Za-z0-9]/.test(pw1.value),
+          ].filter(Boolean).length;
+
+          if (cats < 3) {
+            const msg = "Use 3 of 4: upper, lower, number, symbol.";
+            pw1.setCustomValidity(msg);
+            setErr(err1, msg);
+          }
+
+          if (common.some(w => pw1.value.toLowerCase().includes(w))) {
+            const msg = "Avoid common words/patterns.";
+            pw1.setCustomValidity(msg);
+            setErr(err1, msg);
+          }
+        }
+      }
+
+      if (pw0 && pw1 && pw0.value && pw1.value && pw0.value === pw1.value) {
+        const msg = "New password must be different from current password.";
+        pw1.setCustomValidity(msg);
+        setErr(err1, msg);
+      }
+
+      if (pw1 && pw2 && pw1.value && pw2.value && pw1.value !== pw2.value) {
+        const msg = "Passwords do not match.";
+        pw2.setCustomValidity(msg);
+        setErr(err2, msg);
+      }
+
+      // Show native constraint messages inline too (if any)
+      if (pw0 && !err0.textContent && !pw0.checkValidity()) setErr(err0, pw0.validationMessage);
+      if (pw1 && !err1.textContent && !pw1.checkValidity()) setErr(err1, pw1.validationMessage);
+      if (pw2 && !err2.textContent && !pw2.checkValidity()) setErr(err2, pw2.validationMessage);
+
+      updateMeter();
+      return form.checkValidity();
+    };
+
+    [pw0, pw1, pw2].forEach(el => el?.addEventListener("input", validate));
+
+    // Prevent ESC close if invalid
+    dlg?.addEventListener("cancel", (e) => {
+      if (!validate()) {
+        e.preventDefault();
+        form.reportValidity();
+      }
+    });
+
+    // Clear fields on close (so passwords don’t linger)
+    dlg?.addEventListener("close", () => {
+      form.reset();
+      clearValidity();
+      if (meterBar) meterBar.style.width = "0%";
+    });
+
+    // Submit handler
+    form.addEventListener("submit", (e) => {
+      const action = e.submitter?.value || lastAction; // fallback
+      if (action === "cancel") return; // allow normal close
+
+      // Save
+      if (!validate()) {
+        e.preventDefault();
+        form.reportValidity();
+        return;
+      }
+
+      // Demo success (or call API here)
+      e.preventDefault();
+      form.dataset.busy = "1";
+      if (saveBtn) saveBtn.disabled = true;
+
+      try {
+        onSuccess?.(); // your toast callback
+        closeDialog(dlg, "save");
+      } finally {
+        form.dataset.busy = "0";
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    });
+  }
+
+  // ---- EXPOSE if you need them globally ----
+  window.openDialog = openDialog;
+  window.hookChangePassword = hookChangePassword;
+
+  // ---- Wire up once DOM is ready ----
+  window.addEventListener("DOMContentLoaded", () => {
+    // Hook form
+    hookChangePassword("pwForm", () => {
+      // Replace with your toast if you have it
+      console.log("Password updated (demo).");
+    });
+
+    // Open dialog button
+    const btn = document.getElementById("changePwBtn");
+    btn?.addEventListener("click", () => openDialog("pwDialog", btn));
+  });
+})();
+</script>
+
+  <script>
+  ;(() => {
+    "use strict";
+
+    /* =========================
+       Helpers
+       ========================= */
+    const $  = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    const setText = (sel, value) => { const el = $(sel); if (el) el.textContent = String(value); };
+    const setHtml = (sel, html) => { const el = $(sel); if (el) el.innerHTML = html; };
+
+    const pad2 = n => String(n).padStart(2,"0");
+    const todayISO = () => {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    };
+    const fmtDate = (iso) => {
+      if (!iso) return "—";
+      const d = new Date(iso + "T00:00:00");
+      return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"']/g, ch => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+    }[ch]));
+
+    const toast = (() => {
+      const el = $("#toast");
+      const t = $("#toastTitle");
+      const m = $("#toastMsg");
+      let timer = null;
+      return (title, msg, ms=2200) => {
+        if (!el) return;
+        t.textContent = title || "Saved";
+        m.textContent = msg || "";
+        el.classList.add("is-on");
+        clearTimeout(timer);
+        timer = setTimeout(() => el.classList.remove("is-on"), ms);
+      };
+    })();
+
+    const storage = {
+      get(key, fallback){
+        try{
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        }catch{ return fallback; }
+      },
+      set(key, value){
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    };
+
+    const addDaysISO = (days) => {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    };
+
+    /* =========================
+       State (versioned)
+       ========================= */
+    const KEY = "vendorPortal.v3.simple.tight";
+    const VERSION = 3;
+
+    const defaultState = {
+      version: VERSION,
+      profile: {
+        fullName: "Akansh Jatav",
+        role: "Vendor Admin",
+        email: "akansh@example.com",
+        phone: "",
+        company: "Acme Pharma Supplies",
+        location: "Trivandrum",
+        vendorId: "VND-10291",
+        avatarDataUrl: "",
+        updatedAt: Date.now(),
+        prefs: { rfq: true, compliance: true, delivery: false }
+      },
+      complianceDocs: [],
+      rfqs: [
+        { id:"RFQ-1842", title:"Paracetamol 500mg (bulk)", status:"Active", closesOn:addDaysISO(1), items:3, notes:"Deliver to DC-01. Include batch test report." },
+        { id:"RFQ-1843", title:"Amoxicillin 250mg (caps)", status:"Active", closesOn:addDaysISO(5), items:5, notes:"Cold-chain not required." },
+        { id:"RFQ-1844", title:"Syringes 5ml (sterile)", status:"Active", closesOn:addDaysISO(2), items:2, notes:"Supply in sealed packs. Specify brand." }
+      ],
+      bids: {},
+      quotations: [
+        { id:"Q-1001", rfqId:"RFQ-1842", amount:185000.50, validUntil:addDaysISO(10), deliveryDate:addDaysISO(20), status:"Submitted", notes:"Initial quote." }
+      ],
+      deliveries: [
+        { id:"SHIP-5521", status:"in_transit", expectedDate:addDaysISO(3), actualDate:"", carrier:"BlueDart", tracking:"BD123456789", notes:"Left origin hub." }
+      ],
+      tickets: [
+        { id:"TCK-901", issueType:"compliance", priority:"high", refId:"", subject:"Need clarification on ISO certificate format", details:"Please confirm if ISO 9001:2015 PDF is accepted.", status:"Open", createdAt:Date.now() }
+      ],
+      selection: { rfqId:"RFQ-1842", quoteId:"Q-1001", deliveryId:"SHIP-5521", ticketId:"TCK-901" },
+      search: { query:"", results:[] }
+    };
+
+    const migrate = (raw) => {
+      if (!raw || typeof raw !== "object") return structuredClone(defaultState);
+      if (!raw.version || raw.version < VERSION) {
+        const s = structuredClone(defaultState);
+        try{
+          if (raw.profile) s.profile = { ...s.profile, ...raw.profile };
+          if (Array.isArray(raw.rfqs)) s.rfqs = raw.rfqs;
+          if (Array.isArray(raw.quotations)) s.quotations = raw.quotations;
+          if (Array.isArray(raw.deliveries)) s.deliveries = raw.deliveries;
+          if (Array.isArray(raw.tickets)) s.tickets = raw.tickets;
+          if (raw.bids && typeof raw.bids === "object") s.bids = raw.bids;
+          if (Array.isArray(raw.complianceDocs)) s.complianceDocs = raw.complianceDocs;
+          if (raw.selection) s.selection = { ...s.selection, ...raw.selection };
+          if (raw.search) s.search = { ...s.search, ...raw.search };
+        } catch {}
+        s.version = VERSION;
+        return s;
+      }
+      return raw;
+    };
+
+    let state = migrate(storage.get(KEY, defaultState));
+    const persist = () => storage.set(KEY, state);
+
+    /* =========================
+       Routing
+       ========================= */
+    const pages = $$(".page");
+    const navLinks = $$('nav.nav a[data-route]');
+
+    const currentRoute = () => {
+      const h = (location.hash || "#Home").slice(1);
+      const allowed = new Set(pages.map(p => p.id));
+      return allowed.has(h) ? h : "Home";
+    };
+
+    function setActivePage(id, force=false){
+      const current = pages.find(p => p.classList.contains("is-active"))?.id;
+      if (!force && current === id) {
+        updateCountsAndKPIs();
+        return;
+      }
+      pages.forEach(p => p.classList.toggle("is-active", p.id === id));
+      navLinks.forEach(a => {
+        const match = a.getAttribute("data-route") === id;
+        a.setAttribute("aria-current", match ? "page" : "false");
+      });
+      closeSidebar(true);
+      renderShared();
+      renderPage(id);
+      if (id === "dashboard") requestAnimationFrame(drawCharts);
+    }
+
+    function goto(id){
+      const targetHash = "#" + id;
+      if ((location.hash || "") === targetHash) setActivePage(id, true);
+      else location.hash = targetHash;
+    }
+
+    window.addEventListener("hashchange", () => setActivePage(currentRoute(), true));
+
+    /* =========================
+       Sidebar + account menu
+       ========================= */
+    const sidebarToggle = $("#sidebarToggle");
+    const backdrop = $("#backdrop");
+    const isMobile = () => window.matchMedia("(max-width: 980px)").matches;
+
+    function openSidebar(){
+      document.body.classList.add("sidebar-open");
+      sidebarToggle?.setAttribute("aria-expanded", "true");
+    }
+    function closeSidebar(force=false){
+      if (!force && !isMobile()) return;
+      document.body.classList.remove("sidebar-open");
+      sidebarToggle?.setAttribute("aria-expanded", "false");
+    }
+    sidebarToggle?.addEventListener("click", () => {
+      document.body.classList.contains("sidebar-open") ? closeSidebar(true) : openSidebar();
+    });
+    backdrop?.addEventListener("click", () => closeSidebar(true));
+
+    const accountMenu = $("#accountMenu");
+    document.addEventListener("click", (e) => {
+      if (accountMenu?.open && !accountMenu.contains(e.target)) accountMenu.open = false;
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (accountMenu?.open) accountMenu.open = false;
+        closeSidebar(true);
+      }
+    });
+    $$(".dropdown a, .dropdown button").forEach(el => {
+      el.addEventListener("click", () => { if (accountMenu) accountMenu.open = false; });
+    });
+
+    /* =========================
+       Dialog manager + dirty protection
+       ========================= */
+    const dialogs = $$("dialog");
+    let lastActiveElement = null;
+
+    function markDialogClean(dialog){
+      if (!dialog) return;
+      dialog.dataset.dirty = "false";
+    }
+    function markDialogDirty(dialog){
+      if (!dialog) return;
+      dialog.dataset.dirty = "true";
+    }
+    const isDialogDirty = (dialog) => dialog?.dataset.dirty === "true";
+
+    function tryCloseDialog(dialog, reason="close"){
+      if (isDialogDirty(dialog)) {
+        const ok = confirm("You have unsaved changes. Discard them?");
+        if (!ok) return false;
+      }
+      dialog.close(reason);
+      return true;
+    }
+
+    function openDialog(id, opener, opts={}){
+      const d = document.getElementById(id);
+      if (!d) return;
+      lastActiveElement = opener || document.activeElement;
+      d.dataset.payload = JSON.stringify(opts || {});
+      syncDialogPrefill(d, opts);
+      markDialogClean(d);
+      d.showModal();
+      const focusable = d.querySelector("input,select,textarea,button");
+      focusable?.focus();
+    }
+
+    $$("[data-open]").forEach(el => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault?.();
+        openDialog(el.getAttribute("data-open"), el);
+      });
+    });
+
+    $$("[data-close-dialog]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const dialog = btn.closest("dialog");
+        if (dialog) tryCloseDialog(dialog, "x");
+      });
+    });
+
+    dialogs.forEach(d => {
+      d.addEventListener("click", (e) => { if (e.target === d) tryCloseDialog(d, "backdrop"); });
+      d.addEventListener("cancel", (e) => { e.preventDefault(); tryCloseDialog(d, "esc"); });
+      d.addEventListener("close", () => { lastActiveElement?.focus?.(); });
+      d.addEventListener("input", () => markDialogDirty(d), { capture:true });
+      d.addEventListener("change", () => markDialogDirty(d), { capture:true });
+    });
+
+    /* =========================
+       Inline errors + validation
+       - No cursor jump: normalize only on BLUR / SUBMIT
+       ========================= */
+    function attachInlineErrors(form){
+      const controls = $$("input,select,textarea", form).filter(el => el.type !== "submit" && el.type !== "button");
+      controls.forEach(el => {
+        if (el.dataset.errAttached) return;
+
+        const id = el.id || `${form.id}-${el.name || Math.random().toString(16).slice(2)}`;
+        if (!el.id) el.id = id;
+
+        const err = document.createElement("div");
+        err.className = "field-error";
+        err.id = `err-${id}`;
+        el.insertAdjacentElement("afterend", err);
+
+        const existing = (el.getAttribute("aria-describedby") || "").trim();
+        el.setAttribute("aria-describedby", existing ? `${existing} ${err.id}` : err.id);
+
+        el.dataset.errAttached = "1";
+
+        // typing: clear error only (don’t rewrite value)
+        el.addEventListener("input", () => { clearFieldError(el); el.setCustomValidity(""); });
+
+        // blur: validate + normalize
+        el.addEventListener("blur", () => validateControl(el, { normalize:true }));
+      });
+    }
+
+    function errEl(control){
+      const id = (control.getAttribute("aria-describedby") || "").split(/\s+/).find(x => x.startsWith("err-"));
+      return id ? document.getElementById(id) : null;
+    }
+    function setFieldError(control, msg){
+      const e = errEl(control);
+      if (e) { e.textContent = msg; e.classList.add("is-on"); }
+      control.classList.add("invalid");
+      control.setAttribute("aria-invalid","true");
+    }
+    function clearFieldError(control){
+      const e = errEl(control);
+      if (e) { e.textContent = ""; e.classList.remove("is-on"); }
+      control.classList.remove("invalid");
+      control.removeAttribute("aria-invalid");
+    }
+
+    const GSTIN = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    const PIN = /^[1-9][0-9]{5}$/;
+    const PHONE = /^(\+?\d{1,3}[- ]?)?[6-9]\d{9}$/;
+    const RFQID = /^RFQ-\d{3,6}$/i;
+    const SHIPID = /^SHIP-\d{3,6}$/i;
+    const REFID = /^(RFQ-\d{3,6}|SHIP-\d{3,6}|Q-\d{3,6}|TCK-\d{3,6})$/i;
+
+    const allowedDocExt = /\.(pdf|jpg|jpeg|png)$/i;
+    const allowedQuoteAttachExt = /\.(pdf|jpg|jpeg|png|xlsx)$/i;
+
+    function validateControl(control, opts={ normalize:true }){
+      control.setCustomValidity("");
+      clearFieldError(control);
+
+      const form = control.closest("form");
+      if (!form) return control.checkValidity();
+
+      const name = control.name || control.id;
+      const normalize = opts.normalize !== false;
+
+      const upperTrim = () => (control.value || "").trim().toUpperCase();
+      const trim = () => (control.value || "").trim();
+
+      // Vendor Registration
+      if (form.id === "vendorRegForm") {
+        if (name === "gstNumber" && normalize) control.value = upperTrim();
+        if (name === "gstNumber" && control.value && !GSTIN.test(control.value)) control.setCustomValidity("Invalid GSTIN format (15 chars).");
+
+        if ((name === "primaryPhone" || name === "alternatePhone") && normalize) control.value = trim().replace(/\s+/g,"");
+        if ((name === "primaryPhone" || name === "alternatePhone") && control.value && !PHONE.test(control.value)) control.setCustomValidity("Enter a valid phone number.");
+
+        if (name === "pin" && normalize) control.value = trim();
+        if (name === "pin" && control.value && !PIN.test(control.value)) control.setCustomValidity("PIN must be 6 digits (cannot start with 0).");
+
+        if (name === "yearOfEstablishment") {
+          const y = Number(control.value);
+          const nowY = new Date().getFullYear();
+          control.max = String(nowY);
+          if (control.value && (y < 1800 || y > nowY)) control.setCustomValidity(`Year must be between 1800 and ${nowY}.`);
+        }
+
+        // files: size + extension
+        if (control.type === "file" && control.files?.[0]) {
+          const file = control.files[0];
+          if (file.size > 8 * 1024 * 1024) control.setCustomValidity("File too large (max 8MB).");
+          if (!allowedDocExt.test(file.name)) control.setCustomValidity("Allowed: PDF/JPG/PNG.");
+        }
+      }
+
+      // Compliance
+      if (form.id === "complianceForm") {
+        const docType = form.elements.docType?.value || "";
+        if (name === "docNumber" && normalize) control.value = upperTrim();
+
+        if (name === "docNumber" && ["gst","pan"].includes(docType) && !control.value) {
+          control.setCustomValidity("Document number is required for GST/PAN.");
+        }
+        if (name === "notes") {
+          const v = (control.value || "").trim();
+          if (docType === "other" && v.length < 5) control.setCustomValidity("Please add a short note for “Other”.");
+        }
+        if (name === "expiryDate" && control.value && control.value < todayISO()) {
+          control.setCustomValidity("Expiry date cannot be in the past.");
+        }
+        if (name === "file" && control.files?.[0]) {
+          const file = control.files[0];
+          if (file.size > 8 * 1024 * 1024) control.setCustomValidity("File too large (max 8MB).");
+          if (!allowedDocExt.test(file.name)) control.setCustomValidity("Allowed: PDF/JPG/PNG.");
+        }
+      }
+
+      // Quotation
+      if (form.id === "quotationForm") {
+        if (name === "rfqId" && normalize) control.value = upperTrim();
+        if (name === "rfqId" && control.value && !RFQID.test(control.value)) control.setCustomValidity("RFQ ID must look like RFQ-1842.");
+        if (name === "rfqId" && control.value && !state.rfqs.some(r => r.id.toUpperCase() === control.value)) control.setCustomValidity("RFQ ID not found in Active RFQs.");
+
+        if (name === "amount") {
+          const n = Number(control.value);
+          if (control.value && !(n > 0)) control.setCustomValidity("Amount must be greater than 0.");
+        }
+        if ((name === "validUntil" || name === "deliveryDate") && control.value && control.value < todayISO()) {
+          control.setCustomValidity("Date cannot be in the past.");
+        }
+        if (name === "attachment" && control.files?.[0]) {
+          const file = control.files[0];
+          if (file.size > 8 * 1024 * 1024) control.setCustomValidity("File too large (max 8MB).");
+          if (!allowedQuoteAttachExt.test(file.name)) control.setCustomValidity("Allowed: PDF/JPG/PNG/XLSX.");
+        }
+      }
+
+      // Delivery
+      if (form.id === "deliveryForm") {
+        if (name === "shipmentId" && normalize) control.value = upperTrim();
+        if (name === "shipmentId" && control.value && !SHIPID.test(control.value)) control.setCustomValidity("Shipment ID must look like SHIP-5521.");
+
+        const status = form.elements.status?.value || "";
+        if (name === "actualDate" && status === "delivered" && !control.value) control.setCustomValidity("Actual date is required when delivered.");
+        if (name === "expectedDate" && status === "delayed" && !control.value) control.setCustomValidity("Expected date is required when delayed.");
+        if (name === "expectedDate" && control.value && control.value < todayISO()) control.setCustomValidity("Expected date cannot be in the past.");
+        if (name === "actualDate" && control.value && control.value < todayISO()) control.setCustomValidity("Actual date cannot be in the past.");
+
+        // carrier & tracking paired
+        const carrier = (form.elements.carrier?.value || "").trim();
+        const tracking = (form.elements.tracking?.value || "").trim();
+        if ((carrier && !tracking) || (!carrier && tracking)) {
+          if (name === "tracking" || name === "carrier") control.setCustomValidity("Provide both Carrier and Tracking together.");
+        }
+      }
+
+      // Issue / Ticket
+      if (form.id === "issueForm") {
+        if (name === "refId" && normalize) control.value = upperTrim();
+        if (name === "refId" && control.value && !REFID.test(control.value)) control.setCustomValidity("Ref ID must be RFQ-#### / SHIP-#### / Q-#### / TCK-####.");
+        if (name === "attachment" && control.files?.[0]) {
+          const file = control.files[0];
+          if (file.size > 8 * 1024 * 1024) control.setCustomValidity("File too large (max 8MB).");
+          if (!allowedDocExt.test(file.name)) control.setCustomValidity("Allowed: PDF/JPG/PNG.");
+        }
+      }
+
+      // Bid
+      if (form.id === "bidForm") {
+        if (name === "pricePerUnit") {
+          const n = Number(control.value);
+          if (control.value && !(n > 0)) control.setCustomValidity("Price must be greater than 0.");
+        }
+        if (name === "deliveryDate" && control.value && control.value < todayISO()) control.setCustomValidity("Delivery date cannot be in the past.");
+      }
+
+      // Profile
+      if (form.id === "profileForm") {
+        if (name === "phone" && normalize) control.value = trim().replace(/\s+/g,"");
+        if (name === "phone" && control.value && !PHONE.test(control.value)) control.setCustomValidity("Enter a valid phone number.");
+        if (name === "avatarFile" && control.files?.[0]) {
+          const file = control.files[0];
+          if (!file.type.startsWith("image/")) control.setCustomValidity("Please choose an image file.");
+          if (file.size > 2 * 1024 * 1024) control.setCustomValidity("Max 2MB for profile photo.");
+        }
+      }
+
+      // Password (demo)
+      if (form.id === "pwForm") {
+        const pw1 = $("#pw1")?.value || "";
+        const pw2 = $("#pw2")?.value || "";
+        const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (name === "pw1" && pw1 && !strong.test(pw1)) control.setCustomValidity("Min 8 chars, include upper, lower and a number.");
+        if (name === "pw2" && pw2 && pw1 !== pw2) control.setCustomValidity("Passwords do not match.");
+      }
+
+      const ok = control.checkValidity();
+      if (!ok) setFieldError(control, control.validationMessage);
+      return ok;
+    }
+
+    function validateForm(form){
+      attachInlineErrors(form);
+      const controls = $$("input,select,textarea", form).filter(el => el.type !== "submit" && el.type !== "button");
+      let firstInvalid = null;
+      for (const c of controls){
+        const ok = validateControl(c, { normalize:true }); // normalize on submit
+        if (!ok && !firstInvalid) firstInvalid = c;
+      }
+      if (firstInvalid){ firstInvalid.focus(); return false; }
+      return true;
+    }
+
+    function hookForm(formId, onSave){
+      const form = document.getElementById(formId);
+      if (!form) return;
+
+      attachInlineErrors(form);
+
+      form.addEventListener("submit", (e) => {
+        const submitter = e.submitter;
+        const val = submitter?.value || "";
+        const dialog = form.closest("dialog");
+
+        if (val === "cancel" || submitter?.hasAttribute("data-cancel")) {
+          e.preventDefault();
+          dialog && tryCloseDialog(dialog, "cancel");
+          return;
+        }
+
+        e.preventDefault();
+        if (!validateForm(form)) return;
+
+        onSave(form, dialog);
+        markDialogClean(dialog);
+        dialog?.close("save");
+        form.reset();
+      });
+    }
+
+    /* =========================
+       Search
+       ========================= */
+    const searchForm = $("#searchForm");
+    const qInput = $("#q");
+
+    searchForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = (qInput.value || "").trim();
+      clearFieldError(qInput);
+      if (q.length < 2) {
+        setFieldError(qInput, "Type at least 2 characters to search.");
+        qInput.focus();
+        return;
+      }
+      state.search.query = q;
+      state.search.results = computeSearchResults(q);
+      persist();
+      toast("Search", `${state.search.results.length} result(s) for “${q}”.`);
+      goto("search");
+      updateUI();
+    });
+
+    function computeSearchResults(q){
+      const Q = q.toLowerCase();
+      const results = [];
+      const inText = (s) => (s || "").toLowerCase().includes(Q);
+
+      state.rfqs.forEach(r => {
+        if (inText(r.id) || inText(r.title) || inText(r.notes)) {
+          results.push({ type:"RFQ", id:r.id, title:r.title, meta:`Closes ${fmtDate(r.closesOn)}` });
+        }
+      });
+
+      state.quotations.forEach(x => {
+        if (inText(x.id) || inText(x.rfqId) || inText(String(x.amount)) || inText(x.notes)) {
+          results.push({ type:"Quotation", id:x.id, title:`${x.rfqId} • ₹${Number(x.amount).toFixed(2)}`, meta:`Valid ${fmtDate(x.validUntil)}` });
+        }
+      });
+
+      state.deliveries.forEach(d => {
+        if (inText(d.id) || inText(d.carrier) || inText(d.tracking) || inText(d.notes)) {
+          results.push({ type:"Delivery", id:d.id, title:`${(d.status||"").replace("_"," ")}`, meta:`Expected ${fmtDate(d.expectedDate)}` });
+        }
+      });
+
+      state.tickets.forEach(t => {
+        if (inText(t.id) || inText(t.subject) || inText(t.details) || inText(t.refId)) {
+          results.push({ type:"Ticket", id:t.id, title:t.subject, meta:`Priority ${t.priority}` });
+        }
+      });
+
+      return results;
+    }
+
+    /* =========================
+       Dialog Prefill
+       ========================= */
+    function syncDialogPrefill(dialog, opts){
+      if (!dialog) return;
+
+      if (dialog.id === "profileDialog") {
+        $("#fullName").value = state.profile.fullName || "";
+        $("#role").value = state.profile.role || "";
+        $("#email").value = state.profile.email || "";
+        $("#phone").value = state.profile.phone || "";
+        $("#company").value = state.profile.company || "";
+        $("#location").value = state.profile.location || "";
+      }
+
+      if (dialog.id === "notifDialog") {
+        $("#rfqToggle").checked  = !!state.profile.prefs.rfq;
+        $("#compToggle").checked = !!state.profile.prefs.compliance;
+        $("#delToggle").checked  = !!state.profile.prefs.delivery;
+      }
+
+      if (dialog.id === "bidModal") {
+        const rfqId = state.selection.rfqId;
+        const bid = state.bids[rfqId];
+        const form = $("#bidForm");
+        if (bid) {
+          form.elements.pricePerUnit.value = bid.pricePerUnit;
+          form.elements.deliveryDate.value = bid.deliveryDate;
+          form.elements.notes.value = bid.notes || "";
+        } else {
+          form.reset();
+        }
+      }
+
+      if (dialog.id === "quotationModal") {
+        const form = $("#quotationForm");
+        const title = $("#quoteModalTitle");
+        const sub = $("#quoteModalSub");
+        const submitBtn = $("#quoteSubmitBtn");
+
+        dialog.dataset.editId = "";
+        form.elements.rfqId.readOnly = false;
+        form.reset();
+
+        if (opts?.mode === "edit" && opts?.quoteId) {
+          const q = state.quotations.find(x => x.id === opts.quoteId);
+          if (q) {
+            dialog.dataset.editId = q.id;
+            title.textContent = `Edit Quotation ${q.id}`;
+            sub.textContent = "Update amount, validity and delivery dates.";
+            submitBtn.textContent = "Save Changes";
+
+            form.elements.rfqId.value = q.rfqId;
+            form.elements.rfqId.readOnly = true;
+            form.elements.amount.value = q.amount;
+            form.elements.validUntil.value = q.validUntil;
+            form.elements.deliveryDate.value = q.deliveryDate;
+            form.elements.notes.value = q.notes || "";
+            return;
+          }
+        }
+
+        if (opts?.rfqId) {
+          title.textContent = `Submit Quotation for ${opts.rfqId}`;
+          sub.textContent = "RFQ is pre-filled from the selected RFQ.";
+          submitBtn.textContent = "Submit";
+          form.elements.rfqId.value = opts.rfqId;
+          form.elements.rfqId.readOnly = true;
+          return;
+        }
+
+        title.textContent = "Submit Quotation";
+        sub.textContent = "RFQ + amount + validity + delivery.";
+        submitBtn.textContent = "Submit";
+      }
+    }
+
+    /* =========================
+       Form save handlers
+       ========================= */
+    hookForm("vendorRegForm", (form) => {
+      const bn = form.elements.businessName.value.trim();
+      state.profile.company = bn;
+      state.profile.updatedAt = Date.now();
+      persist();
+      toast("Registration submitted", "Vendor registration saved (demo).");
+      updateUI();
+    });
+
+    hookForm("complianceForm", (form) => {
+      const docType = form.elements.docType.value;
+      const docNumber = (form.elements.docNumber.value || "").trim().toUpperCase();
+      const expiryDate = form.elements.expiryDate.value || "";
+      const notes = (form.elements.notes.value || "").trim();
+      const file = form.elements.file.files?.[0];
+
+      state.complianceDocs.unshift({
+        id: "DOC-" + Math.floor(Math.random() * 90000 + 10000),
+        docType, docNumber, expiryDate, notes,
+        fileName: file ? file.name : "file",
+        uploadedAt: Date.now()
+      });
+      persist();
+      toast("Uploaded", "Compliance document added.");
+      updateUI();
+    });
+
+    hookForm("quotationForm", (form, dialog) => {
+      const rfqId = form.elements.rfqId.value.trim().toUpperCase();
+      const amount = Number(form.elements.amount.value);
+      const validUntil = form.elements.validUntil.value;
+      const deliveryDate = form.elements.deliveryDate.value;
+      const notes = (form.elements.notes.value || "").trim();
+
+      const editId = dialog?.dataset.editId || "";
+      if (editId) {
+        const q = state.quotations.find(x => x.id === editId);
+        if (q) {
+          q.amount = amount;
+          q.validUntil = validUntil;
+          q.deliveryDate = deliveryDate;
+          q.notes = notes;
+          q.status = "Submitted";
+          state.selection.quoteId = q.id;
+          persist();
+          toast("Quotation updated", `${q.id} updated successfully.`);
+          goto("quotationDetail");   // forces refresh even if already there
+          updateUI();
+          return;
+        }
+      }
+
+      const id = "Q-" + Math.floor(Math.random() * 9000 + 1000);
+      state.quotations.unshift({ id, rfqId, amount, validUntil, deliveryDate, status:"Submitted", notes });
+      state.selection.quoteId = id;
+      persist();
+      toast("Quotation submitted", `${id} created for ${rfqId}.`);
+      goto("quotationDetail");
+      updateUI();
+    });
+
+    hookForm("deliveryForm", (form) => {
+      const id = form.elements.shipmentId.value.trim().toUpperCase();
+      const status = form.elements.status.value;
+      const expectedDate = form.elements.expectedDate.value || "";
+      const actualDate = form.elements.actualDate.value || "";
+      const carrier = (form.elements.carrier.value || "").trim();
+      const tracking = (form.elements.tracking.value || "").trim();
+      const notes = (form.elements.notes.value || "").trim();
+
+      const idx = state.deliveries.findIndex(d => d.id.toUpperCase() === id);
+      const payload = { id, status, expectedDate, actualDate, carrier, tracking, notes };
+      if (idx >= 0) state.deliveries[idx] = { ...state.deliveries[idx], ...payload };
+      else state.deliveries.unshift(payload);
+
+      state.selection.deliveryId = id;
+      persist();
+      toast("Delivery updated", `${id} status set to ${status.replace("_"," ")}.`);
+      updateUI();
+    });
+
+    hookForm("issueForm", (form) => {
+      const id = "TCK-" + Math.floor(Math.random() * 9000 + 1000);
+      state.tickets.unshift({
+        id,
+        issueType: form.elements.issueType.value,
+        priority: form.elements.priority.value,
+        refId: (form.elements.refId.value || "").trim().toUpperCase(),
+        subject: (form.elements.subject.value || "").trim(),
+        details: (form.elements.details.value || "").trim(),
+        contactPref: form.elements.contactPref.value,
+        status: "Open",
+        createdAt: Date.now()
+      });
+      state.selection.ticketId = id;
+      persist();
+      toast("Ticket created", `${id} created successfully.`);
+      updateUI();
+    });
+
+    hookForm("bidForm", (form) => {
+      const rfqId = state.selection.rfqId;
+      state.bids[rfqId] = {
+        rfqId,
+        pricePerUnit: Number(form.elements.pricePerUnit.value),
+        deliveryDate: form.elements.deliveryDate.value,
+        notes: (form.elements.notes.value || "").trim(),
+        updatedAt: Date.now()
+      };
+      persist();
+      toast("Bid saved", `Bid saved for ${rfqId}.`);
+      updateUI();
+    });
+
+    hookForm("profileForm", async (form) => {
+      state.profile.fullName = form.elements.fullName.value.trim();
+      state.profile.role = (form.elements.role.value || "").trim();
+      state.profile.email = form.elements.email.value.trim();
+      state.profile.phone = (form.elements.phone.value || "").trim();
+      state.profile.company = (form.elements.company.value || "").trim();
+      state.profile.location = (form.elements.location.value || "").trim();
+      state.profile.updatedAt = Date.now();
+
+      const file = form.elements.avatarFile.files?.[0];
+      if (file) state.profile.avatarDataUrl = await readFileAsDataURL(file);
+
+      persist();
+      toast("Profile updated", "Changes saved locally.");
+      updateUI();
+    });
+
+    hookForm("notifForm", () => {
+      state.profile.prefs.rfq = $("#rfqToggle").checked;
+      state.profile.prefs.compliance = $("#compToggle").checked;
+      state.profile.prefs.delivery = $("#delToggle").checked;
+      state.profile.updatedAt = Date.now();
+      persist();
+      toast("Preferences saved", "Notification settings updated.");
+      updateUI();
+    });
+
+    hookForm("pwForm", () => toast("Password updated", "Demo: password change validated."));
+
+    function readFileAsDataURL(file){
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    /* =========================
+       Buttons / flows
+       ========================= */
+    $("#editProfileBtn")?.addEventListener("click", () => openDialog("profileDialog", $("#editProfileBtn")));
+    $("#changePwBtn")?.addEventListener("click", () => openDialog("pwDialog", $("#changePwBtn")));
+    $("#editNotifBtn")?.addEventListener("click", () => openDialog("notifDialog", $("#editNotifBtn")));
+
+    $("#resetProfileBtn")?.addEventListener("click", () => {
+      if (!confirm("Reset demo data to defaults?")) return;
+      state = structuredClone(defaultState);
+      persist();
+      toast("Reset", "Demo data reset to defaults.");
+      goto("dashboard");
+      updateUI();
+    });
+
+    $("#logoutBtn")?.addEventListener("click", () => toast("Logged out", "Demo action only."));
+
+    $("#bidOpenBtn")?.addEventListener("click", () => openDialog("bidModal", $("#bidOpenBtn")));
+
+    $("#bidDeleteBtn")?.addEventListener("click", () => {
+      const rfqId = state.selection.rfqId;
+      if (!state.bids[rfqId]) return toast("No bid", "There is no bid to delete.");
+      if (!confirm(`Delete bid for ${rfqId}?`)) return;
+      delete state.bids[rfqId];
+      persist();
+      toast("Bid deleted", `Bid removed for ${rfqId}.`);
+      updateUI();
+    });
+
+    $("#quoteFromRfqBtn")?.addEventListener("click", () => {
+      const rfqId = state.selection.rfqId;
+      openDialog("quotationModal", $("#quoteFromRfqBtn"), { rfqId });
+    });
+
+    $$("[data-dismiss]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const notice = btn.closest(".notice");
+        notice?.remove();
+        const remaining = $$(".notice", $("#dashboard"));
+        $("#noticeEmpty").hidden = remaining.length > 0;
+      });
+    });
+
+    /* =========================
+       Rendering
+       ========================= */
+    function updateUI(){
+      renderShared();
+      renderPage(currentRoute());
+      updateCountsAndKPIs();
+      if (currentRoute() === "dashboard") requestAnimationFrame(drawCharts);
+    }
+
+    function renderShared(){
+      renderHeaderDates();
+      renderProfile();
+      updateCountsAndKPIs();
+    }
+
+    function renderPage(id){
+      switch(id){
+        case "dashboard": /* shared + charts */ break;
+        case "compliance": renderCompliance(); break;
+        case "rfqs": renderRFQs(); break;
+        case "rfqDetail": renderRFQDetail(); break;
+        case "quotations": renderQuotations(); break;
+        case "quotationDetail": renderQuotationDetail(); break;
+        case "deliveries": renderDeliveries(); break;
+        case "deliveryDetail": renderDeliveryDetail(); break;
+        case "support": renderTickets(); break;
+        case "ticketDetail": renderTicketDetail(); break;
+        case "search": renderSearch(); break;
+        case "profile": /* shared */ break;
+        default: break;
+      }
+    }
+
+    function renderHeaderDates(){
+      const now = new Date();
+      setText("#todayLabel", now.toLocaleDateString(undefined, { weekday:"short", year:"numeric", month:"short", day:"2-digit" }));
+      setText("#year", now.getFullYear());
+      setText("#yearProfile", now.getFullYear());
+    }
+
+    function initials(name){
+      const parts = (name || "").trim().split(/\s+/).slice(0,2);
+      return parts.map(x => x[0]?.toUpperCase() || "").join("") || "AJ";
+    }
+
+    function renderProfile(){
+      const p = state.profile;
+      setText("#nameTop", p.fullName || "—");
+      setText("#roleTop", p.role || "—");
+      setText("#vendorIdTop", p.vendorId || "—");
+      setText("#emailView", p.email || "—");
+      setText("#phoneView", p.phone || "—");
+      setText("#companyView", p.company || "—");
+      setText("#locationView", p.location || "—");
+      setText("#updatedView", new Date(p.updatedAt).toLocaleString());
+
+      const img = $("#avatarImg");
+      const txt = $("#avatarText");
+      if (p.avatarDataUrl) {
+        img.src = p.avatarDataUrl;
+        img.hidden = false;
+        txt.hidden = true;
+      } else {
+        img.hidden = true;
+        txt.hidden = false;
+        txt.textContent = initials(p.fullName || "AJ");
+      }
+    }
+
+    function renderCompliance(){
+      const list = $("#complianceList");
+      if (!list) return;
+
+      list.innerHTML = "";
+      setText("#complianceDocCount", state.complianceDocs.length);
+
+      if (!state.complianceDocs.length) {
+        list.innerHTML = `<div class="muted">No documents uploaded yet.</div>`;
+        return;
+      }
+
+      state.complianceDocs.forEach(doc => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml((doc.docType||"").toUpperCase())} <span class="badge">${escapeHtml(doc.id)}</span></h4>
+            <p>File: <strong>${escapeHtml(doc.fileName)}</strong> • Number: ${escapeHtml(doc.docNumber || "—")} • Expiry: ${escapeHtml(fmtDate(doc.expiryDate))}</p>
+            ${doc.notes ? `<p>${escapeHtml(doc.notes)}</p>` : ""}
+          </div>
+          <div class="list-actions">
+            <button class="btn ghost sm" type="button" data-del-doc="${escapeHtml(doc.id)}">Delete</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      $$("[data-del-doc]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-del-doc");
+          if (!confirm(`Delete document ${id}?`)) return;
+          state.complianceDocs = state.complianceDocs.filter(d => d.id !== id);
+          persist();
+          toast("Deleted", `Document ${id} removed.`);
+          updateUI();
+        });
+      });
+    }
+
+    function daysBetweenISO(a, b){
+      const da = new Date(a + "T00:00:00");
+      const db = new Date(b + "T00:00:00");
+      return Math.round((db - da) / (1000*60*60*24));
+    }
+
+    function renderRFQs(){
+      const list = $("#rfqList");
+      if (!list) return;
+
+      list.innerHTML = "";
+      setText("#rfqCountTop", state.rfqs.length);
+
+      state.rfqs.forEach(r => {
+        const closingSoon = daysBetweenISO(todayISO(), r.closesOn) <= 2;
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml(r.id)} • ${escapeHtml(r.title)} ${closingSoon ? `<span class="badge amber">Closing soon</span>` : ""}</h4>
+            <p>Status: <strong>${escapeHtml(r.status)}</strong> • Closes: <strong>${escapeHtml(fmtDate(r.closesOn))}</strong> • Items: ${r.items}</p>
+            <p>${escapeHtml(r.notes || "")}</p>
+          </div>
+          <div class="list-actions">
+            <button class="btn sm" type="button" data-open-rfq="${escapeHtml(r.id)}">Open</button>
+            <button class="btn secondary sm" type="button" data-quote-rfq="${escapeHtml(r.id)}">Quote</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      $$("[data-open-rfq]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selection.rfqId = btn.getAttribute("data-open-rfq");
+          persist();
+          goto("rfqDetail");
+          updateUI();
+        });
+      });
+
+      $$("[data-quote-rfq]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const rfqId = btn.getAttribute("data-quote-rfq");
+          state.selection.rfqId = rfqId;
+          persist();
+          openDialog("quotationModal", btn, { rfqId });
+        });
+      });
+    }
+
+    function renderRFQDetail(){
+      const rfqId = state.selection.rfqId;
+      const r = state.rfqs.find(x => x.id === rfqId);
+
+      if (!r) {
+        setText("#rfqDetailTitle", "RFQ Detail");
+        setText("#rfqDetailSub", "No RFQ selected.");
+        setHtml("#rfqDetailBody", `<div class="muted">Select an RFQ from the list.</div>`);
+        setText("#rfqStatusBadge", "—");
+        setText("#rfqBidBadge", "—");
+        setHtml("#rfqBidPanel", `<div class="muted">No RFQ selected.</div>`);
+        setText("#rfqQuoteBadge", "0");
+        setHtml("#rfqQuoteList", `<div class="muted">No RFQ selected.</div>`);
+        return;
+      }
+
+      setText("#rfqDetailTitle", `${r.id} — ${r.title}`);
+      setText("#rfqDetailSub", `Closes on ${fmtDate(r.closesOn)} • ${r.items} item(s)`);
+      setText("#rfqStatusBadge", r.status);
+
+      setHtml("#rfqDetailBody", `
+        <div class="kv">
+          <div class="kv-row"><strong>RFQ ID</strong> <span>${escapeHtml(r.id)}</span></div>
+          <div class="kv-row"><strong>Status</strong> <span>${escapeHtml(r.status)}</span></div>
+          <div class="kv-row"><strong>Closes</strong> <span>${escapeHtml(fmtDate(r.closesOn))}</span></div>
+          <div class="kv-row"><strong>Items</strong> <span>${r.items}</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="muted">${escapeHtml(r.notes || "")}</div>
+      `);
+
+      const bid = state.bids[rfqId];
+      if (!bid) {
+        setText("#rfqBidBadge", "None");
+        setHtml("#rfqBidPanel", `<div class="muted">No bid yet. Click “Place / Edit Bid”.</div>`);
+      } else {
+        setText("#rfqBidBadge", "Saved");
+        setHtml("#rfqBidPanel", `
+          <div class="kv">
+            <div class="kv-row"><strong>Price/Unit</strong> <span>₹ ${Number(bid.pricePerUnit).toFixed(2)}</span></div>
+            <div class="kv-row"><strong>Delivery Date</strong> <span>${escapeHtml(fmtDate(bid.deliveryDate))}</span></div>
+            <div class="kv-row"><strong>Updated</strong> <span>${new Date(bid.updatedAt).toLocaleString()}</span></div>
+          </div>
+          ${bid.notes ? `<div class="divider"></div><div class="muted">${escapeHtml(bid.notes)}</div>` : ""}
+        `);
+      }
+
+      const rel = state.quotations.filter(q => q.rfqId === rfqId);
+      setText("#rfqQuoteBadge", rel.length);
+      const qList = $("#rfqQuoteList");
+      qList.innerHTML = rel.length ? "" : `<div class="muted">No quotations submitted for this RFQ yet.</div>`;
+
+      rel.forEach(q => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml(q.id)} <span class="badge">${escapeHtml(q.status)}</span></h4>
+            <p>Amount: <strong>₹ ${Number(q.amount).toFixed(2)}</strong> • Valid: ${escapeHtml(fmtDate(q.validUntil))} • Delivery: ${escapeHtml(fmtDate(q.deliveryDate))}</p>
+            ${q.notes ? `<p>${escapeHtml(q.notes)}</p>` : ""}
+          </div>
+          <div class="list-actions">
+            <button class="btn sm" type="button" data-open-quote="${escapeHtml(q.id)}">Open</button>
+            <button class="btn secondary sm" type="button" data-edit-quote="${escapeHtml(q.id)}">Edit</button>
+          </div>
+        `;
+        qList.appendChild(item);
+      });
+
+      $$("[data-open-quote]", qList).forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selection.quoteId = btn.getAttribute("data-open-quote");
+          persist();
+          goto("quotationDetail");
+          updateUI();
+        });
+      });
+      $$("[data-edit-quote]", qList).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const quoteId = btn.getAttribute("data-edit-quote");
+          openDialog("quotationModal", btn, { mode:"edit", quoteId });
+        });
+      });
+    }
+
+    function renderQuotations(){
+      const list = $("#quoteList");
+      if (!list) return;
+
+      list.innerHTML = "";
+      setText("#quoteCountTop", state.quotations.length);
+
+      if (!state.quotations.length) {
+        list.innerHTML = `<div class="muted">No quotations yet. Use “Submit Quotation”.</div>`;
+        return;
+      }
+
+      state.quotations.forEach(q => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml(q.id)} • ${escapeHtml(q.rfqId)} <span class="badge">${escapeHtml(q.status)}</span></h4>
+            <p>Amount: <strong>₹ ${Number(q.amount).toFixed(2)}</strong> • Valid: ${escapeHtml(fmtDate(q.validUntil))} • Delivery: ${escapeHtml(fmtDate(q.deliveryDate))}</p>
+            ${q.notes ? `<p>${escapeHtml(q.notes)}</p>` : ""}
+          </div>
+          <div class="list-actions">
+            <button class="btn sm" type="button" data-open-quote="${escapeHtml(q.id)}">Open</button>
+            <button class="btn secondary sm" type="button" data-edit-quote="${escapeHtml(q.id)}">Edit</button>
+            <button class="btn danger sm" type="button" data-del-quote="${escapeHtml(q.id)}">Delete</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      $$("[data-open-quote]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selection.quoteId = btn.getAttribute("data-open-quote");
+          persist();
+          goto("quotationDetail");
+          updateUI();
+        });
+      });
+
+      $$("[data-edit-quote]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const quoteId = btn.getAttribute("data-edit-quote");
+          openDialog("quotationModal", btn, { mode:"edit", quoteId });
+        });
+      });
+
+      $$("[data-del-quote]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-del-quote");
+          if (!confirm(`Delete quotation ${id}?`)) return;
+          state.quotations = state.quotations.filter(q => q.id !== id);
+          if (state.selection.quoteId === id) state.selection.quoteId = state.quotations[0]?.id || "";
+          persist();
+          toast("Deleted", `${id} removed.`);
+          updateUI();
+        });
+      });
+    }
+
+    function renderQuotationDetail(){
+      const id = state.selection.quoteId;
+      const q = state.quotations.find(x => x.id === id);
+
+      if (!q) {
+        setText("#quoteDetailTitle","Quotation");
+        setText("#quoteDetailSub","No quotation selected.");
+        setHtml("#quoteDetailBody", `<div class="muted">Select a quotation from the list.</div>`);
+        $("#editQuoteBtn").onclick = null;
+        $("#deleteQuoteBtn").onclick = null;
+        return;
+      }
+
+      setText("#quoteDetailTitle", q.id);
+      setText("#quoteDetailSub", `RFQ: ${q.rfqId} • Status: ${q.status}`);
+
+      setHtml("#quoteDetailBody", `
+        <div class="kv">
+          <div class="kv-row"><strong>Quotation ID</strong> <span>${escapeHtml(q.id)}</span></div>
+          <div class="kv-row"><strong>RFQ ID</strong> <span>${escapeHtml(q.rfqId)}</span></div>
+          <div class="kv-row"><strong>Amount</strong> <span>₹ ${Number(q.amount).toFixed(2)}</span></div>
+          <div class="kv-row"><strong>Valid Until</strong> <span>${escapeHtml(fmtDate(q.validUntil))}</span></div>
+          <div class="kv-row"><strong>Delivery Date</strong> <span>${escapeHtml(fmtDate(q.deliveryDate))}</span></div>
+          <div class="kv-row"><strong>Status</strong> <span>${escapeHtml(q.status)}</span></div>
+        </div>
+        ${q.notes ? `<div class="divider"></div><div class="muted">${escapeHtml(q.notes)}</div>` : ""}
+      `);
+
+      $("#editQuoteBtn").onclick = () => openDialog("quotationModal", $("#editQuoteBtn"), { mode:"edit", quoteId: q.id });
+      $("#deleteQuoteBtn").onclick = () => {
+        if (!confirm(`Delete quotation ${q.id}?`)) return;
+        state.quotations = state.quotations.filter(x => x.id !== q.id);
+        state.selection.quoteId = state.quotations[0]?.id || "";
+        persist();
+        toast("Deleted", `${q.id} removed.`);
+        goto("quotations");
+        updateUI();
+      };
+    }
+
+    function renderDeliveries(){
+      const list = $("#deliveryList");
+      if (!list) return;
+
+      list.innerHTML = "";
+      setText("#delCountTop", state.deliveries.length);
+
+      if (!state.deliveries.length) {
+        list.innerHTML = `<div class="muted">No deliveries yet.</div>`;
+        return;
+      }
+
+      state.deliveries.forEach(d => {
+        const statusLabel = (d.status || "—").replace("_"," ");
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml(d.id)} <span class="badge">${escapeHtml(statusLabel)}</span></h4>
+            <p>Expected: ${escapeHtml(fmtDate(d.expectedDate))} • Actual: ${escapeHtml(fmtDate(d.actualDate))}</p>
+            <p>Carrier: ${escapeHtml(d.carrier || "—")} • Tracking: ${escapeHtml(d.tracking || "—")}</p>
+          </div>
+          <div class="list-actions">
+            <button class="btn secondary sm" type="button" data-open-delivery="${escapeHtml(d.id)}">Open</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      $$("[data-open-delivery]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selection.deliveryId = btn.getAttribute("data-open-delivery");
+          persist();
+          goto("deliveryDetail");
+          updateUI();
+        });
+      });
+    }
+
+    function renderDeliveryDetail(){
+      const id = state.selection.deliveryId;
+      const d = state.deliveries.find(x => x.id === id);
+
+      if (!d) {
+        setText("#deliveryDetailTitle","Shipment");
+        setText("#deliveryDetailSub","No shipment selected.");
+        setHtml("#deliveryDetailBody", `<div class="muted">Select a delivery from the list.</div>`);
+        return;
+      }
+
+      setText("#deliveryDetailTitle", d.id);
+      setText("#deliveryDetailSub", `Status: ${(d.status||"").replace("_"," ")} • Carrier: ${d.carrier || "—"}`);
+
+      setHtml("#deliveryDetailBody", `
+        <div class="kv">
+          <div class="kv-row"><strong>Shipment ID</strong> <span>${escapeHtml(d.id)}</span></div>
+          <div class="kv-row"><strong>Status</strong> <span>${escapeHtml((d.status||"—").replace("_"," "))}</span></div>
+          <div class="kv-row"><strong>Expected Date</strong> <span>${escapeHtml(fmtDate(d.expectedDate))}</span></div>
+          <div class="kv-row"><strong>Actual Date</strong> <span>${escapeHtml(fmtDate(d.actualDate))}</span></div>
+          <div class="kv-row"><strong>Carrier</strong> <span>${escapeHtml(d.carrier || "—")}</span></div>
+          <div class="kv-row"><strong>Tracking</strong> <span>${escapeHtml(d.tracking || "—")}</span></div>
+        </div>
+        ${d.notes ? `<div class="divider"></div><div class="muted">${escapeHtml(d.notes)}</div>` : ""}
+        <div class="divider"></div>
+        <button class="btn secondary sm" type="button" id="updateThisDeliveryBtn">Update this Delivery</button>
+      `);
+
+      $("#updateThisDeliveryBtn").onclick = () => {
+        const form = $("#deliveryForm");
+        form.elements.shipmentId.value = d.id;
+        form.elements.status.value = d.status || "";
+        form.elements.expectedDate.value = d.expectedDate || "";
+        form.elements.actualDate.value = d.actualDate || "";
+        form.elements.carrier.value = d.carrier || "";
+        form.elements.tracking.value = d.tracking || "";
+        form.elements.notes.value = d.notes || "";
+        openDialog("deliveryModal", $("#updateThisDeliveryBtn"));
+      };
+    }
+
+    function renderTickets(){
+      const list = $("#ticketList");
+      if (!list) return;
+
+      list.innerHTML = "";
+      setText("#ticketCountTop", state.tickets.length);
+
+      if (!state.tickets.length) {
+        list.innerHTML = `<div class="muted">No tickets yet.</div>`;
+        return;
+      }
+
+      state.tickets.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml(t.id)} <span class="badge red">${escapeHtml(t.priority)}</span></h4>
+            <p>Type: <strong>${escapeHtml(t.issueType)}</strong> • Status: <strong>${escapeHtml(t.status)}</strong></p>
+            <p>${escapeHtml(t.subject)}</p>
+          </div>
+          <div class="list-actions">
+            <button class="btn sm" type="button" data-open-ticket="${escapeHtml(t.id)}">Open</button>
+            <button class="btn ghost sm" type="button" data-close-ticket="${escapeHtml(t.id)}">Close</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      $$("[data-open-ticket]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selection.ticketId = btn.getAttribute("data-open-ticket");
+          persist();
+          goto("ticketDetail");
+          updateUI();
+        });
+      });
+
+      $$("[data-close-ticket]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-close-ticket");
+          const t = state.tickets.find(x => x.id === id);
+          if (!t) return;
+          if (!confirm(`Close ticket ${id}?`)) return;
+          t.status = "Closed";
+          persist();
+          toast("Ticket closed", `${id} marked as Closed.`);
+          updateUI();
+        });
+      });
+    }
+
+    function renderTicketDetail(){
+      const id = state.selection.ticketId;
+      const t = state.tickets.find(x => x.id === id);
+
+      if (!t) {
+        setText("#ticketDetailTitle","Ticket");
+        setText("#ticketDetailSub","No ticket selected.");
+        setHtml("#ticketDetailBody", `<div class="muted">Select a ticket from the list.</div>`);
+        return;
+      }
+
+      setText("#ticketDetailTitle", t.id);
+      setText("#ticketDetailSub", `Priority: ${t.priority} • Type: ${t.issueType} • Status: ${t.status}`);
+
+      setHtml("#ticketDetailBody", `
+        <div class="kv">
+          <div class="kv-row"><strong>Ticket ID</strong> <span>${escapeHtml(t.id)}</span></div>
+          <div class="kv-row"><strong>Type</strong> <span>${escapeHtml(t.issueType)}</span></div>
+          <div class="kv-row"><strong>Priority</strong> <span>${escapeHtml(t.priority)}</span></div>
+          <div class="kv-row"><strong>Status</strong> <span>${escapeHtml(t.status)}</span></div>
+          <div class="kv-row"><strong>Reference</strong> <span>${escapeHtml(t.refId || "—")}</span></div>
+          <div class="kv-row"><strong>Created</strong> <span>${new Date(t.createdAt).toLocaleString()}</span></div>
+        </div>
+        <div class="divider"></div>
+        <h3 style="margin:0 0 8px; color:var(--navy); font-size:14px;">Subject</h3>
+        <div>${escapeHtml(t.subject)}</div>
+        <div class="divider"></div>
+        <h3 style="margin:0 0 8px; color:var(--navy); font-size:14px;">Details</h3>
+        <div class="muted">${escapeHtml(t.details)}</div>
+        <div class="divider"></div>
+        <button class="btn secondary sm" type="button" id="closeTicketBtn">Close Ticket</button>
+      `);
+
+      $("#closeTicketBtn").onclick = () => {
+        if (!confirm(`Close ticket ${t.id}?`)) return;
+        t.status = "Closed";
+        persist();
+        toast("Ticket closed", `${t.id} marked as Closed.`);
+        updateUI();
+      };
+    }
+
+    function renderSearch(){
+      const q = state.search.query || "";
+      const results = state.search.results || [];
+
+      setText("#searchSub", q ? `Results for “${q}”` : "Type in the search box to find RFQs, quotations, deliveries, and tickets.");
+      setText("#searchCount", results.length);
+      setText("#searchBadge", results.length);
+
+      const list = $("#searchList");
+      list.innerHTML = "";
+
+      if (!q) {
+        list.innerHTML = `<div class="muted">No query yet. Try searching from the top bar.</div>`;
+        return;
+      }
+      if (!results.length) {
+        list.innerHTML = `<div class="muted">No results found for “${escapeHtml(q)}”.</div>`;
+        return;
+      }
+
+      results.forEach(r => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+          <div>
+            <h4>${escapeHtml(r.type)} • ${escapeHtml(r.id)} <span class="badge">${escapeHtml(r.meta || "")}</span></h4>
+            <p>${escapeHtml(r.title || "")}</p>
+          </div>
+          <div class="list-actions">
+            <button class="btn sm" type="button" data-open-search="${escapeHtml(r.type)}" data-id="${escapeHtml(r.id)}">Open</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      $$("[data-open-search]", list).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const type = btn.getAttribute("data-open-search");
+          const id = btn.getAttribute("data-id");
+
+          if (type === "RFQ") { state.selection.rfqId = id; persist(); goto("rfqDetail"); }
+          else if (type === "Quotation") { state.selection.quoteId = id; persist(); goto("quotationDetail"); }
+          else if (type === "Delivery") { state.selection.deliveryId = id; persist(); goto("deliveryDetail"); }
+          else if (type === "Ticket") { state.selection.ticketId = id; persist(); goto("ticketDetail"); }
+
+          updateUI();
+        });
+      });
+    }
+
+    function updateCountsAndKPIs(){
+      const rfqCount = state.rfqs.length;
+      const quoteCount = state.quotations.length;
+      const delCount = state.deliveries.length;
+      const ticketCount = state.tickets.length;
+
+      setText("#rfqCountBadge", rfqCount);
+      setText("#quoteCountBadge", quoteCount);
+      setText("#delCountBadge", delCount);
+      setText("#ticketCountBadge", ticketCount);
+
+      setText("#kpiRfqs", rfqCount);
+      setText("#kpiQuotes", quoteCount);
+      setText("#kpiDeliveries", delCount);
+      setText("#kpiTickets", ticketCount);
+
+      const closingSoon = state.rfqs.filter(r => daysBetweenISO(todayISO(), r.closesOn) <= 2).length;
+      setText("#kpiRfqsSub", `${closingSoon} closing soon`);
+
+      const approved = state.quotations.filter(q => (q.status || "").toLowerCase() === "approved").length;
+      setText("#kpiQuotesSub", `Approved: ${approved}`);
+
+      const inTransit = state.deliveries.filter(d => d.status === "in_transit").length;
+      setText("#kpiDeliveriesSub", `In transit: ${inTransit}`);
+
+      const awaiting = state.tickets.filter(t => t.status === "Open").length;
+      setText("#kpiTicketsSub", `Awaiting response: ${awaiting}`);
+
+      const compliant = state.complianceDocs.length >= 1;
+      setText("#kpiCompliance", compliant ? "Compliant" : "Pending");
+      setText("#kpiComplianceSub", compliant ? "Documents uploaded" : "Upload at least 1 compliance document");
+      const kc = $("#kpiCompliance");
+      if (kc) kc.style.color = compliant ? "var(--green)" : "var(--amber)";
+    }
+
+    /* =========================
+       Charts (simple canvas)
+       ========================= */
+    function clearCanvas(c){
+      if (!c) return null;
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+      return ctx;
+    }
+    function drawBar(canvas, series){
+      const ctx = clearCanvas(canvas);
+      if (!ctx) return;
+
+      const w = canvas.width, h = canvas.height;
+      const pad = 28;
+      const maxVal = Math.max(1, ...series.map(s => s.value));
+      const barW = (w - pad*2) / series.length;
+
+      ctx.strokeStyle = "rgba(16,50,74,.25)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad);
+      ctx.lineTo(pad, h - pad);
+      ctx.lineTo(w - pad, h - pad);
+      ctx.stroke();
+
+      ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      series.forEach((s, i) => {
+        const x = pad + i * barW + 12;
+        const usableH = h - pad*2;
+        const bh = (s.value / maxVal) * usableH;
+        const y = (h - pad) - bh;
+
+        ctx.fillStyle = s.color;
+        ctx.fillRect(x, y, barW - 24, bh);
+
+        ctx.fillStyle = "rgba(16,50,74,.9)";
+        ctx.fillText(s.label, x, h - pad + 16);
+        ctx.fillText(String(s.value), x, y - 6);
+      });
+    }
+    function drawLine(canvas, points){
+      const ctx = clearCanvas(canvas);
+      if (!ctx) return;
+
+      const w = canvas.width, h = canvas.height;
+      const pad = 28;
+
+      ctx.strokeStyle = "rgba(16,50,74,.25)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad);
+      ctx.lineTo(pad, h - pad);
+      ctx.lineTo(w - pad, h - pad);
+      ctx.stroke();
+
+      if (!points.length) return;
+
+      const xs = points.map(p => p.x);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = 0, maxY = 100;
+
+      const mapX = x => pad + ((x - minX) / Math.max(1, (maxX - minX))) * (w - pad*2);
+      const mapY = y => (h - pad) - ((y - minY) / (maxY - minY)) * (h - pad*2);
+
+      ctx.strokeStyle = "#337AB7";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const X = mapX(p.x), Y = mapY(p.y);
+        if (i === 0) ctx.moveTo(X, Y);
+        else ctx.lineTo(X, Y);
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = "#5BC0DE";
+      points.forEach(p => {
+        const X = mapX(p.x), Y = mapY(p.y);
+        ctx.beginPath();
+        ctx.arc(X, Y, 3.5, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "rgba(16,50,74,.9)";
+      ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText("Last shipments (demo)", pad, pad - 10);
+    }
+    function drawCharts(){
+      drawBar($("#chartRfqStatus"), [
+        { label: "Active", value: state.rfqs.length, color: "#F0AD4E" },
+        { label: "With Bid", value: Object.keys(state.bids).length, color: "#337AB7" }
+      ]);
+
+      drawBar($("#chartQuotes"), [
+        { label: "Submitted", value: state.quotations.length, color: "#337AB7" },
+        { label: "Approved", value: state.quotations.filter(q => (q.status||"").toLowerCase()==="approved").length, color: "#5CB85C" }
+      ]);
+
+      drawLine($("#chartDelivery"), state.deliveries.slice(0, 10).map((d, i) => ({
+        x: i+1,
+        y: (d.status === "delivered") ? 100 : (d.status === "in_transit") ? 60 : (d.status === "packed") ? 35 : 20
+      })));
+    }
+
+    /* =========================
+       Init
+       ========================= */
+    $$("form").forEach(f => attachInlineErrors(f));
+
+    // Notices empty state
+    $("#noticeEmpty").hidden = $$(".notice", $("#dashboard")).length > 0;
+
+    // route + render
+    setActivePage(currentRoute(), true);
+    updateUI();
+    requestAnimationFrame(drawCharts);
+
+  })();
+  </script>
+</body>
+</html>

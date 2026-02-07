@@ -1,0 +1,184 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="card header">
+    <div>
+      <h2>Store Manager: View Vendor Bids</h2>
+      <div class="hint">
+        Choose an RFQ below and click “View Bids” to load vendor bids for that RFQ.
+        <span *ngIf="rfqLoading() || bidsLoading()" class="loading-dot">• Loading…</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn secondary" (click)="loadRfqs()" [disabled]="rfqLoading()">Refresh RFQs</button>
+      <button class="btn" (click)="refreshBids()" [disabled]="!selectedRfqId() || bidsLoading()">Refresh Bids</button>
+    </div>
+  </div>
+
+  <!-- RFQ rows: RFQ_ID .......................... View Bids -->
+  <div class="card">
+    <div class="card-row">
+      <h3 class="card-title">RFQs</h3>
+      <span class="hint">{{ rfqs().length }} RFQs</span>
+    </div>
+
+    <p class="message error" *ngIf="rfqError()">{{ rfqError() }}</p>
+
+    <div class="rfq-list">
+      <div class="rfq-row"
+           *ngFor="let rfq of rfqs()"
+           [class.active]="selectedRfqId() === rfq.rfqId">
+        <div class="rfq-left">
+          <span class="rfq-id">RFQ #{{ rfq.rfqId }}</span>
+          <span class="rfq-pill" *ngIf="rfq.status">{{ rfq.status }}</span>
+        </div>
+
+        <button class="btn sm secondary" (click)="viewBidsForRfq(rfq.rfqId)">
+          View Bid
+        </button>
+      </div>
+
+      <div class="empty" *ngIf="!rfqLoading() && rfqs().length === 0">No RFQs found.</div>
+      <div class="empty" *ngIf="rfqLoading() && rfqs().length === 0">Loading RFQs…</div>
+    </div>
+  </div>
+
+  <!-- Bids + Details -->
+  <div class="card">
+    <div class="card-row">
+      <div>
+        <h3 class="card-title">Bids</h3>
+        <div class="hint" *ngIf="selectedRfqId()">RFQ selected: <b>#{{ selectedRfqId() }}</b> • {{ filteredBids().length }} bids</div>
+        <div class="hint" *ngIf="!selectedRfqId()">Select an RFQ above to view bids.</div>
+      </div>
+
+      <div class="filters">
+        <input class="input" type="text" placeholder="Search by Bid ID, Vendor…"
+               [value]="searchText()" (input)="onSearchInput($event)" [disabled]="!selectedRfqId()" />
+
+        <select class="select" [value]="statusFilter()" (change)="onStatusChange($event)" [disabled]="!selectedRfqId()">
+          <option value="ALL">All</option>
+          <option value="SUBMITTED">SUBMITTED</option>
+          <option value="PENDING">PENDING</option>
+          <option value="AWARDED">AWARDED</option>
+          <option value="ACCEPTED">ACCEPTED</option>
+          <option value="REJECTED">REJECTED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+
+        <select class="select" [value]="sortBy()" (change)="onSortChange($event)" [disabled]="!selectedRfqId()">
+          <option value="BID_DESC">Bid ID (Desc)</option>
+          <option value="BID_ASC">Bid ID (Asc)</option>
+          <option value="VALUE_DESC">Total Value (Desc)</option>
+          <option value="VALUE_ASC">Total Value (Asc)</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="message error" *ngIf="bidsError()">{{ bidsError() }}</p>
+
+    <div class="layout">
+      <!-- Bids list -->
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Bid ID</th>
+              <th>Vendor</th>
+              <th>Status</th>
+              <th>Items Summary</th>
+              <th>Total Qty</th>
+              <th>Total Value</th>
+              <th style="width:150px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bid of filteredBids()"
+                [class.row-selected]="selectedBid()?.bidId === bid.bidId">
+              <td>{{ bid.bidId }}</td>
+              <td>#{{ bid.vendorId }} • {{ bid.vendorName }}</td>
+
+              <td>
+                <span class="status-badge"
+                      [ngClass]="{
+                        green: bid.status === 'AWARDED' || bid.status === 'ACCEPTED',
+                        amber: bid.status === 'SUBMITTED' || bid.status === 'PENDING',
+                        red: bid.status === 'REJECTED' || bid.status === 'CANCELLED'
+                      }">
+                  {{ bid.status }}
+                </span>
+              </td>
+
+              <td>
+                <ng-container *ngIf="bid.items?.length; else noItems">
+                  <span *ngFor="let it of bid.items; let last = last">
+                    {{ it.medicineName }}<span *ngIf="!last">, </span>
+                  </span>
+                </ng-container>
+                <ng-template #noItems><span class="muted">No items</span></ng-template>
+              </td>
+
+              <td>{{ getTotalQty(bid) }}</td>
+              <td>₹{{ getTotalValue(bid) | number:'1.2-2' }}</td>
+
+              <td>
+                <button class="btn sm secondary" (click)="selectBid(bid)">View Details</button>
+              </td>
+            </tr>
+
+            <tr *ngIf="selectedRfqId() && !bidsLoading() && filteredBids().length === 0">
+              <td colspan="7" class="muted">No bids available for this RFQ.</td>
+            </tr>
+
+            <tr *ngIf="bidsLoading()">
+              <td colspan="7" class="muted">Loading bids…</td>
+            </tr>
+
+            <tr *ngIf="!selectedRfqId()">
+              <td colspan="7" class="muted">Select an RFQ above to view bids.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Details -->
+      <div class="details">
+        <div class="details-head">
+          <h3>Bid Details</h3>
+          <span class="hint" *ngIf="selectedBid(); else noBid">
+            Bid #{{ selectedBid()?.bidId }} • {{ selectedBid()?.vendorName }}
+          </span>
+          <ng-template #noBid><span class="hint">Select a bid to see item breakdown.</span></ng-template>
+        </div>
+
+        <div class="table-wrap" *ngIf="selectedBid() as sb">
+          <table class="table compact">
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Line Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let it of sb.items">
+                <td>{{ it.medicineName }}</td>
+                <td>{{ it.itemQuantity }}</td>
+                <td>₹{{ it.itemPrice | number:'1.2-2' }}</td>
+                <td>₹{{ (it.itemPrice * it.itemQuantity) | number:'1.2-2' }}</td>
+              </tr>
+              <tr *ngIf="!sb.items || sb.items.length === 0">
+                <td colspan="4" class="muted">No items found for this bid.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="muted" *ngIf="!selectedBid()">No bid selected.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
