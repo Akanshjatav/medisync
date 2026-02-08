@@ -4,7 +4,7 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: #111111;
   background: #FAFAF8;
   line-height: 1.55;
@@ -645,6 +645,12 @@ app-marquee {
   padding: 16px;
 }
 
+/* Testimonial cards in marquee */
+#testimonials app-marquee .card {
+  min-width: 350px;
+  max-width: 400px;
+}
+
 .ico {
   width: 38px;
   height: 38px;
@@ -701,6 +707,7 @@ app-marquee {
   background: rgba(255, 255, 255, .82);
   box-shadow: var(--shadow-soft);
   padding: 16px;
+  min-width: 180px;
 }
 
 .stat strong {
@@ -738,6 +745,8 @@ app-marquee {
   background: rgba(255, 255, 255, .82);
   box-shadow: var(--shadow-soft);
   padding: 16px;
+  min-width: 320px;
+  max-width: 420px;
 }
 
 .tender h3 {

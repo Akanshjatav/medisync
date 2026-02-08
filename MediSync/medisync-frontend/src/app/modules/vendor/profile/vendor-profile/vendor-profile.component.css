@@ -151,7 +151,7 @@
    ========================= */
 
 .page{
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: var(--text);
   background: linear-gradient(180deg, var(--very-light-blue), var(--bg) 45%);
   padding: 16px;

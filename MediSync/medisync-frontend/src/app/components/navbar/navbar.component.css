@@ -9,7 +9,7 @@
 /* Component scope reset */
 :host {
   display: block;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: #111827;
 }
 

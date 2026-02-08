@@ -33,35 +33,35 @@ export class LandingComponent implements OnInit, OnDestroy {
   // Sample tender data
   tenders: Tender[] = [
     {
-      title: 'RFQ-2026-01: Antibiotics (500+ units)',
-      volume: '500+ units',
+      title: 'RFQ 2026 001: Essential Antibiotics Bulk Order',
+      volume: '800+ units',
       schedule: 'Schedule H',
       deadline: 'Feb 18, 2026',
-      description: 'Enterprise bulk order for multi-store distribution. Includes compliance checks, on-time delivery SLA.'
+      description: 'Large scale procurement of essential antibiotics for multi branch distribution. Requires valid drug license, quality certifications, and temperature controlled logistics capabilities.'
     },
     {
-      title: 'RFQ-2026-02: OTC & Supplements (240+ units)',
-      volume: '240+ units',
+      title: 'RFQ 2026 002: OTC Medicines and Health Supplements',
+      volume: '1,200+ units',
       schedule: 'OTC',
       deadline: 'Feb 20, 2026',
-      description: 'Seasonal inventory replenishment. Multi-vendor bids welcome.'
+      description: 'Seasonal inventory replenishment for over the counter medications and nutritional supplements. Looking for competitive pricing with assured quality standards.'
     },
     {
-      title: 'RFQ-2026-03: Cold Chain (90 units)',
-      volume: '90 units',
-      schedule: 'Temperature-controlled',
+      title: 'RFQ 2026 003: Cold Chain Vaccines and Biologics',
+      volume: '150 units',
+      schedule: 'Temperature Controlled',
       deadline: 'Feb 25, 2026',
-      description: 'Refrigerated storage requirements with delivery & handling SLA.'
+      description: 'Specialized procurement requiring strict cold chain compliance from 2°C to 8°C. Must have validated refrigerated transport and real time temperature monitoring systems.'
     }
   ];
 
   // Stats
   stats = [
-    { value: '12,480+', label: 'Active Users' },
-    { value: '340+', label: 'Live Stores' },
-    { value: '15K+', label: 'SKUs Tracked' },
-    { value: '92', label: 'Avg Delivery Score' },
-    { value: '480+', label: 'Tender Cycles/yr' }
+    { value: '15,000+', label: 'Healthcare Professionals' },
+    { value: '450+', label: 'Pharmacy Branches' },
+    { value: '25,000+', label: 'Medicines Tracked' },
+    { value: '98%', label: 'System Uptime' },
+    { value: '750+', label: 'Annual Tenders' }
   ];
 
   constructor(

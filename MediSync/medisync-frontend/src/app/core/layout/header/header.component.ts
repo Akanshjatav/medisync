@@ -20,6 +20,16 @@ export class HeaderComponent {
     private storage: BrowserStorageService
   ) {}
 
+  get isLoggedIn(): boolean {
+    return this.storage.hasItem('userId') || this.storage.hasItem('vendorId');
+  }
+
+  onLogoClick(): void {
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/']);
+    }
+  }
+
   logout(): void {
     if (confirm('Are you sure you want to logout?')) {
       // Clear session/token

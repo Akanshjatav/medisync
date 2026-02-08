@@ -12,7 +12,7 @@ a:hover { text-decoration: underline; }
 
 /* Page container - now just contains the form content */
 .auth-page {
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: #111111;
   line-height: 1.4;
 }

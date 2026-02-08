@@ -10,7 +10,7 @@ import { FooterComponent } from '../layout/footer/footer.component';
   imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent],
   template: `
     <div class="legal-app">
-      <app-header [showAccountMenu]="false" [showMiniNav]="false"></app-header>
+      <app-header [showAccountMenu]="false" [showMiniNav]="true"></app-header>
       
       <main class="legal-main">
         <div class="legal-content">
