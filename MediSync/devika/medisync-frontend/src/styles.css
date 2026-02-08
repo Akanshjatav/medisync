@@ -385,12 +385,6 @@ footer {
 }
 
 /* a subtle vertical divider like many corporate footers */
-.footer-divider {
-  width: 1px;
-  height: 18px;
-  background: rgba(16, 50, 74, 0.25);
-}
-
 .footer-text {
   font-size: 12px;
   font-weight: 500;
